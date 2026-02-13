@@ -3,354 +3,402 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TrueChats Ultimate</title>
+    <title>TrueChats Ultimate v2</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     
     <style>
-        /* --- THEME & VARIABLES --- */
         :root {
-            --primary: #6366f1; /* Modern Indigo */
-            --primary-dark: #4f46e5;
-            --bg: #0f172a; /* Deep Slate */
-            --surface: #1e293b;
-            --text: #f1f5f9;
-            --text-sec: #94a3b8;
-            --incoming: #334155;
-            --outgoing: #6366f1;
-            --danger: #ef4444;
-            --success: #22c55e;
-            --glass: rgba(30, 41, 59, 0.7);
+            /* DARK THEME (Default) */
+            --primary: #6366f1; --primary-dark: #4f46e5;
+            --bg: #0f172a; --surface: #1e293b;
+            --text: #f1f5f9; --text-sec: #94a3b8;
+            --incoming: #334155; --outgoing: #6366f1;
+            --danger: #ef4444; --success: #22c55e;
+            --border: #334155;
+        }
+
+        /* LIGHT THEME VARIABLES */
+        body.light-mode {
+            --bg: #f8fafc; --surface: #ffffff;
+            --text: #0f172a; --text-sec: #64748b;
+            --incoming: #e2e8f0; --outgoing: #6366f1;
+            --border: #e2e8f0;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text); height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
-        
-        /* SCROLLBAR */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        body { background: var(--bg); color: var(--text); height: 100dvh; overflow: hidden; display: flex; transition: background 0.3s; }
 
         /* --- UTILS --- */
         .hidden { display: none !important; }
         .flex { display: flex; align-items: center; }
-        .center { display: flex; justify-content: center; align-items: center; }
         .col { flex-direction: column; }
-        .btn-icon { background: none; border: none; color: var(--text); font-size: 1.2rem; cursor: pointer; padding: 8px; border-radius: 50%; transition: 0.2s; }
-        .btn-icon:active { background: rgba(255,255,255,0.1); }
+        .center { display: flex; justify-content: center; align-items: center; }
+        .btn-icon { background: transparent; border: none; color: var(--text); font-size: 1.2rem; cursor: pointer; padding: 8px; border-radius: 50%; transition: 0.2s; }
+        .btn-icon:hover { background: rgba(100,100,100,0.1); }
 
-        /* --- SCREENS --- */
-        .screen { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 10; background: var(--bg); display: flex; flex-direction: column; }
+        /* --- AUTH SCREEN --- */
+        .screen { position: fixed; inset: 0; z-index: 50; background: var(--bg); }
+        .auth-card { background: var(--surface); padding: 2rem; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border: 1px solid var(--border); }
+        .inp { width: 100%; padding: 14px; margin: 8px 0; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; color: var(--text); outline: none; }
+        .btn-primary { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 10px; }
 
-        /* 1. INTRO ANIMATION */
-        #intro-screen { z-index: 9999; background: var(--bg); }
-        .logo-anim { font-size: 3rem; font-weight: 800; background: linear-gradient(to right, #6366f1, #a855f7); -webkit-background-clip: text; color: transparent; animation: pulse 2s infinite; }
-        .nc-loader { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin-top: 20px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* 2. AUTH SCREEN */
-        .auth-card { background: var(--surface); padding: 2rem; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
-        .inp { width: 100%; padding: 14px; margin: 8px 0; background: #0f172a; border: 1px solid #334155; border-radius: 12px; color: white; outline: none; transition: 0.3s; }
-        .inp:focus { border-color: var(--primary); }
-        .btn-primary { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; font-size: 1rem; cursor: pointer; margin-top: 10px; transition: 0.2s; }
-        .btn-primary:active { transform: scale(0.98); }
-
-        /* 3. MAIN APP LAYOUT */
-        #app-screen { display: flex; flex-direction: row; }
-        .sidebar { width: 380px; background: var(--surface); border-right: 1px solid #334155; display: flex; flex-direction: column; z-index: 5; }
-        .chat-view { flex: 1; background: #0b1120; position: relative; display: flex; flex-direction: column; background-image: radial-gradient(#1e293b 1px, transparent 1px); background-size: 20px 20px; }
-
-        /* SIDEBAR COMPONENTS */
-        .header { padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; background: rgba(30,41,59,0.8); backdrop-filter: blur(10px); }
-        .avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); background: #334155; }
-        .nav-tabs { display: flex; padding: 10px; gap: 10px; overflow-x: auto; }
-        .tab { flex: 1; padding: 10px; border-radius: 10px; border: none; background: transparent; color: var(--text-sec); font-weight: 600; cursor: pointer; transition: 0.3s; white-space: nowrap; }
-        .tab.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); }
-
-        /* LIST ITEMS */
-        .list-container { flex: 1; overflow-y: auto; padding: 10px; }
-        .item-card { display: flex; align-items: center; padding: 12px; border-radius: 16px; margin-bottom: 5px; cursor: pointer; transition: 0.2s; }
-        .item-card:hover { background: rgba(255,255,255,0.05); }
-        .item-info { flex: 1; margin-left: 15px; }
-        .item-name { font-weight: 600; font-size: 1rem; }
-        .item-sub { font-size: 0.85rem; color: var(--text-sec); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
-
-        /* CHAT AREA */
-        .chat-header { padding: 10px 20px; background: rgba(30,41,59,0.9); backdrop-filter: blur(10px); display: flex; align-items: center; border-bottom: 1px solid #334155; height: 70px; }
-        .messages-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+        /* --- APP LAYOUT --- */
+        .sidebar { width: 380px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; transition: 0.3s; }
+        .chat-view { flex: 1; background: var(--bg); position: relative; display: flex; flex-direction: column; }
         
-        .msg { max-width: 75%; padding: 10px 16px; border-radius: 18px; font-size: 0.95rem; position: relative; word-wrap: break-word; line-height: 1.4; }
-        .msg.sent { align-self: flex-end; background: var(--outgoing); color: white; border-bottom-right-radius: 4px; }
-        .msg.received { align-self: flex-start; background: var(--incoming); color: var(--text); border-bottom-left-radius: 4px; }
-        .msg.system { align-self: center; background: rgba(255,255,255,0.1); font-size: 0.75rem; padding: 5px 12px; border-radius: 20px; color: var(--text-sec); }
-
-        .chat-input { padding: 10px 15px; background: var(--surface); display: flex; align-items: center; gap: 10px; }
-        .chat-input input { flex: 1; padding: 12px 20px; background: #0f172a; border: 1px solid #334155; border-radius: 30px; color: white; outline: none; }
-
-        /* CALL UI (Modern) */
-        #call-modal { z-index: 5000; background: #000; }
-        .video-container { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; background: #111; }
+        .header { padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
         
-        /* Remote Video (Full Screen) */
+        .tabs { display: flex; padding: 10px; gap: 5px; }
+        .tab { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-sec); font-weight: 600; cursor: pointer; border-radius: 8px; }
+        .tab.active { background: var(--primary); color: white; }
+
+        .list-area { flex: 1; overflow-y: auto; padding: 10px; }
+        .item { display: flex; align-items: center; padding: 12px; border-radius: 12px; margin-bottom: 5px; cursor: pointer; transition: 0.2s; }
+        .item:hover { background: rgba(100,100,100,0.05); }
+        
+        /* --- CHAT AREA --- */
+        .chat-header { padding: 10px 15px; background: var(--surface); display: flex; align-items: center; height: 65px; border-bottom: 1px solid var(--border); z-index: 5; }
+        .messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 5px; }
+        .msg { max-width: 75%; padding: 10px 15px; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
+        .sent { align-self: flex-end; background: var(--outgoing); color: white; border-bottom-right-radius: 4px; }
+        .received { align-self: flex-start; background: var(--incoming); color: var(--text); border-bottom-left-radius: 4px; }
+        
+        .input-area { padding: 10px; background: var(--surface); display: flex; align-items: center; gap: 10px; }
+        .input-area input { flex: 1; padding: 12px; border-radius: 25px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; }
+
+        /* --- MODALS (User Info, Calls) --- */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-box { background: var(--surface); padding: 25px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center; border: 1px solid var(--border); color: var(--text); }
+
+        /* CALL UI */
+        #call-screen { background: #000; z-index: 200; }
         #remote-video { width: 100%; height: 100%; object-fit: cover; }
-        
-        /* Local Video (PIP) */
-        #local-video { position: absolute; bottom: 120px; right: 20px; width: 120px; height: 160px; object-fit: cover; border-radius: 12px; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 10; background: #222; transition: 0.3s; }
-        
-        /* Audio Only Mode Placeholder */
-        .audio-placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(180deg, #1e293b, #0f172a); z-index: 5; }
-        .pulsing-avatar { width: 150px; height: 150px; border-radius: 50%; border: 4px solid var(--primary); animation: pulse-ring 2s infinite; object-fit: cover; }
-        @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); } 70% { box-shadow: 0 0 0 30px rgba(99, 102, 241, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); } }
+        #local-video { position: absolute; bottom: 100px; right: 20px; width: 100px; height: 140px; border-radius: 10px; border: 2px solid white; object-fit: cover; background: #333; z-index: 210; }
+        .call-controls { position: absolute; bottom: 30px; width: 100%; display: flex; justify-content: center; gap: 20px; z-index: 220; }
+        .c-btn { width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 1.5rem; color: white; cursor: pointer; }
+        .bg-red { background: #ef4444; } .bg-green { background: #22c55e; } .bg-glass { background: rgba(255,255,255,0.2); }
 
-        .call-controls { position: absolute; bottom: 30px; left: 0; width: 100%; display: flex; justify-content: center; gap: 20px; z-index: 20; }
-        .call-btn { width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 1.5rem; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); transition: 0.3s; }
-        .btn-red { background: var(--danger); }
-        .btn-green { background: var(--success); }
-        .btn-glass { background: rgba(255,255,255,0.2); }
-        .btn-glass:hover { background: rgba(255,255,255,0.3); }
-
-        /* CHAT LOCK MODAL */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 4000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        
-        /* MOBILE RESPONSIVE */
+        /* RESPONSIVE */
         @media (max-width: 768px) {
-            .sidebar { width: 100%; height: 100%; }
-            .chat-view { position: fixed; inset: 0; transform: translateX(100%); transition: 0.3s ease; z-index: 20; }
+            .sidebar { width: 100%; height: 100%; position: absolute; }
+            .chat-view { position: fixed; inset: 0; transform: translateX(100%); transition: 0.3s; z-index: 20; }
             .chat-view.active { transform: translateX(0); }
-            .back-arrow { display: block !important; }
+            .back-btn { display: block !important; margin-right: 10px; }
         }
-        .back-arrow { display: none; font-size: 1.5rem; margin-right: 15px; cursor: pointer; }
+        .back-btn { display: none; font-size: 1.5rem; cursor: pointer; }
 
     </style>
 </head>
 <body>
 
-    <div id="intro-screen" class="screen center">
-        <div class="logo-anim">TrueChats X</div>
-        <div class="nc-loader"></div>
-        <p style="margin-top: 15px; color: var(--text-sec); letter-spacing: 1px;">ULTIMATE</p>
+    <audio id="ring-out" loop src="https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3"></audio>
+    <audio id="ring-in" loop src="https://assets.mixkit.co/active_storage/sfx/2346/2346-preview.mp3"></audio>
+
+    <div id="intro" class="screen center">
+        <h1 style="background: linear-gradient(to right, #6366f1, #a855f7); -webkit-background-clip: text; color: transparent; font-size: 3rem;">TrueChats</h1>
+        <div style="margin-top: 10px; color: var(--text-sec);">Ultimate v2</div>
     </div>
 
-    <audio id="ring-out" src="https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3" loop></audio>
-    <audio id="ring-in" src="https://assets.mixkit.co/active_storage/sfx/2346/2346-preview.mp3" loop></audio>
-
-    <div id="auth-screen" class="screen center hidden">
+    <div id="auth" class="screen center hidden">
         <div class="auth-card">
-            <h2 style="margin-bottom: 20px;">Welcome</h2>
+            <h2>Welcome</h2>
+            <p style="color: var(--text-sec); margin-bottom: 20px; font-size: 0.9rem;">Join the future of chatting</p>
+            <input type="text" id="reg-name" class="inp" placeholder="Full Name (For About info)">
             <input type="email" id="email" class="inp" placeholder="Email Address">
             <input type="password" id="password" class="inp" placeholder="Password">
-            <button onclick="handleAuth('login')" class="btn-primary">Login</button>
-            <button onclick="handleAuth('register')" class="btn-primary" style="background: var(--surface); border:1px solid #334155;">Create Account</button>
+            <button onclick="login()" class="btn-primary">Login</button>
+            <button onclick="register()" class="btn-primary" style="background: transparent; border: 1px solid var(--primary); color: var(--primary);">Register</button>
         </div>
     </div>
 
-    <div id="app-screen" class="hidden" style="width:100%; height:100%;">
+    <div id="app" class="hidden" style="width: 100%; height: 100%; display: flex;">
         
         <div class="sidebar">
             <div class="header">
-                <div class="flex" style="gap:12px;">
-                    <img id="my-dp" class="avatar" src="" onclick="changeDP()" onerror="this.src='https://ui-avatars.com/api/?background=random&color=fff'">
+                <div class="flex" style="gap:10px;">
+                    <img id="my-dp" class="avatar" src="" onclick="changeDP()">
                     <div>
                         <h4 id="my-name">User</h4>
                         <span style="font-size: 0.75rem; color: var(--success);">● Online</span>
                     </div>
                 </div>
-                <div class="flex">
+                <div class="flex" style="gap: 5px;">
+                    <button class="btn-icon" onclick="toggleTheme()"><i class="ri-contrast-2-line"></i></button>
                     <button class="btn-icon" onclick="logout()"><i class="ri-logout-box-r-line"></i></button>
                 </div>
             </div>
 
-            <div class="nav-tabs">
+            <div class="tabs">
                 <button class="tab active" onclick="switchTab('chats', this)">Chats</button>
                 <button class="tab" onclick="switchTab('calls', this)">Calls</button>
                 <button class="tab" onclick="switchTab('search', this)">Search</button>
-                <button class="tab" onclick="switchTab('requests', this)">Requests</button>
+                <button class="tab" onclick="switchTab('req', this)">Requests</button>
             </div>
 
-            <div id="tab-chats" class="list-container"></div>
-            <div id="tab-calls" class="list-container hidden"></div>
-            <div id="tab-search" class="list-container hidden">
-                <input type="text" class="inp" placeholder="Search by email..." onkeyup="searchUser(this.value)">
-                <div id="search-results"></div>
+            <div id="tab-chats" class="list-area"></div>
+            <div id="tab-calls" class="list-area hidden"></div>
+            <div id="tab-search" class="list-area hidden">
+                <input type="text" class="inp" placeholder="Search by Email..." onkeyup="searchUser(this.value)">
+                <div id="search-res"></div>
             </div>
-            <div id="tab-requests" class="list-container hidden"></div>
+            <div id="tab-req" class="list-area hidden"></div>
         </div>
 
         <div id="chat-view" class="chat-view">
-            <div id="empty-state" class="center col" style="height:100%; color: var(--text-sec);">
-                <i class="ri-chat-smile-2-line" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                <p>Select a conversation</p>
+            <div id="empty" class="center col" style="height:100%; color: var(--text-sec);">
+                <i class="ri-chat-smile-2-line" style="font-size: 4rem; opacity: 0.5;"></i>
+                <p>Select a chat to start</p>
             </div>
 
-            <div id="active-chat" class="hidden" style="height: 100%; display: flex; flex-direction: column;">
+            <div id="active-chat" class="hidden" style="display:flex; flex-direction:column; height:100%;">
                 <div class="chat-header">
-                    <i class="ri-arrow-left-line back-arrow" onclick="closeChat()"></i>
+                    <i class="ri-arrow-left-line back-btn" onclick="closeChat()"></i>
                     <img id="chat-dp" class="avatar" src="">
-                    <div style="flex:1; margin-left: 12px; cursor: pointer;" onclick="toggleChatLock()">
+                    <div style="flex:1; margin-left:12px; cursor:pointer;" onclick="openUserInfo()">
                         <h4 id="chat-name">User</h4>
-                        <span style="font-size: 0.75rem; color: var(--text-sec);" id="chat-lock-status">Click to Lock</span>
+                        <span style="font-size: 0.75rem; color: var(--text-sec);">Tap for Info & Settings</span>
                     </div>
-                    <div class="flex" style="gap: 15px;">
-                        <button class="btn-icon" onclick="initiateCall('audio')"><i class="ri-phone-line"></i></button>
-                        <button class="btn-icon" onclick="initiateCall('video')"><i class="ri-vidicon-line"></i></button>
+                    <div class="flex" style="gap:10px;">
+                        <button class="btn-icon" onclick="startCall('audio')"><i class="ri-phone-line"></i></button>
+                        <button class="btn-icon" onclick="startCall('video')"><i class="ri-vidicon-line"></i></button>
                     </div>
                 </div>
 
-                <div id="messages-box" class="messages-box"></div>
+                <div id="messages" class="messages"></div>
 
-                <div class="chat-input">
-                    <button class="btn-icon"><i class="ri-add-circle-line"></i></button>
-                    <input type="text" id="msg-input" placeholder="Type a message...">
-                    <button class="btn-icon" style="background: var(--primary); color: white;" onclick="sendMessage()"><i class="ri-send-plane-fill"></i></button>
+                <div class="input-area">
+                    <button class="btn-icon"><i class="ri-add-line"></i></button>
+                    <input type="text" id="msg-in" placeholder="Type a message...">
+                    <button class="btn-icon" style="background:var(--primary); color:white;" onclick="sendMsg()"><i class="ri-send-plane-fill"></i></button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="call-modal" class="screen hidden">
-        <div class="video-container">
-            <video id="remote-video" autoplay playsinline></video>
+    <div id="info-modal" class="modal-overlay">
+        <div class="modal-box">
+            <img id="info-dp" src="" class="avatar" style="width: 80px; height: 80px; margin-bottom: 10px;">
+            <h3 id="info-name">User Name</h3>
+            <p id="info-email" style="color: var(--text-sec); font-size: 0.8rem; margin-bottom: 20px;">email@gmail.com</p>
             
-            <video id="local-video" autoplay playsinline muted></video>
-
-            <div id="audio-ui" class="audio-placeholder hidden">
-                <img id="call-avatar" class="pulsing-avatar" src="">
-                <h2 id="call-name" style="margin-top: 20px;">User</h2>
-                <p id="call-status-text" style="color: var(--text-sec); margin-top: 10px;">Connecting...</p>
-                <p id="call-timer" style="margin-top: 10px; font-weight: bold; font-family: monospace;">00:00</p>
+            <div style="text-align: left; margin-bottom: 15px;">
+                <label style="font-size: 0.8rem; color: var(--text-sec);">Nickname (Only for you)</label>
+                <div class="flex">
+                    <input type="text" id="edit-nick" class="inp" style="margin: 0; padding: 8px;">
+                    <button onclick="saveNickname()" class="btn-primary" style="width: auto; margin: 0 0 0 5px; padding: 8px 15px;">Save</button>
+                </div>
             </div>
 
-            <div class="call-controls">
-                <div id="incoming-actions" class="flex gap-4 hidden">
-                    <button class="call-btn btn-red" onclick="rejectCall()"><i class="ri-phone-close-line"></i></button>
-                    <button class="call-btn btn-green" onclick="answerCall()"><i class="ri-phone-answer-line"></i></button>
-                </div>
-                
-                <div id="active-actions" class="flex gap-4">
-                    <button class="call-btn btn-glass" onclick="toggleMute()"><i class="ri-mic-line" id="mic-icon"></i></button>
-                    <button class="call-btn btn-glass" onclick="toggleVideo()"><i class="ri-camera-line" id="cam-icon"></i></button>
-                    <button class="call-btn btn-red" onclick="endCall()"><i class="ri-phone-close-line"></i></button>
-                </div>
+            <hr style="border: 0; border-top: 1px solid var(--border); margin: 15px 0;">
+
+            <div class="flex" style="justify-content: space-between; margin-bottom: 10px;">
+                <span>Chat Lock</span>
+                <label class="switch">
+                    <input type="checkbox" id="lock-toggle" onchange="toggleLock()">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <p id="lock-status" style="font-size: 0.8rem; color: var(--danger); text-align: left;">Unlocked</p>
+            
+            <button onclick="document.getElementById('info-modal').style.display='none'" class="btn-primary" style="background: transparent; border: 1px solid var(--border); color: var(--text); margin-top: 15px;">Close</button>
+        </div>
+    </div>
+
+    <div id="pin-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="pin-title">Enter PIN</h3>
+            <input type="password" id="pin-in" class="inp" style="text-align: center; letter-spacing: 5px; font-size: 1.5rem;" maxlength="4" placeholder="****">
+            <div class="flex" style="gap: 10px;">
+                <button onclick="document.getElementById('pin-modal').style.display='none'" class="btn-primary" style="background: #555;">Cancel</button>
+                <button onclick="submitPin()" class="btn-primary">Submit</button>
             </div>
         </div>
     </div>
 
-    <div id="lock-modal" class="modal-overlay">
-        <div class="auth-card">
-            <h3>Enter PIN</h3>
-            <p style="color: var(--text-sec); font-size: 0.8rem; margin-bottom: 10px;">Default: 0000</p>
-            <input type="password" id="lock-pin" class="inp" style="text-align: center; font-size: 1.5rem; letter-spacing: 5px;" maxlength="4">
-            <button class="btn-primary" onclick="checkPin()">Unlock</button>
-            <button class="btn-primary" style="background: transparent; margin-top: 5px;" onclick="document.getElementById('lock-modal').style.display='none'">Cancel</button>
+    <div id="call-screen" class="screen hidden">
+        <video id="remote-video" autoplay playsinline></video>
+        <video id="local-video" autoplay playsinline muted></video>
+        
+        <div id="call-info" style="position:absolute; top:50px; width:100%; text-align:center; z-index:215;">
+            <h2 id="call-name" style="color:white; text-shadow: 0 2px 5px rgba(0,0,0,0.5);">User</h2>
+            <p id="call-status" style="color:#ddd;">Connecting...</p>
+        </div>
+
+        <div class="call-controls">
+            <div id="inc-btns" class="hidden flex" style="gap: 30px;">
+                <button class="c-btn bg-red" onclick="rejectCall()"><i class="ri-phone-close-line"></i></button>
+                <button class="c-btn bg-green" onclick="answerCall()"><i class="ri-phone-answer-line"></i></button>
+            </div>
+            <div id="act-btns" class="flex" style="gap: 20px;">
+                <button class="c-btn bg-glass" onclick="toggleMute()"><i id="mic-icon" class="ri-mic-line"></i></button>
+                <button class="c-btn bg-glass" onclick="toggleCam()"><i id="cam-icon" class="ri-camera-line"></i></button>
+                <button class="c-btn bg-red" onclick="endCall()"><i class="ri-phone-close-line"></i></button>
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, onSnapshot, serverTimestamp, updateDoc, doc, setDoc, getDoc, getDocs, orderBy, arrayUnion, arrayRemove, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, where, onSnapshot, serverTimestamp, updateDoc, doc, setDoc, getDoc, getDocs, orderBy, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
-        // FIREBASE CONFIG
+        // FIREBASE SETUP
         const config={apiKey:"AIzaSyCAsCm1YcsAjHwyvIzxyMrBmZPLw2hlo18",authDomain:"truechats-8dac9.firebaseapp.com",projectId:"truechats-8dac9",storageBucket:"truechats-8dac9.firebasestorage.app",messagingSenderId:"685374771914",appId:"1:685374771914:web:81bf491264c1bb09061a33"};
         const app=initializeApp(config); const auth=getAuth(app); const db=getFirestore(app); const storage=getStorage(app);
 
-        // STATE
-        let currentUser, currentChatUser, chatId, peer, localStream, activeCall, callDocId;
-        let ringTimeout, callDurationInterval;
-        let lockedChats = JSON.parse(localStorage.getItem('lockedChats') || "[]");
+        let currentUser, currentChatUser, chatId, peer, localStream, activeCall, callTimer;
+        let pinCallback = null; // To store function to run after PIN success
 
-        // --- AUTH & INIT ---
-        onAuthStateChanged(auth, async (u) => {
-            const intro = document.getElementById('intro-screen');
-            if(u) {
-                currentUser = u;
-                setTimeout(() => { intro.style.display = 'none'; }, 1500);
-                document.getElementById('auth-screen').classList.add('hidden');
-                document.getElementById('app-screen').classList.remove('hidden');
+        // THEME
+        if(localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
+        window.toggleTheme = () => {
+            document.body.classList.toggle('light-mode');
+            localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        }
+
+        // AUTH
+        onAuthStateChanged(auth, async(u)=>{
+            const intro = document.getElementById('intro');
+            if(u){
+                currentUser=u;
+                setTimeout(()=>intro.classList.add('hidden'), 1500);
+                document.getElementById('auth').classList.add('hidden');
+                document.getElementById('app').classList.remove('hidden');
                 
                 document.getElementById('my-name').innerText = u.displayName || "User";
-                document.getElementById('my-dp').src = u.photoURL || `https://ui-avatars.com/api/?name=${u.email}&background=random`;
+                document.getElementById('my-dp').src = u.photoURL || `https://ui-avatars.com/api/?name=${u.displayName}&background=random`;
                 
-                await setDoc(doc(db, "users", u.uid), {
-                    uid: u.uid, email: u.email.toLowerCase(), 
-                    displayName: u.displayName || u.email.split('@')[0], 
-                    photoURL: u.photoURL
-                }, { merge: true });
+                await setDoc(doc(db,"users",u.uid), {
+                    uid:u.uid, email:u.email.toLowerCase(), displayName: u.displayName, photoURL: u.photoURL
+                }, {merge:true});
 
-                initPeer(); loadChats(); loadCalls();
+                initPeer(); loadChats(); loadReqs(); loadCalls();
             } else {
-                intro.style.display = 'none';
-                document.getElementById('auth-screen').classList.remove('hidden');
+                intro.classList.add('hidden');
+                document.getElementById('auth').classList.remove('hidden');
             }
         });
 
-        window.handleAuth = async (type) => {
-            const e = document.getElementById('email').value;
-            const p = document.getElementById('password').value;
-            try {
-                if(type === 'login') await signInWithEmailAndPassword(auth, e, p);
-                else {
-                    const res = await createUserWithEmailAndPassword(auth, e, p);
-                    await updateProfile(res.user, { displayName: e.split('@')[0] });
+        window.login=async()=>{try{await signInWithEmailAndPassword(auth,document.getElementById('email').value,document.getElementById('password').value)}catch(e){alert(e.message)}}
+        window.register=async()=>{
+            const name = document.getElementById('reg-name').value;
+            if(!name) return alert("Please enter your Name");
+            try{
+                const res = await createUserWithEmailAndPassword(auth,document.getElementById('email').value,document.getElementById('password').value);
+                await updateProfile(res.user, {displayName: name});
+                location.reload();
+            }catch(e){alert(e.message)}
+        }
+        window.logout=()=>signOut(auth);
+
+        // FRIEND REQUESTS (FIXED)
+        window.searchUser=async(v)=>{
+            if(v.length<3) return;
+            const q = query(collection(db,"users"), where("email",">=",v), where("email","<=",v+'\uf8ff'));
+            const s = await getDocs(q);
+            const d = document.getElementById('search-res'); d.innerHTML="";
+            s.forEach(doc=>{
+                const u = doc.data();
+                if(u.uid!==currentUser.uid) d.innerHTML+=`<div class="item"><div style="flex:1;"><b>${u.displayName}</b><br><small>${u.email}</small></div><button onclick="sendReq('${u.uid}')" class="btn-primary" style="width:auto; padding:5px 15px;">Add</button></div>`;
+            });
+        }
+        window.sendReq=async(uid)=>{
+            await updateDoc(doc(db,"users",uid), { requests: arrayUnion(currentUser.uid) });
+            alert("Request Sent Successfully!");
+        }
+        window.loadReqs=()=>{
+            onSnapshot(doc(db,"users",currentUser.uid), async(s)=>{
+                const r = s.data().requests || [];
+                const d = document.getElementById('tab-req'); d.innerHTML = "";
+                for(const id of r){
+                    const u = (await getDoc(doc(db,"users",id))).data();
+                    d.innerHTML += `<div class="item"><img src="${u.photoURL}" class="avatar"> <div style="flex:1; margin-left:10px;"><b>${u.displayName}</b> wants to connect</div> <button onclick="acceptReq('${id}')" class="btn-primary" style="width:auto; padding:5px 10px; background:var(--success);">Accept</button></div>`;
                 }
-            } catch(err) { alert(err.message); }
-        };
-        window.logout = () => signOut(auth);
+            });
+        }
+        window.acceptReq=async(uid)=>{
+            await updateDoc(doc(db,"users",currentUser.uid), { friends: arrayUnion(uid), requests: arrayRemove(uid) });
+            alert("Request Sent Successfully!");
+        }
+        window.loadReqs=()=>{
+            onSnapshot(doc(db,"users",currentUser.uid), async(s)=>{
+                const r = s.data().requests || [];
+                const d = document.getElementById('tab-req'); d.innerHTML = "";
+                for(const id of r){
+                    const u = (await getDoc(doc(db,"users",id))).data();
+                    d.innerHTML += `<div class="item"><img src="${u.photoURL}" class="avatar"> <div style="flex:1; margin-left:10px;"><b>${u.displayName}</b> wants to connect</div> <button onclick="acceptReq('${id}')" class="btn-primary" style="width:auto; padding:5px 10px; background:var(--success);">Accept</button></div>`;
+                }
+            });
+        }
+        window.acceptReq=async(uid)=>{
+            await updateDoc(doc(db,"users",currentUser.uid), { friends: arrayUnion(uid), requests: arrayRemove(uid) });
+            await updateDoc(doc(db,"users",uid), { friends: arrayUnion(currentUser.uid) });
+            alert("Friend Added!");
+        }
 
-        // --- CHAT ENGINE ---
-        window.openChat = async (uid) => {
-            const uDoc = await getDoc(doc(db, "users", uid));
-            currentChatUser = uDoc.data();
-            
+        // CHAT ENGINE
+        window.loadChats=()=>{
+            onSnapshot(doc(db,"users",currentUser.uid), async(s)=>{
+                const f = s.data().friends || [];
+                const d = document.getElementById('tab-chats'); d.innerHTML="";
+                for(const id of f){
+                    const u = (await getDoc(doc(db,"users",id))).data();
+                    // Get Nickname
+                    const savedNick = JSON.parse(localStorage.getItem(`nick_${currentUser.uid}_${id}`) || "null");
+                    const name = savedNick || u.displayName;
+                    d.innerHTML += `<div class="item" onclick="tryOpenChat('${u.uid}')"><img src="${u.photoURL}" class="avatar"> <div style="flex:1; margin-left:10px;"><b>${name}</b><br><small>Tap to chat</small></div></div>`;
+                }
+            });
+        }
+
+        window.tryOpenChat = async(uid) => {
+            const u = (await getDoc(doc(db,"users",uid))).data();
+            currentChatUser = u;
             // Check Lock
-            if(lockedChats.includes(currentChatUser.email)) {
-                document.getElementById('lock-modal').style.display = 'flex';
-                return; 
+            const lockData = JSON.parse(localStorage.getItem(`lock_${currentUser.uid}`) || "{}");
+            if(lockData[u.email]) {
+                promptPin("Enter PIN to Unlock", (pin)=>{
+                    if(pin === lockData[u.email]) openChatUI();
+                    else alert("Incorrect PIN");
+                });
+            } else {
+                openChatUI();
             }
-            loadChatUI();
-        };
+        }
 
-        window.checkPin = () => {
-            const pin = document.getElementById('lock-pin').value;
-            if(pin === "0000") {
-                document.getElementById('lock-modal').style.display = 'none';
-                loadChatUI();
-            } else { alert("Wrong PIN"); }
-            document.getElementById('lock-pin').value = "";
-        };
-
-        function loadChatUI() {
+        function openChatUI() {
             chatId = [currentUser.uid, currentChatUser.uid].sort().join("_");
-            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('empty').classList.add('hidden');
             document.getElementById('active-chat').classList.remove('hidden');
-            document.getElementById('chat-view').classList.add('active'); // Mobile slide
+            document.getElementById('chat-view').classList.add('active');
             
-            document.getElementById('chat-name').innerText = currentChatUser.displayName;
-            document.getElementById('chat-dp').src = currentChatUser.photoURL || `https://ui-avatars.com/api/?name=${currentChatUser.displayName}`;
-            document.getElementById('chat-lock-status').innerText = lockedChats.includes(currentChatUser.email) ? "Locked 🔒" : "Unlocked 🔓";
+            // Nickname check
+            const savedNick = JSON.parse(localStorage.getItem(`nick_${currentUser.uid}_${currentChatUser.uid}`) || "null");
+            document.getElementById('chat-name').innerText = savedNick || currentChatUser.displayName;
+            document.getElementById('chat-dp').src = currentChatUser.photoURL;
             
             loadMessages();
         }
 
-        window.closeChat = () => {
-            document.getElementById('chat-view').classList.remove('active');
-        };
+        window.closeChat = () => document.getElementById('chat-view').classList.remove('active');
 
-        function loadMessages() {
-            const box = document.getElementById('messages-box');
-            const q = query(collection(db, "messages"), where("chatId", "==", chatId), orderBy("createdAt", "asc"));
-            onSnapshot(q, (snap) => {
-                box.innerHTML = "";
-                snap.forEach(d => {
-                    const data = d.data();
+        function loadMessages(){
+            const box = document.getElementById('messages');
+            const q = query(collection(db,"messages"), where("chatId","==",chatId), orderBy("createdAt","asc"));
+            onSnapshot(q, (snap)=>{
+                box.innerHTML="";
+                snap.forEach(d=>{
+                    const m = d.data();
                     const div = document.createElement('div');
-                    if(data.type === 'system') {
-                        div.className = 'msg system';
-                        div.innerText = data.text;
+                    if(m.type === 'system') {
+                        div.style.alignSelf="center"; div.style.fontSize="0.8rem"; div.style.color="gray"; div.innerText = m.text;
                     } else {
-                        div.className = `msg ${data.sender === currentUser.uid ? 'sent' : 'received'}`;
-                        div.innerText = data.text;
+                        div.className = `msg ${m.sender===currentUser.uid?'sent':'received'}`;
+                        div.innerText = m.text;
                     }
                     box.appendChild(div);
                 });
@@ -358,339 +406,199 @@
             });
         }
 
-        window.sendMessage = async () => {
-            const txt = document.getElementById('msg-input').value;
-            if(!txt) return;
-            await addDoc(collection(db, "messages"), {
-                text: txt, sender: currentUser.uid, chatId, createdAt: serverTimestamp(), type: 'text'
-            });
-            document.getElementById('msg-input').value = "";
-        };
+        window.sendMsg = async() => {
+            const t = document.getElementById('msg-in').value;
+            if(!t) return;
+            await addDoc(collection(db,"messages"), { text:t, sender:currentUser.uid, chatId:chatId, createdAt:serverTimestamp(), type:'text' });
+            document.getElementById('msg-in').value="";
+        }
 
-        window.toggleChatLock = () => {
-            const email = currentChatUser.email;
-            if(lockedChats.includes(email)) {
-                lockedChats = lockedChats.filter(e => e !== email);
+        // --- INFO, LOCK & NICKNAME ---
+        window.openUserInfo = () => {
+            document.getElementById('info-modal').style.display = "flex";
+            const savedNick = JSON.parse(localStorage.getItem(`nick_${currentUser.uid}_${currentChatUser.uid}`) || "null");
+            
+            document.getElementById('info-dp').src = currentChatUser.photoURL;
+            document.getElementById('info-name').innerText = currentChatUser.displayName;
+            document.getElementById('info-email').innerText = currentChatUser.email;
+            document.getElementById('edit-nick').value = savedNick || currentChatUser.displayName;
+
+            // Lock State
+            const lockData = JSON.parse(localStorage.getItem(`lock_${currentUser.uid}`) || "{}");
+            const isLocked = !!lockData[currentChatUser.email];
+            document.getElementById('lock-toggle').checked = isLocked;
+            document.getElementById('lock-status').innerText = isLocked ? "Locked with PIN" : "Unlocked";
+            document.getElementById('lock-status').style.color = isLocked ? "var(--success)" : "var(--danger)";
+        }
+
+        window.saveNickname = () => {
+            const newNick = document.getElementById('edit-nick').value;
+            localStorage.setItem(`nick_${currentUser.uid}_${currentChatUser.uid}`, JSON.stringify(newNick));
+            document.getElementById('chat-name').innerText = newNick;
+            alert("Nickname Saved!");
+            loadChats(); // Refresh list
+        }
+
+        window.toggleLock = () => {
+            const isChecked = document.getElementById('lock-toggle').checked;
+            const lockData = JSON.parse(localStorage.getItem(`lock_${currentUser.uid}`) || "{}");
+            
+            if(isChecked) {
+                // Set New PIN
+                promptPin("Set New Chat PIN", (pin)=>{
+                    if(pin.length === 4) {
+                        lockData[currentChatUser.email] = pin;
+                        localStorage.setItem(`lock_${currentUser.uid}`, JSON.stringify(lockData));
+                        openUserInfo(); // Refresh UI
+                    } else {
+                        alert("PIN must be 4 digits");
+                        document.getElementById('lock-toggle').checked = false;
+                    }
+                });
             } else {
-                lockedChats.push(email);
+                // Remove Lock
+                promptPin("Enter PIN to Remove Lock", (pin)=>{
+                    if(pin === lockData[currentChatUser.email]) {
+                        delete lockData[currentChatUser.email];
+                        localStorage.setItem(`lock_${currentUser.uid}`, JSON.stringify(lockData));
+                        openUserInfo();
+                    } else {
+                        alert("Incorrect PIN");
+                        document.getElementById('lock-toggle').checked = true;
+                    }
+                });
             }
-            localStorage.setItem('lockedChats', JSON.stringify(lockedChats));
-            document.getElementById('chat-lock-status').innerText = lockedChats.includes(email) ? "Locked 🔒" : "Unlocked 🔓";
-        };
+        }
 
-        // --- CALLING LOGIC (THE BIG UPDATE) ---
+        function promptPin(title, callback) {
+            document.getElementById('pin-modal').style.display = 'flex';
+            document.getElementById('pin-title').innerText = title;
+            document.getElementById('pin-in').value = "";
+            pinCallback = callback;
+        }
+
+        window.submitPin = () => {
+            const pin = document.getElementById('pin-in').value;
+            document.getElementById('pin-modal').style.display = 'none';
+            if(pinCallback) pinCallback(pin);
+        }
+
+        // --- CALLING (REFINED) ---
         function initPeer() {
             peer = new Peer(currentUser.uid);
-            
-            // INCOMING CALL
             peer.on('call', (call) => {
-                activeCall = call;
-                // Fetch caller info
-                getDoc(doc(db, "users", call.peer)).then(snap => {
-                    const caller = snap.data();
-                    showCallScreen(caller, false, call.metadata.type); // type: video/audio
-                    
-                    // Play Ringtone
+                getDoc(doc(db,"users",call.peer)).then(s=>{
+                    const u = s.data();
+                    showCallUI(u, 'incoming');
                     document.getElementById('ring-in').play();
                     
-                    // Listen for remote hangup (Firestore sync)
-                    const unsub = onSnapshot(collection(db, "calls"), (snap) => {
-                        snap.docChanges().forEach(change => {
-                            const d = change.doc.data();
-                            // If this call doc relates to us and says "ended"
-                            if(d.to === currentUser.uid && d.status === 'ended' && change.type === 'added') {
-                                cleanupCallUI();
-                            }
-                        });
-                    });
+                    window.answerCall = async() => {
+                        document.getElementById('ring-in').pause();
+                        localStream = await navigator.mediaDevices.getUserMedia({video:true, audio:true});
+                        call.answer(localStream);
+                        setupCallEvents(call, 'active');
+                    }
+                    window.rejectCall = () => {
+                        document.getElementById('ring-in').pause();
+                        call.close(); closeCallUI();
+                    }
                 });
             });
         }
 
-        window.initiateCall = async (type) => {
-             // 1. UI Setup
-            showCallScreen(currentChatUser, true, type);
-            
-            // 2. Play Ringtone
+        window.startCall = async(type) => {
+            showCallUI(currentChatUser, 'outgoing');
             document.getElementById('ring-out').play();
             
-            // 3. Firestore Signal (Intent to Call)
-            const callRef = await addDoc(collection(db, "calls"), {
-                from: currentUser.uid, to: currentChatUser.uid, 
-                status: 'ringing', type, createdAt: serverTimestamp()
-            });
-            callDocId = callRef.id;
+            // Auto Cut 1m 24s (84s)
+            setTimeout(()=>{ if(activeCall && !activeCall.open) endCall(); }, 84000);
 
-            // 4. Timer 84 Seconds (1m 24s)
-            ringTimeout = setTimeout(() => {
-                endCall("No Answer");
-            }, 84000);
-
-            // 5. Get Stream & Connect
             try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: type==='video', audio: true });
-                if(type === 'video') document.getElementById('local-video').srcObject = localStream;
-                
-                const call = peer.call(currentChatUser.uid, localStream, { metadata: { type } });
-                activeCall = call;
+                localStream = await navigator.mediaDevices.getUserMedia({video: type==='video', audio:true});
+                if(type==='video') document.getElementById('local-video').srcObject = localStream;
+                else document.getElementById('local-video').style.display = 'none'; // Audio mode
 
-                call.on('stream', (remoteStream) => {
-                    handleRemoteStream(remoteStream, type);
-                });
-                
-                // Watch for rejection
-                onSnapshot(doc(db, "calls", callDocId), (snap) => {
-                    const d = snap.data();
-                    if(d && d.status === 'rejected') endCall("Busy");
-                    if(d && d.status === 'connected') {
-                        document.getElementById('ring-out').pause();
-                        clearTimeout(ringTimeout);
-                        startCallTimer();
-                        document.getElementById('call-status-text').innerText = "Connected";
-                    }
-                });
-
-            } catch(e) { 
-                alert("Permission Denied: " + e.message); 
-                cleanupCallUI();
-            }
-        };
-
-        window.answerCall = async () => {
-            document.getElementById('ring-in').pause();
-            const type = document.getElementById('remote-video').classList.contains('hidden') ? 'audio' : 'video'; // crude check
-            
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true }); // Default to video capable
-                activeCall.answer(localStream);
-                
-                // Update Firestore
-                // NOTE: In a real app we'd need the callDocId from the caller. 
-                // For simplicity, we assume the peer connection is the main driver here.
-                
-                document.getElementById('incoming-actions').classList.add('hidden');
-                document.getElementById('active-actions').classList.remove('hidden');
-                document.getElementById('call-status-text').innerText = "Connected";
-                startCallTimer();
-
-                activeCall.on('stream', (rs) => {
-                    document.getElementById('remote-video').srcObject = rs;
-                    if(type === 'video') {
-                        document.getElementById('local-video').srcObject = localStream;
-                    }
-                });
+                const call = peer.call(currentChatUser.uid, localStream);
+                setupCallEvents(call, 'outgoing');
                 
                 // Log Call
-                logCall(activeCall.peer, 'incoming', type);
-
-            } catch(e) { alert(e.message); cleanupCallUI(); }
-        };
-
-        window.rejectCall = () => {
-            document.getElementById('ring-in').pause();
-            // Signal rejection (Simplified: just close Peer)
-            if(activeCall) activeCall.close();
-            cleanupCallUI();
-        };
-
-        window.endCall = async (reason = "Call Ended") => {
-            // Update Firestore to notify peer
-            if(callDocId) {
-                updateDoc(doc(db, "calls", callDocId), { status: 'ended' });
-            }
-            if(activeCall) activeCall.close();
-            
-            // Log for Sender
-            if(currentChatUser)
-    logCall(currentChatUser.uid, 'outgoing', 'video'); // type assumption
-            
-            // System Msg in Chat
-            if(chatId) {
-                addDoc(collection(db, "messages"), {
-                    text: `📞 ${reason}`, sender: currentUser.uid, chatId, type: 'system', createdAt: serverTimestamp()
+                await addDoc(collection(db,"calls"), {
+                    caller:currentUser.uid, receiver:currentChatUser.uid, type, status:'missed', time:serverTimestamp()
                 });
-            }
-
-            cleanupCallUI();
-        };
-
-        function showCallScreen(user, isOutgoing, type) {
-            document.getElementById('call-modal').classList.remove('hidden');
-            document.getElementById('call-avatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`;
-            document.getElementById('call-name').innerText = user.displayName;
-            
-            // Reset UI
-            document.getElementById('remote-video').srcObject = null;
-            document.getElementById('local-video').srcObject = null;
-            
-            if(type === 'audio') {
-                document.getElementById('audio-ui').classList.remove('hidden');
-                document.getElementById('remote-video').classList.add('hidden');
-                document.getElementById('local-video').classList.add('hidden');
-            } else {
-                document.getElementById('audio-ui').classList.add('hidden');
-                document.getElementById('remote-video').classList.remove('hidden');
-                document.getElementById('local-video').classList.remove('hidden');
-            }
-
-            if(isOutgoing) {
-                document.getElementById('incoming-actions').classList.add('hidden');
-                document.getElementById('active-actions').classList.remove('hidden');
-                document.getElementById('call-status-text').innerText = "Ringing...";
-            } else {
-                document.getElementById('incoming-actions').classList.remove('hidden');
-                document.getElementById('active-actions').classList.add('hidden');
-                document.getElementById('call-status-text').innerText = "Incoming Call...";
-            }
-        }
-
-        function handleRemoteStream(stream, type) {
-            document.getElementById('ring-out').pause();
-            clearTimeout(ringTimeout);
-            document.getElementById('call-status-text').innerText = "Connected";
-            
-            if(type === 'video') {
-                document.getElementById('remote-video').srcObject = stream;
-            } else {
-                const aud = new Audio();
-                aud.srcObject = stream;
-                aud.play();
-            }
-        }
-
-        function cleanupCallUI() {
-            document.getElementById('call-modal').classList.add('hidden');
-            document.getElementById('ring-out').pause();
-            document.getElementById('ring-in').pause();
-            document.getElementById('ring-out').currentTime = 0;
-            document.getElementById('ring-in').currentTime = 0;
-            if(localStream) localStream.getTracks().forEach(t => t.stop());
-            clearInterval(callDurationInterval);
-            document.getElementById('call-timer').innerText = "00:00";
-        }
-
-        function startCallTimer() {
-            let sec = 0;
-            clearInterval(callDurationInterval);
-            callDurationInterval = setInterval(() => {
-                sec++;
-                const m = Math.floor(sec / 60).toString().padStart(2, '0');
-                const s = (sec % 60).toString().padStart(2, '0');
-                document.getElementById('call-timer').innerText = `${m}:${s}`;
-            }, 1000);
-        }
-
-        // --- CALL HISTORY (48 HOURS) ---
-        async function logCall(uid, dir, type) {
-            const now = new Date();
-            const expires = new Date(now.getTime() + (48 * 60 * 60 * 1000));
-            
-            await addDoc(collection(db, "callLogs"), {
-                userId: currentUser.uid, peerId: uid, direction: dir, type,
-                timestamp: serverTimestamp(), expiresAt: expires.toISOString()
-            });
-        }
-
-        function loadCalls() {
-            const q = query(collection(db, "callLogs"), where("userId", "==", currentUser.uid), orderBy("timestamp", "desc"));
-            onSnapshot(q, async (snap) => {
-                const list = document.getElementById('tab-calls');
-                list.innerHTML = "";
-                const now = new Date();
                 
-                for(const d of snap.docs) {
-                    const data = d.data();
-                    if(new Date(data.expiresAt) > now) {
-                        const uDoc = await getDoc(doc(db, "users", data.peerId));
-                        const u = uDoc.data();
-                        
-                        const time = data.timestamp ? data.timestamp.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : 'Just now';
-                        const icon = data.direction === 'outgoing' ? '<i class="ri-arrow-right-up-line" style="color:var(--success)"></i>' : '<i class="ri-arrow-left-down-line" style="color:var(--danger)"></i>';
-                        
-                        list.innerHTML += `
-                        <div class="item-card">
-                            <img src="${u.photoURL || 'https://ui-avatars.com/api/?name='+u.displayName}" class="avatar">
-                            <div class="item-info">
-                                <div class="item-name">${u.displayName}</div>
-                                <div class="item-sub">${icon} ${time}</div>
-                            </div>
-                            <i class="ri-${data.type === 'video' ? 'vidicon' : 'phone'}-line"></i>
-                        </div>`;
+            } catch(e) { alert("Mic/Cam Error: "+e.message); closeCallUI(); }
+        }
+
+        function setupCallEvents(call, mode) {
+            activeCall = call;
+            document.getElementById('inc-btns').classList.add('hidden');
+            document.getElementById('act-btns').classList.remove('hidden');
+            document.getElementById('ring-out').pause();
+            document.getElementById('call-status').innerText = "Connected";
+
+            call.on('stream', (rs) => {
+                document.getElementById('remote-video').srcObject = rs;
+            });
+            call.on('close', closeCallUI);
+        }
+
+        window.endCall = () => {
+            if(activeCall) activeCall.close();
+            closeCallUI();
+        }
+
+        function showCallUI(u, mode) {
+            document.getElementById('call-screen').classList.remove('hidden');
+            document.getElementById('call-name').innerText = u.displayName;
+            document.getElementById('call-status').innerText = mode==='incoming' ? "Incoming Call..." : "Calling...";
+            
+            if(mode==='incoming') {
+                document.getElementById('inc-btns').classList.remove('hidden');
+                document.getElementById('act-btns').classList.add('hidden');
+            } else {
+                document.getElementById('inc-btns').classList.add('hidden');
+                document.getElementById('act-btns').classList.remove('hidden');
+            }
+        }
+
+        function closeCallUI() {
+            document.getElementById('call-screen').classList.add('hidden');
+            document.getElementById('ring-in').pause(); document.getElementById('ring-in').currentTime=0;
+            document.getElementById('ring-out').pause(); document.getElementById('ring-out').currentTime=0;
+            if(localStream) localStream.getTracks().forEach(t=>t.stop());
+            document.getElementById('remote-video').srcObject=null;
+        }
+
+        // Call Logs Loader
+        window.loadCalls = () => {
+            const q = query(collection(db,"calls"), where("caller","==",currentUser.uid), orderBy("time","desc"));
+            onSnapshot(q, (snap)=>{
+                const d = document.getElementById('tab-calls'); d.innerHTML="";
+                snap.forEach(doc=>{
+                    const c = doc.data();
+                    // 48 hours check
+                    if(new Date() - c.time.toDate() < 172800000) {
+                        d.innerHTML += `<div class="item"><div><b>Outgoing ${c.type}</b><br><small>${c.time.toDate().toLocaleString()}</small></div></div>`;
                     }
-                }
-            });
-        }
-
-        // --- TABS & HELPERS ---
-                window.switchTab = (t, el) => {
-            document.querySelectorAll('.list-container').forEach(e => e.classList.add('hidden'));
-            document.getElementById(`tab-${t}`).classList.remove('hidden');
-            document.querySelectorAll('.tab').forEach(e => e.classList.remove('active'));
-            el.classList.add('active');
-        };
-
-        function loadChats() {
-            // Simplified friend loader (Existing logic adapted)
-            const q = query(collection(db, "users"), where("friends", "array-contains", currentUser.uid));
-            onSnapshot(doc(db, "users", currentUser.uid), async (snap) => {
-                const list = document.getElementById('tab-chats');
-                list.innerHTML = "";
-                const friends = snap.data().friends || [];
-                
-                for(const fid of friends) {
-                    const fDoc = await getDoc(doc(db, "users", fid));
-                    const f = fDoc.data();
-                    list.innerHTML += `
-                    <div class="item-card" onclick="openChat('${f.uid}')">
-                        <img src="${f.photoURL || 'https://ui-avatars.com/api/?name='+f.displayName}" class="avatar" onerror="this.src='https://ui-avatars.com/api/?background=random'">
-                        <div class="item-info">
-                            <div class="item-name">${f.displayName}</div>
-                            <div class="item-sub">Tap to chat</div>
-                        </div>
-                    </div>`;
-                }
+                });
             });
         }
         
-        // Search & Requests (Keeping existing functionality simple)
-        window.searchUser = async (val) => {
-            if(val.length < 3) return;
-            const q = query(collection(db, "users"), where("email", ">=", val), where("email", "<=", val+'\uf8ff'));
-            const snap = await getDocs(q);
-            const res = document.getElementById('search-results');
-            res.innerHTML = "";
-            snap.forEach(d => {
-                const u = d.data();
-                if(u.uid !== currentUser.uid) {
-                    res.innerHTML += `<div class="item-card"><div class="item-name">${u.email}</div> <button onclick="sendReq('${u.uid}')" style="margin-left:auto; padding:5px 10px;">Add</button></div>`;
-                }
-            });
-        };
-        window.sendReq = async (uid) => { await updateDoc(doc(db, "users", uid), { requests: arrayUnion(currentUser.uid) }); alert("Sent"); };
-
-        window.toggleMute = () => {
-            const track = localStream.getAudioTracks()[0];
-            track.enabled = !track.enabled;
-            document.getElementById('mic-icon').className = track.enabled ? 'ri-mic-line' : 'ri-mic-off-line';
-        };
-        window.toggleVideo = () => {
-            const track = localStream.getVideoTracks()[0];
-            track.enabled = !track.enabled;
-            document.getElementById('cam-icon').className = track.enabled ? 'ri-camera-line' : 'ri-camera-off-line';
-        };
-        window.changeDP = () => {
-            const input = document.createElement('input'); input.type = 'file';
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                const refS = ref(storage, `dp/${currentUser.uid}`);
-                await uploadBytes(refS, file);
-                const url = await getDownloadURL(refS);
-                await updateProfile(currentUser, { photoURL: url });
-                await updateDoc(doc(db, "users", currentUser.uid), { photoURL: url });
-            };
-            input.click();
-        };
-
+        window.toggleMute=()=>{ localStream.getAudioTracks()[0].enabled = !localStream.getAudioTracks()[0].enabled; }
+        window.toggleCam=()=>{ localStream.getVideoTracks()[0].enabled = !localStream.getVideoTracks()[0].enabled; }
+        
+        window.changeDP=()=>{
+            const i=document.createElement('input'); i.type='file'; 
+            i.onchange=async(e)=>{
+                const f=e.target.files[0]; if(!f) return;
+                const r=ref(storage,`dp/${currentUser.uid}`);
+                await uploadBytes(r,f);
+                const u=await getDownloadURL(r);
+                await updateProfile(currentUser,{photoURL:u});
+                await updateDoc(doc(db,"users",currentUser.uid),{photoURL:u});
+                location.reload();
+            }; i.click();
+        }
     </script>
 </body>
 </html>
