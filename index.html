@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TrueChats Ultra</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="auth-screen" class="screen active">
+        <div class="glass-card">
+            <h1>TrueChats 💬</h1>
+            <p>Secure. Fast. Beautiful.</p>
+            <div class="input-box">
+                <i class="fa fa-envelope"></i>
+                <input type="email" id="email" placeholder="Email Address">
+            </div>
+            <div class="input-box">
+                <i class="fa fa-lock"></i>
+                <input type="password" id="password" placeholder="Password">
+            </div>
+            <button onclick="login()" class="btn-main">Login</button>
+            <button onclick="register()" class="btn-outline">Create Account</button>
+            <p onclick="forgotPass()" class="link">Forgot Password?</p>
+        </div>
+    </div>
+
+    <div id="app-screen" class="screen hidden">
+        
+        <div id="sidebar" class="sidebar">
+            <div class="my-profile">
+                <div class="dp-wrapper" onclick="changeDP()">
+                    <img id="my-dp" src="https://via.placeholder.com/50">
+                    <div class="edit-icon"><i class="fa fa-camera"></i></div>
+                </div>
+                <div class="info">
+                    <h3 id="my-name">My Name</h3>
+                    <span class="status">● Online</span>
+                </div>
+                <i class="fa fa-power-off logout-icon" onclick="logout()"></i>
+            </div>
+
+            <div class="tabs">
+                <button onclick="showTab('friends')" class="active-tab"><i class="fa fa-comment-dots"></i> Chats</button>
+                <button onclick="showTab('search')"><i class="fa fa-search"></i> Search</button>
+                <button onclick="showTab('requests')"><i class="fa fa-user-plus"></i> <span id="req-badge">0</span></button>
+            </div>
+
+            <div id="tab-friends" class="tab-content active">
+                <div id="friends-list" class="list-container">Loading...</div>
+            </div>
+
+            <div id="tab-search" class="tab-content hidden">
+                <div class="search-bar">
+                    <input type="text" id="search-input" placeholder="Search Email..." onkeyup="liveSearch()">
+                    <i class="fa fa-search"></i>
+                </div>
+                <div id="search-results" class="list-container"></div>
+            </div>
+
+            <div id="tab-requests" class="tab-content hidden">
+                <div id="requests-list" class="list-container">No pending requests</div>
+            </div>
+        </div>
+
+        <div id="chat-area" class="chat-area hidden-mobile">
+            <div id="empty-state" class="empty-state">
+                <img src="https://cdn-icons-png.flaticon.com/512/1041/1041916.png" width="100">
+                <h2>Welcome to TrueChats</h2>
+                <p>Select a friend to start messaging securely.</p>
+            </div>
+
+            <div id="active-chat" class="hidden">
+                <div class="chat-header">
+                    <i class="fa fa-arrow-left back-btn" onclick="closeChat()"></i>
+                    <img id="chat-user-img" src="">
+                    <div class="chat-info">
+                        <h3 id="chat-user-name">Friend Name</h3>
+                        <small>Tap for options</small>
+                    </div>
+                    <div class="actions">
+                        <i class="fa fa-phone-volume call-btn" onclick="startCallUI()"></i>
+                        <i class="fa fa-ellipsis-v menu-btn" onclick="toggleMenu()"></i>
+                        
+                        <div id="chat-menu" class="menu-dropdown hidden">
+                            <div onclick="removeFriend()"><i class="fa fa-user-minus"></i> Remove Friend</div>
+                            <div onclick="blockUser()"><i class="fa fa-ban"></i> Block User</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="messages-container">
+                    </div>
+
+                <div class="input-area">
+                    <input type="text" id="msg-input" placeholder="Type a message...">
+                    <button onclick="sendMessage()"><i class="fa fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="call-screen" class="call-overlay hidden">
+        <div class="call-content">
+            <img id="call-avatar" src="" class="pulse-animation">
+            <h2 id="call-name">User</h2>
+            <p id="call-status">Calling...</p>
+
+            <div class="call-buttons">
+                <div id="incoming-btns" class="hidden">
+                    <button class="btn-decline" onclick="rejectCall()"><i class="fa fa-phone-slash"></i></button>
+                    <button class="btn-accept" onclick="answerCall()"><i class="fa fa-phone"></i></button>
+                </div>
+                <div id="ongoing-btns">
+                    <button class="btn-end" onclick="endCall()"><i class="fa fa-phone-slash"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="remote-audio" autoplay></audio>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
