@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TrueChats Secure</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>TrueChats Pro v5</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     
@@ -13,9 +13,9 @@
             --primary: #6366f1; --bg: #0f172a; --surface: #1e293b;
             --text: #f8fafc; --text-sec: #94a3b8; --border: #334155;
             --msg-sent: #4f46e5; --msg-recv: #334155;
-            --green: #10b981; --red: #ef4444;
+            --success: #22c55e; --danger: #ef4444;
         }
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; -webkit-tap-highlight-color:transparent; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Manrope',sans-serif; }
         body { background:var(--bg); color:var(--text); height:100dvh; overflow:hidden; display:flex; flex-direction:column; }
         
         /* UTILS */
@@ -23,52 +23,45 @@
         .flex { display:flex; align-items:center; }
         .center { display:flex; justify-content:center; align-items:center; }
         .btn { background:none; border:none; cursor:pointer; color:var(--text); transition:0.2s; }
-        .btn:active { transform:scale(0.95); }
         .inp { width:100%; padding:12px; background:var(--bg); border:1px solid var(--border); color:white; border-radius:10px; outline:none; margin-bottom:10px; }
         .btn-main { width:100%; padding:12px; background:var(--primary); color:white; border-radius:10px; font-weight:600; }
 
-        /* AUTH SCREEN */
-        .auth-screen { position:fixed; inset:0; background:var(--bg); z-index:100; }
-        .auth-box { background:var(--surface); padding:30px; border-radius:20px; width:90%; max-width:350px; border:1px solid var(--border); text-align:center; }
+        /* AUTH */
+        .auth-screen { position:fixed; inset:0; background:var(--bg); z-index:1000; }
+        .auth-box { background:var(--surface); padding:30px; border-radius:20px; width:90%; max-width:350px; text-align:center; }
 
         /* MAIN APP */
-        .app-view { display:flex; width:100%; height:100%; }
-        .sidebar { width:100%; height:100%; display:flex; flex-direction:column; background:var(--surface); }
-        
-        .header { padding:15px; border-bottom:1px solid var(--border); justify-content:space-between; display:flex; align-items:center; background:var(--surface); }
+        .sidebar { width:100%; height:100%; display:flex; flex-direction:column; background:var(--surface); z-index:10; }
+        .header { padding:15px; border-bottom:1px solid var(--border); justify-content:space-between; display:flex; align-items:center; }
         .tabs { display:flex; padding:10px; gap:10px; background:var(--surface); }
-        .tab-btn { flex:1; padding:8px; border-radius:8px; color:var(--text-sec); font-weight:600; text-align:center; }
+        .tab-btn { flex:1; padding:10px; border-radius:8px; color:var(--text-sec); font-weight:600; text-align:center; cursor:pointer; }
         .tab-btn.active { background:var(--primary); color:white; }
 
         .list-area { flex:1; overflow-y:auto; padding:10px; background:var(--bg); }
-        .item { display:flex; align-items:center; padding:12px; margin-bottom:8px; background:var(--surface); border-radius:12px; cursor:pointer; }
-        .item img { width:50px; height:50px; border-radius:50%; object-fit:cover; margin-right:15px; background:#333; }
+        .item { display:flex; align-items:center; padding:12px; margin-bottom:8px; background:var(--surface); border-radius:12px; cursor:pointer; position:relative; }
+        .item img, .emoji-dp { width:50px; height:50px; border-radius:50%; object-fit:cover; margin-right:15px; background:#333; display:flex; align-items:center; justify-content:center; font-size:24px; }
         
-        /* CHAT SCREEN */
-        .chat-view { position:fixed; inset:0; background:var(--bg); z-index:50; transform:translateX(100%); transition:0.3s ease; display:flex; flex-direction:column; }
+        /* CHAT VIEW */
+        .chat-view { position:fixed; inset:0; background:var(--bg); z-index:500; transform:translateX(100%); transition:0.3s ease; display:flex; flex-direction:column; }
         .chat-view.active { transform:translateX(0); }
-        
         .chat-header { padding:10px 15px; background:var(--surface); display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); height:65px; }
         .messages { flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:8px; }
-        .bubble { max-width:75%; padding:10px 15px; border-radius:18px; font-size:0.95rem; position:relative; }
+        .bubble { max-width:75%; padding:10px 15px; border-radius:18px; font-size:0.95rem; line-height:1.4; }
         .sent { align-self:flex-end; background:var(--msg-sent); color:white; border-bottom-right-radius:2px; }
         .recv { align-self:flex-start; background:var(--msg-recv); color:var(--text); border-bottom-left-radius:2px; }
-        .msg-time { font-size:0.65rem; opacity:0.7; display:block; text-align:right; margin-top:3px; }
-
-        .input-area { padding:10px; background:var(--surface); display:flex; gap:10px; align-items:center; }
-
-        /* MODALS */
-        .modal { position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:200; display:none; justify-content:center; align-items:center; }
-        .modal-content { background:var(--surface); padding:25px; border-radius:20px; width:85%; max-width:320px; text-align:center; border:1px solid var(--border); }
 
         /* CALL UI */
-        #call-screen { background:#000; z-index:300; flex-direction:column; }
+        #call-screen { background:#000; z-index:2000; flex-direction:column; }
         #remote-vid { width:100%; height:100%; object-fit:cover; }
-        #local-vid { position:absolute; bottom:120px; right:20px; width:100px; height:150px; background:#333; border:2px solid white; border-radius:10px; object-fit:cover; z-index:310; }
-        .call-btns { position:absolute; bottom:40px; display:flex; gap:30px; z-index:320; }
-        .c-btn { width:60px; height:60px; border-radius:50%; font-size:1.5rem; color:white; display:flex; justify-content:center; align-items:center; cursor:pointer; }
-        .bg-r { background:var(--red); } .bg-g { background:var(--green); } .bg-b { background:rgba(255,255,255,0.2); }
+        #local-vid { position:absolute; bottom:120px; right:20px; width:100px; height:150px; border:2px solid white; border-radius:10px; object-fit:cover; z-index:2100; }
+        .call-btns { position:absolute; bottom:40px; display:flex; gap:20px; z-index:2200; }
+        .c-btn { width:60px; height:60px; border-radius:50%; font-size:1.5rem; color:white; display:flex; justify-content:center; align-items:center; background:rgba(255,255,255,0.2); }
+        .bg-r { background:var(--danger) !important; } .bg-g { background:var(--success) !important; }
+        .btn-active { background:white !important; color:black !important; }
 
+        /* MODAL */
+        .modal { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:3000; display:none; justify-content:center; align-items:center; backdrop-filter:blur(5px); }
+        .modal-box { background:var(--surface); padding:25px; border-radius:20px; width:85%; max-width:320px; text-align:center; border:1px solid var(--border); }
     </style>
 </head>
 <body>
@@ -78,21 +71,21 @@
 
     <div id="auth-ui" class="auth-screen center">
         <div class="auth-box">
-            <h1 style="color:var(--primary); margin-bottom:10px;">TrueChats</h1>
-            <input id="reg-name" class="inp" placeholder="Your Name">
-            <input id="email" class="inp" placeholder="Email">
+            <h1 style="color:var(--primary); margin-bottom:15px;">TrueChats Pro</h1>
+            <input id="reg-name" class="inp" placeholder="Display Name">
+            <input id="email" class="inp" placeholder="Email Address">
             <input id="pass" type="password" class="inp" placeholder="Password">
             <button onclick="handleAuth('login')" class="btn-main" style="margin-bottom:10px;">Login</button>
-            <button onclick="handleAuth('reg')" class="btn-main" style="background:transparent; border:1px solid var(--primary);">Register</button>
+            <button onclick="handleAuth('reg')" class="btn-main" style="background:transparent; border:1px solid var(--primary); color:var(--primary);">Create Account</button>
         </div>
     </div>
 
-    <div id="app-ui" class="app-view hidden">
+    <div id="app-ui" class="hidden" style="width:100%; height:100%; display:flex;">
         <div class="sidebar">
             <div class="header">
-                <div class="flex" style="gap:10px; cursor:pointer;" onclick="openHiddenCheck()">
-                    <i class="ri-lock-2-line"></i>
-                    <h2 id="main-title">Chats</h2>
+                <div class="flex" style="gap:10px; cursor:pointer;" onclick="toggleHiddenMode()">
+                    <i class="ri-shield-user-line" id="lock-icon"></i>
+                    <h2 id="title">Chats</h2>
                 </div>
                 <div class="flex" style="gap:15px;">
                     <button class="btn" onclick="logout()"><i class="ri-logout-box-r-line"></i></button>
@@ -101,18 +94,18 @@
             </div>
 
             <div class="tabs">
-                <div class="tab-btn active" onclick="switchTab('chats',this)">Chats</div>
-                <div class="tab-btn" onclick="switchTab('search',this)">Search</div>
-                <div class="tab-btn" onclick="switchTab('reqs',this)">Requests</div>
+                <div class="tab-btn active" onclick="setTab('chats',this)">CHATS</div>
+                <div class="tab-btn" onclick="setTab('calls',this)">CALLS</div>
+                <div class="tab-btn" onclick="setTab('search',this)">SEARCH</div>
+                <div class="tab-btn" onclick="setTab('reqs',this)">REQUESTS</div>
             </div>
 
             <div id="tab-chats" class="list-area"></div>
-            
+            <div id="tab-calls" class="list-area hidden"></div>
             <div id="tab-search" class="list-area hidden">
-                                <input class="inp" placeholder="Search by email..." onkeyup="findUser(this.value)">
+                <input class="inp" placeholder="Search Email..." onkeyup="findUser(this.value)">
                 <div id="search-res"></div>
             </div>
-
             <div id="tab-reqs" class="list-area hidden"></div>
         </div>
     </div>
@@ -120,69 +113,47 @@
     <div id="chat-ui" class="chat-view">
         <div class="chat-header">
             <button class="btn" onclick="closeChat()"><i class="ri-arrow-left-line" style="font-size:1.5rem;"></i></button>
-            <img id="head-img" src="" style="width:40px; height:40px; border-radius:50%;" onclick="showUserInfo()">
+            <div id="chat-head-dp"></div>
             <div style="flex:1;" onclick="showUserInfo()">
-                <h4 id="head-name" style="margin:0;">User</h4>
-                <small id="head-status" style="color:var(--text-sec); font-size:0.7rem;">Offline</small>
+                <h4 id="chat-name">User</h4>
+                <small id="chat-status" style="color:var(--text-sec);">Offline</small>
             </div>
-            
-            <button class="btn" onclick="hideCurrentChat()" style="margin-right:10px;"><i class="ri-eye-off-line"></i></button>
-            
-            <button class="btn" onclick="makeCall(false)"><i class="ri-phone-fill" style="font-size:1.4rem; color:var(--primary);"></i></button>
-            <button class="btn" onclick="makeCall(true)"><i class="ri-vidicon-fill" style="font-size:1.4rem; color:var(--primary); margin-left:10px;"></i></button>
+            <button class="btn" onclick="hideCurrentChat()" id="hide-btn" style="margin-right:10px;"><i class="ri-eye-off-line"></i></button>
+            <button class="btn" onclick="makeCall('audio')"><i class="ri-phone-line" style="color:var(--primary); font-size:1.4rem;"></i></button>
+            <button class="btn" onclick="makeCall('video')"><i class="ri-vidicon-line" style="color:var(--primary); font-size:1.4rem; margin-left:15px;"></i></button>
         </div>
-
         <div id="msg-box" class="messages"></div>
-
-        <div class="input-area">
-            <input id="msg-in" class="inp" style="margin:0; border-radius:30px;" placeholder="Message..." onkeypress="if(event.key==='Enter') sendMsg()">
-            <button class="btn" style="background:var(--primary); width:45px; height:45px; border-radius:50%; color:white;" onclick="sendMsg()">
-                <i class="ri-send-plane-fill"></i>
-            </button>
+        <div class="input-area" style="padding:10px; background:var(--surface); display:flex; gap:10px;">
+            <input id="msg-in" class="inp" style="margin:0; border-radius:25px;" placeholder="Message..." onkeypress="if(event.key==='Enter')sendMsg()">
+            <button class="btn" style="background:var(--primary); width:45px; height:45px; border-radius:50%;" onclick="sendMsg()"><i class="ri-send-plane-fill"></i></button>
         </div>
     </div>
 
-    <div id="call-screen" class="screen center hidden">
-        <video id="remote-vid" autoplay playsinline></video>
+    <div id="call-ui" class="screen center hidden">
+        <video id="remote-vid" autoplay playsinline style="width:100%; height:100%; object-fit:cover;"></video>
         <video id="local-vid" autoplay playsinline muted></video>
-        
-        <div style="position:absolute; top:60px; text-align:center;">
-            <h2 id="call-name">User</h2>
-            <p id="call-status">Connecting...</p>
+        <div style="position:absolute; top:80px; text-align:center;">
+            <h2 id="call-user">User</h2>
+            <p id="call-stat">Connecting...</p>
         </div>
-
         <div class="call-btns">
-            <div id="inc-btns" class="hidden flex" style="gap:30px;">
+            <div id="inc-btns" class="hidden flex" style="gap:25px;">
                 <div class="c-btn bg-r" onclick="rejectCall()"><i class="ri-phone-close-line"></i></div>
                 <div class="c-btn bg-g" onclick="answerCall()"><i class="ri-phone-answer-line"></i></div>
             </div>
-            <div id="act-btns" class="hidden flex" style="gap:20px;">
-                <div class="c-btn bg-b" onclick="toggleMute()"><i class="ri-mic-line"></i></div>
-                <div class="c-btn bg-b" onclick="toggleCam()"><i class="ri-camera-line"></i></div>
+            <div id="act-btns" class="flex" style="gap:20px;">
+                <div class="c-btn" id="spk-btn" onclick="toggleSpeaker()"><i class="ri-volume-up-line"></i></div>
                 <div class="c-btn bg-r" onclick="endCall()"><i class="ri-phone-close-line"></i></div>
             </div>
         </div>
     </div>
 
     <div id="pass-modal" class="modal">
-        <div class="modal-content">
-            <h3 id="pass-title">Security Check</h3>
-            <p id="pass-desc" style="color:var(--text-sec); font-size:0.9rem; margin-bottom:15px;">Enter password to access</p>
-            <input id="pass-in" type="password" class="inp" style="text-align:center; letter-spacing:4px;" placeholder="****">
-            <button onclick="verifyPass()" class="btn-main">Submit</button>
+        <div class="modal-box">
+            <h3 id="modal-title">Enter Password</h3>
+            <input id="pass-in" type="password" class="inp" style="text-align:center; letter-spacing:5px;" placeholder="****">
+            <button onclick="submitPass()" class="btn-main">Confirm</button>
             <button onclick="closeModal()" class="btn" style="margin-top:10px;">Cancel</button>
-        </div>
-    </div>
-
-    <div id="info-modal" class="modal" onclick="this.style.display='none'">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <img id="info-img" src="" style="width:80px; height:80px; border-radius:50%; margin-bottom:10px;">
-            <h3 id="info-name">Name</h3>
-            <p id="info-email" style="color:var(--text-sec);">Email</p>
-            <div style="margin-top:20px; padding:10px; background:var(--bg); border-radius:10px;">
-                <small>Last Active</small>
-                <div id="info-seen">Just now</div>
-            </div>
         </div>
     </div>
 
@@ -195,8 +166,8 @@
         const config={apiKey:"AIzaSyCAsCm1YcsAjHwyvIzxyMrBmZPLw2hlo18",authDomain:"truechats-8dac9.firebaseapp.com",projectId:"truechats-8dac9",storageBucket:"truechats-8dac9.firebasestorage.app",messagingSenderId:"685374771914",appId:"1:685374771914:web:81bf491264c1bb09061a33"};
         const app=initializeApp(config); const auth=getAuth(app); const db=getFirestore(app); const storage=getStorage(app);
 
-        let me, chatUser, chatId, peer, localStream, activeCall, showingHidden = false;
-        let passAction = null; // 'setup' or 'verify'
+        let me, chatU, chatId, peer, localSt, actCall, isHiddenMode = false;
+        let passTask = null, tempP = "";
 
         // AUTH
         onAuthStateChanged(auth, async(u)=>{
@@ -204,333 +175,210 @@
                 me=u;
                 document.getElementById('auth-ui').classList.add('hidden');
                 document.getElementById('app-ui').classList.remove('hidden');
-                
-                // Update Presence
-                await setDoc(doc(db,"users",u.uid),{
-                    uid:u.uid, email:u.email, displayName:u.displayName, 
-                    photoURL:u.photoURL || `https://ui-avatars.com/api/?name=${u.displayName}`,
-                    lastSeen:serverTimestamp()
-                },{merge:true});
-                
                 document.getElementById('my-dp').src = u.photoURL || `https://ui-avatars.com/api/?name=${u.displayName}`;
+                document.getElementById('my-n').innerText = u.displayName;
                 
-                initPeer(); loadChats(); loadReqs();
+                await setDoc(doc(db,"users",u.uid), {uid:u.uid, email:u.email, displayName:u.displayName, photoURL:u.photoURL, lastSeen:serverTimestamp()}, {merge:true});
+                
+                initPeer(); loadChats(); loadReqs(); loadCalls();
             } else {
                 document.getElementById('auth-ui').classList.remove('hidden');
             }
         });
 
-        window.handleAuth = async(type) => {
-            const e = document.getElementById('email').value;
-            const p = document.getElementById('pass').value;
-            const n = document.getElementById('reg-name').value;
-            try {
-                if(type==='reg'){
-                    if(!n) return alert("Name Required");
-                    const r = await createUserWithEmailAndPassword(auth,e,p);
-                    await updateProfile(r.user,{displayName:n});
-                    location.reload();
-                } else {
-                    await signInWithEmailAndPassword(auth,e,p);
-                }
-            } catch(err){ alert(err.message); }
-        }
-        window.logout = () => signOut(auth);
+        window.handleAuth=async(t)=>{
+            const e=document.getElementById('email').value, p=document.getElementById('pass').value, n=document.getElementById('reg-name').value;
+            try{ if(t==='reg'){ const r=await createUserWithEmailAndPassword(auth,e,p); await updateProfile(r.user,{displayName:n}); location.reload(); } else await signInWithEmailAndPassword(auth,e,p); } catch(err){alert(err.message);}
+        };
+        window.logout=()=>signOut(auth);
 
-        // --- CHAT LIST (PRIVACY FOCUSED) ---
-        window.loadChats = () => {
-            onSnapshot(doc(db,"users",me.uid), async(snap)=>{
-                const d = snap.data();
+        // UI HELPERS
+        const getDP=(u)=> u.photoURL ? `<img src="${u.photoURL}">` : `<div class="emoji-dp">👤</div>`;
+
+        // CHAT LIST & PRIVACY
+        window.loadChats=()=>{
+            onSnapshot(doc(db,"users",me.uid), async(s)=>{
+                const d = s.data();
                 const friends = d.friends || [];
                 const hidden = d.hidden || [];
+                const list = document.getElementById('tab-chats'); list.innerHTML = "";
                 
-                const list = document.getElementById('tab-chats');
-                list.innerHTML = "";
-
-                if(friends.length === 0) list.innerHTML = "<p style='text-align:center; padding:20px; color:#666;'>No chats yet. Search to add friends!</p>";
-
-                for(const fid of friends){
-                    // If hidden mode is OFF, skip hidden users
-                    if(!showingHidden && hidden.includes(fid)) continue;
-                    // If hidden mode is ON, ONLY show hidden users
-                    if(showingHidden && !hidden.includes(fid)) continue;
-
-                    const uDoc = await getDoc(doc(db,"users",fid));
-                    if(uDoc.exists()){
-                        const u = uDoc.data();
-                        const div = document.createElement('div');
-                        div.className = 'item';
-                        div.onclick = () => openChat(u);
-                        div.innerHTML = `
-                            <img src="${u.photoURL}">
-                            <div style="flex:1">
-                                <b>${u.displayName}</b>
-                                ${hidden.includes(fid) ? '<i class="ri-eye-off-line" style="float:right; color:var(--text-sec);"></i>' : ''}
-                                <br><small style="color:var(--text-sec)">Tap to chat</small>
-                            </div>`;
-                        list.appendChild(div);
-                    }
-                }
-
-                       // Title Update
-                document.getElementById('main-title').innerText = showingHidden ? "Hidden Chats" : "Chats";
-                document.getElementById('main-title').style.color = showingHidden ? "var(--red)" : "var(--text)";
-            });
-        }
-
-        // --- SEARCH & REQUESTS ---
-        window.findUser = async(val) => {
-            if(val.length<3) return;
-            const q = query(collection(db,"users"), where("email",">=",val), where("email","<=",val+'\uf8ff'));
-            const s = await getDocs(q);
-            const res = document.getElementById('search-res'); res.innerHTML="";
-            
-            s.forEach(doc => {
-                const u = doc.data();
-                if(u.uid !== me.uid){
-                    res.innerHTML += `
-                    <div class="item">
-                        <div style="flex:1"><b>${u.displayName}</b><br><small>${u.email}</small></div>
-                        <button class="btn" onclick="sendReq('${u.uid}')" style="background:var(--primary); color:white; padding:5px 15px; border-radius:5px;">Add</button>
-                    </div>`;
-                }
-            });
-        }
-        
-        window.sendReq = async(uid) => {
-            await updateDoc(doc(db,"users",uid), { requests: arrayUnion(me.uid) });
-            alert("Request Sent!");
-        }
-
-        window.loadReqs = () => {
-            onSnapshot(doc(db,"users",me.uid), async(s)=>{
-                const reqs = s.data().requests || [];
-                const list = document.getElementById('tab-reqs'); list.innerHTML="";
-                for(const id of reqs){
+                for(const id of friends){
+                    if(!isHiddenMode && hidden.includes(id)) continue; // Normal mode: Hide hidden
+                    if(isHiddenMode && !hidden.includes(id)) continue; // Hidden mode: Show ONLY hidden
+                    
                     const u = (await getDoc(doc(db,"users",id))).data();
-                    list.innerHTML += `
-                    <div class="item">
-                        <img src="${u.photoURL}">
-                        <div style="flex:1"><b>${u.displayName}</b> wants to connect</div>
-                        <button class="btn" onclick="acceptReq('${u.uid}')" style="background:var(--green); color:white; padding:5px 10px; border-radius:5px;">Accept</button>
-                    </div>`;
+                    const div = document.createElement('div');
+                    div.className = 'item';
+                    div.onclick = () => openChat(u);
+                    div.innerHTML = `${getDP(u)} <div style="flex:1"><b>${u.displayName}</b><br><small style="color:var(--text-sec)">Tap to chat</small></div>`;
+                    list.appendChild(div);
                 }
+                document.getElementById('title').innerText = isHiddenMode ? "Hidden Mode" : "Chats";
+                document.getElementById('lock-icon').className = isHiddenMode ? "ri-eye-line" : "ri-shield-user-line";
             });
-        }
+        };
 
-        window.acceptReq = async(uid) => {
-            await updateDoc(doc(db,"users",me.uid), { friends: arrayUnion(uid), requests: arrayRemove(uid) });
-            await updateDoc(doc(db,"users",uid), { friends: arrayUnion(me.uid) });
-        }
-
-        // --- CHAT ENGINE ---
-        window.openChat = (u) => {
-            chatUser = u;
-            chatId = [me.uid, u.uid].sort().join("_");
-            document.getElementById('chat-ui').classList.add('active');
-            document.getElementById('head-img').src = u.photoURL;
-            document.getElementById('head-name').innerText = u.displayName;
+        // HIDDEN LOGIC (UNHIDE INCLUDED)
+        window.toggleHiddenMode=async()=>{
+            const uData = (await getDoc(doc(db,"users",me.uid))).data();
+            if(!uData.chatPass) return alert("No password set. Use 'Hide Chat' first.");
             
-            // Status Check
-            const diff = u.lastSeen ? (Date.now() - u.lastSeen.toDate())/60000 : 999;
-            document.getElementById('head-status').innerText = diff < 5 ? "Online" : "Offline";
-            document.getElementById('head-status').style.color = diff < 5 ? "var(--green)" : "var(--text-sec)";
+            if(isHiddenMode){ isHiddenMode = false; loadChats(); } 
+            else { passTask = 'unlock'; document.getElementById('pass-modal').style.display='flex'; }
+        };
+
+        window.hideCurrentChat=async()=>{
+            const uData = (await getDoc(doc(db,"users",me.uid))).data();
+            const hidden = uData.hidden || [];
+            
+            if(hidden.includes(chatU.uid)){
+                // ALREADY HIDDEN -> UNHIDE
+                await updateDoc(doc(db,"users",me.uid), { hidden: arrayRemove(chatU.uid) });
+                alert("Chat Unhidden!");
+                document.getElementById('hide-btn').innerHTML = '<i class="ri-eye-off-line"></i>';
+            } else {
+                // HIDE
+                if(!uData.chatPass){ passTask = 'setup_1'; document.getElementById('pass-modal').style.display='flex'; } 
+                else { await updateDoc(doc(db,"users",me.uid), { hidden: arrayUnion(chatU.uid) }); alert("Chat Hidden!"); closeChat(); }
+            }
+        };
+
+        window.submitPass=async()=>{
+            const val = document.getElementById('pass-in').value;
+            document.getElementById('pass-in').value = "";
+            const uData = (await getDoc(doc(db,"users",me.uid))).data();
+
+            if(passTask === 'unlock'){
+                if(val === uData.chatPass){ isHiddenMode = true; loadChats(); closeModal(); } else alert("Wrong Password!");
+            } else if(passTask === 'setup_1'){
+                tempP = val; passTask = 'setup_2'; document.getElementById('modal-title').innerText = "Confirm Password";
+            } else if(passTask === 'setup_2'){
+                if(tempP === val){ await updateDoc(doc(db,"users",me.uid), { chatPass: val, hidden: arrayUnion(chatU.uid) }); alert("Hidden!"); closeChat(); closeModal(); } else alert("Mismatch!");
+            }
+        };
+        window.closeModal=()=>document.getElementById('pass-modal').style.display='none';
+
+        // CHAT ENGINE
+        window.openChat=(u)=>{
+            chatU = u; chatId = [me.uid, u.uid].sort().join("_");
+            document.getElementById('chat-ui').classList.add('active');
+            document.getElementById('chat-head-dp').innerHTML = getDP(u);
+            document.getElementById('chat-name').innerText = u.displayName;
+            
+            // Unhide Button Check
+            getDoc(doc(db,"users",me.uid)).then(s=>{
+                const h = s.data().hidden || [];
+                document.getElementById('hide-btn').innerHTML = h.includes(u.uid) ? '<i class="ri-eye-line"></i>' : '<i class="ri-eye-off-line"></i>';
+            });
 
             const box = document.getElementById('msg-box');
             onSnapshot(query(collection(db,"messages"), where("chatId","==",chatId), orderBy("ts","asc")), (snap)=>{
                 box.innerHTML = "";
-                snap.forEach(d => {
+                snap.forEach(d=>{
                     const m = d.data();
                     const div = document.createElement('div');
                     div.className = `bubble ${m.from===me.uid?'sent':'recv'}`;
-                    const time = m.ts ? m.ts.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '...';
-                    div.innerHTML = `${m.txt} <span class="msg-time">${time}</span>`;
+                    div.innerText = m.txt;
                     box.appendChild(div);
                 });
                 box.scrollTop = box.scrollHeight;
             });
-        }
-        window.closeChat = () => document.getElementById('chat-ui').classList.remove('active');
+        };
 
-        window.sendMsg = async() => {
-            const txt = document.getElementById('msg-in').value.trim();
-            if(!txt) return;
-            await addDoc(collection(db,"messages"), {txt, from:me.uid, chatId, ts:serverTimestamp()});
-            document.getElementById('msg-in').value = "";
-        }
+        window.sendMsg=async()=>{
+            const t = document.getElementById('msg-in').value; if(!t) return;
+            await addDoc(collection(db,"messages"), {txt:t, from:me.uid, chatId, ts:serverTimestamp()});
+            document.getElementById('msg-in').value="";
+        };
+        window.closeChat=()=>document.getElementById('chat-ui').classList.remove('active');
 
-        // --- HIDE CHAT LOGIC ---
-        window.openHiddenCheck = async() => {
-            const uDoc = await getDoc(doc(db,"users",me.uid));
-            const pass = uDoc.data().chatPass;
-            
-            if(showingHidden) {
-                // Currently showing hidden, so just toggle back to normal
-                showingHidden = false;
-                loadChats();
-            } else {
-                // Trying to access hidden
-                if(!pass) return alert("No hidden chats or password set yet.");
-                passAction = 'verify';
-                document.getElementById('pass-modal').style.display='flex';
-                document.getElementById('pass-title').innerText = "Access Hidden Chats";
-                document.getElementById('pass-desc').innerText = "Enter your password";
-            }
-        }
-
-        window.hideCurrentChat = async() => {
-            const uDoc = await getDoc(doc(db,"users",me.uid));
-            const pass = uDoc.data().chatPass;
-
-            if(!pass) {
-                // Set Password Flow
-                passAction = 'setup_1';
-                document.getElementById('pass-modal').style.display='flex';
-                document.getElementById('pass-title').innerText = "Set Password";
-                document.getElementById('pass-desc').innerText = "Create a password for hidden chats";
-            } else {
-                // Directly Hide
-                await updateDoc(doc(db,"users",me.uid), { hidden: arrayUnion(chatUser.uid) });
-                alert("Chat Hidden!");
-                closeChat();
-                loadChats();
-            }
-        }
-
-        let tempPass = "";
-        window.verifyPass = async() => {
-            const inp = document.getElementById('pass-in').value;
-            document.getElementById('pass-in').value = "";
-            
-            if(passAction === 'verify') {
-                const uDoc = await getDoc(doc(db,"users",me.uid));
-                if(uDoc.data().chatPass === inp) {
-                    showingHidden = true;
-                    closeModal();
-                    loadChats();
-                } else {
-                    alert("Wrong Password");
-                }
-            } else if(passAction === 'setup_1') {
-                tempPass = inp;
-                passAction = 'setup_2';
-                document.getElementById('pass-title').innerText = "Confirm Password";
-                document.getElementById('pass-desc').innerText = "Re-enter to confirm";
-            } else if(passAction === 'setup_2') {
-                if(tempPass === inp) {
-                    await updateDoc(doc(db,"users",me.uid), { chatPass: inp });
-                    alert("Password Set!");
-                    closeModal();
-                    // Now hide the chat
-                    await updateDoc(doc(db,"users",me.uid), { hidden: arrayUnion(chatUser.uid) });
-                    closeChat();
-                    loadChats();
-                } else {
-                    alert("Passwords do not match. Try again.");
-                    closeModal();
-                }
-            }
-         }
-                window.closeModal = () => document.getElementById('pass-modal').style.display='none';
-
-        // --- CALLS (SEPARATE FUNCTIONS) ---
+        // CALLS (84s AUTO-CUT)
         function initPeer(){
             peer = new Peer(me.uid);
-            peer.on('call', (call)=>{
-                activeCall = call;
-                getDoc(doc(db,"users",call.peer)).then(s=>{
-                    const u = s.data();
-                    document.getElementById('call-screen').classList.remove('hidden');
-                    document.getElementById('inc-btns').classList.remove('hidden');
-                    document.getElementById('act-btns').classList.add('hidden');
-                    document.getElementById('call-name').innerText = u.displayName;
-                    document.getElementById('call-status').innerText = "Incoming " + call.metadata.type + " call...";
-                    document.getElementById('ring-in').play();
-                    
-                    window.answerCall = async() => {
-                        document.getElementById('ring-in').pause();
-                        const isVideo = call.metadata.type === 'video';
-                        localStream = await navigator.mediaDevices.getUserMedia({video:isVideo, audio:true});
-                        
-                        if(isVideo) document.getElementById('local-vid').srcObject = localStream;
-                        else document.getElementById('local-vid').classList.add('hidden');
-
-                        call.answer(localStream);
-                        setupCallActive(call);
-                    }
-                });
+            peer.on('call', (c)=>{
+                actCall = c;
+                document.getElementById('call-ui').classList.remove('hidden');
+                document.getElementById('inc-btns').classList.remove('hidden');
+                document.getElementById('act-btns').classList.add('hidden');
+                document.getElementById('ring-in').play();
+                
+                window.answerCall=async()=>{
+                    document.getElementById('ring-in').pause();
+                    localSt = await navigator.mediaDevices.getUserMedia({video:c.metadata.type==='video', audio:true});
+                    if(c.metadata.type==='video') document.getElementById('local-vid').srcObject = localSt;
+                    c.answer(localSt); handleStream(c);
+                };
             });
         }
 
-        window.makeCall = async(video) => {
-            const type = video ? 'video' : 'voice';
-            document.getElementById('call-screen').classList.remove('hidden');
-            document.getElementById('inc-btns').classList.add('hidden');
-            document.getElementById('act-btns').classList.remove('hidden');
-            document.getElementById('call-name').innerText = chatUser.displayName;
-            document.getElementById('call-status').innerText = "Calling...";
+        window.makeCall=async(type)=>{
+            document.getElementById('call-ui').classList.remove('hidden');
             document.getElementById('ring-out').play();
+            setTimeout(()=>{ if(actCall && !actCall.open) endCall(); }, 84000); // 84s Auto-Cut
 
             try {
-                localStream = await navigator.mediaDevices.getUserMedia({video:video, audio:true});
-                if(video) document.getElementById('local-vid').srcObject = localStream;
-                else document.getElementById('local-vid').classList.add('hidden');
+                localSt = await navigator.mediaDevices.getUserMedia({video:type==='video', audio:true});
+                if(type==='video') document.getElementById('local-vid').srcObject = localSt;
+                const c = peer.call(chatU.uid, localSt, {metadata:{type}});
+                actCall = c; handleStream(c);
+                await addDoc(collection(db,"calls"), {from:me.uid, to:chatU.uid, type, ts:serverTimestamp()});
+            } catch(e){ alert("Mic Error!"); endCall(); }
+        };
 
-                const call = peer.call(chatUser.uid, localStream, {metadata:{type}});
-                setupCallActive(call);
-            } catch(e) { alert("Permission Error: "+e.message); closeCallUI(); }
-        }
-
-        function setupCallActive(call){
-            activeCall = call;
-            call.on('stream', (rs)=>{
+        function handleStream(c){
+            
+              c.on('stream', (rs)=>{
                 document.getElementById('ring-out').pause();
-                document.getElementById('call-status').innerText = "Connected";
+                document.getElementById('remote-vid').srcObject = rs;
                 document.getElementById('inc-btns').classList.add('hidden');
                 document.getElementById('act-btns').classList.remove('hidden');
-                document.getElementById('remote-vid').srcObject = rs;
+                document.getElementById('call-stat').innerText = "Connected";
             });
-            call.on('close', closeCallUI);
+            c.on('close', endCall);
         }
 
-        window.endCall = () => { if(activeCall) activeCall.close(); closeCallUI(); }
-        window.rejectCall = () => { document.getElementById('ring-in').pause(); if(activeCall) activeCall.close(); closeCallUI(); }
-        
-        function closeCallUI(){
-            document.getElementById('call-screen').classList.add('hidden');
-            document.getElementById('ring-in').pause();
-            document.getElementById('ring-out').pause();
-            if(localStream) localStream.getTracks().forEach(t=>t.stop());
-            document.getElementById('remote-vid').srcObject=null;
-            location.reload(); // Clean reset
-        }
+        window.endCall=()=>{ if(actCall) actCall.close(); document.getElementById('call-ui').classList.add('hidden'); location.reload(); };
+        window.toggleSpeaker=()=>{ const b=document.getElementById('spk-btn'); b.classList.toggle('btn-active'); };
 
-        // --- USER INFO ---
-        window.showUserInfo = () => {
-            document.getElementById('info-modal').style.display='flex';
-            document.getElementById('info-img').src = chatUser.photoURL;
-            document.getElementById('info-name').innerText = chatUser.displayName;
-            document.getElementById('info-email').innerText = chatUser.email;
-            document.getElementById('info-seen').innerText = chatUser.lastSeen ? chatUser.lastSeen.toDate().toLocaleString() : "Unknown";
-        }
+        // HISTORY & REQS
+        window.loadCalls=()=>{
+            onSnapshot(query(collection(db,"calls"), where("from","==",me.uid), orderBy("ts","desc")), (s)=>{
+                const d = document.getElementById('tab-calls'); d.innerHTML = "";
+                s.forEach(doc=>{
+                    const c = doc.data();
+                    d.innerHTML += `<div class="item"><div><b>Outgoing ${c.type}</b><br><small>${c.ts?.toDate().toLocaleString()}</small></div></div>`;
+                });
+            });
+        };
 
-        window.switchTab=(t,el)=>{
-            ['chats','search','reqs'].forEach(x=>document.getElementById(`tab-${x}`).classList.add('hidden'));
+        window.setTab=(t,el)=>{
+            ['chats','calls','search','reqs'].forEach(x=>document.getElementById(`tab-${x}`).classList.add('hidden'));
             document.getElementById(`tab-${t}`).classList.remove('hidden');
             document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
             el.classList.add('active');
-        }
-        
-        window.changeDP=()=>{
-            const i=document.createElement('input'); i.type='file';
-            i.onchange=async(e)=>{
-                const f=e.target.files[0]; if(!f)return;
-                const r=ref(storage,`dp/${me.uid}`); await uploadBytes(r,f);
-                const u=await getDownloadURL(r); await updateProfile(me,{photoURL:u});
-                location.reload();
-            }; i.click();
-        }
+        };
+
+        window.findUser=async(v)=>{
+            if(v.length<3) return;
+            const q = query(collection(db,"users"), where("email",">=",v), where("email","<=",v+'\uf8ff'));
+            const s = await getDocs(q);
+            const d = document.getElementById('search-res'); d.innerHTML = "";
+            s.forEach(doc=>{ const u=doc.data(); if(u.uid!==me.uid) d.innerHTML += `<div class="item"><div><b>${u.displayName}</b><br><small>${u.email}</small></div><button onclick="sendReq('${u.uid}')" class="btn-main" style="width:auto; padding:5px 15px;">Add</button></div>`; });
+        };
+        window.sendReq=async(id)=>{ await updateDoc(doc(db,"users",id), {requests: arrayUnion(me.uid)}); alert("Sent!"); };
+        window.loadReqs=()=>{
+            onSnapshot(doc(db,"users",me.uid), async(s)=>{
+                const r = s.data().requests || [];
+                const d = document.getElementById('tab-reqs'); d.innerHTML = "";
+                for(const id of r){
+                    const u = (await getDoc(doc(db,"users",id))).data();
+                    d.innerHTML += `<div class="item"><div><b>${u.displayName}</b> wants to connect</div><button onclick="accReq('${u.uid}')" class="btn-main" style="width:auto; padding:5px; background:var(--success);">Accept</button></div>`;
+                }
+            });
+        };
+        window.accReq=async(id)=>{ await updateDoc(doc(db,"users",me.uid), {friends:arrayUnion(id), requests:arrayRemove(id)}); await updateDoc(doc(db,"users",id), {friends:arrayUnion(me.uid)}); };
 
     </script>
 </body>
-</html>
+</html>              
