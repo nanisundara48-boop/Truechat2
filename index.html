@@ -3,175 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TrueChats Ultra</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>TrueChats Ultimate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     
     <style>
-        /* --- CSS STYLES START --- */
         :root {
-            --primary: #6c5ce7;
-            --primary-dark: #5849be;
-            --bg-grad: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --chat-bg: #e5ddd5;
-            --sent: #6c5ce7;
-            --received: #ffffff;
-            --white: #ffffff;
-            --dark: #2d3436;
+            --primary: #5e54e4; --bg: #eef2f6; --white: #fff;
+            --sent: #5e54e4; --received: #fff; --red: #ff4b5c; --green: #2ecc71;
         }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body { height: 100vh; overflow: hidden; background: #f0f2f5; }
+        .hidden { display: none !important; } .flex { display: flex; } .center { display: flex; justify-content: center; align-items: center; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { height: 100vh; overflow: hidden; background-color: #f0f2f5; }
-
-        /* Utility Classes */
-        .hidden { display: none !important; }
-        .flex { display: flex; }
-        .center { display: flex; justify-content: center; align-items: center; }
-
-        /* --- AUTH SCREEN --- */
-        #auth-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-grad); z-index: 2000;
-            flex-direction: column;
-        }
-        .auth-card {
-            background: rgba(255, 255, 255, 0.95); padding: 40px; border-radius: 20px;
-            width: 90%; max-width: 400px; text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            animation: slideUp 0.5s ease-out;
-        }
-        .auth-card h1 { color: var(--primary); margin-bottom: 5px; }
-        .input-group {
-            background: #f1f2f6; border-radius: 12px; margin-bottom: 15px;
-            padding: 0 15px; display: flex; align-items: center;
-        }
-        .input-group input { border: none; background: transparent; padding: 15px; width: 100%; outline: none; }
-        .btn-main {
-            width: 100%; padding: 12px; border: none; border-radius: 12px;
-            background: var(--primary); color: white; font-weight: 600; cursor: pointer;
-            transition: 0.2s; margin-bottom: 10px;
-        }
-        .btn-main:active { transform: scale(0.98); }
+        /* AUTH */
+        #auth-screen { position: fixed; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea, #764ba2); z-index: 2000; flex-direction: column; }
+        .card { background: rgba(255,255,255,0.95); padding: 40px; border-radius: 20px; text-align: center; width: 90%; max-width: 350px; }
+        input { width: 100%; padding: 15px; margin-bottom: 15px; border: none; background: #f0f2f5; border-radius: 10px; outline: none; }
+        .btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; margin-bottom: 10px; }
         .btn-sec { background: transparent; border: 1px solid #ccc; color: #555; }
 
-        /* --- APP LAYOUT --- */
-        #app-screen { display: flex; height: 100%; width: 100%; }
-
-        /* Sidebar */
-        .sidebar {
-            width: 350px; background: white; border-right: 1px solid #ddd;
-            display: flex; flex-direction: column; z-index: 10;
-        }
-        .header {
-            padding: 15px; background: #f8f9fa; display: flex; align-items: center;
-            border-bottom: 1px solid #eee;
-        }
-        .my-dp {
-            width: 50px; height: 50px; border-radius: 50%; object-fit: cover;
-            border: 2px solid var(--primary); margin-right: 15px; cursor: pointer;
-        }
-        .tabs { display: flex; padding: 10px; gap: 5px; }
-        .tab-btn {
-            flex: 1; padding: 10px; border: none; background: #f1f2f6; border-radius: 8px;
-            cursor: pointer; color: #666; font-size: 13px;
-        }
-        .tab-btn.active { background: var(--primary); color: white; font-weight: 600; }
+        /* APP */
+        #app-screen { display: flex; height: 100%; }
+        .sidebar { width: 350px; background: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; z-index: 10; }
+        .header { padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; }
+        .my-dp { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
         
+        /* TABS */
+        .tabs { display: flex; background: #f8f9fa; padding: 5px; gap: 5px; }
+        .tab-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 8px; cursor: pointer; color: #666; }
+        .tab-btn.active { background: white; color: var(--primary); font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
         .list-area { flex: 1; overflow-y: auto; padding: 10px; }
-        .user-card {
-            display: flex; align-items: center; padding: 12px; background: white;
-            border-radius: 12px; margin-bottom: 8px; cursor: pointer;
-            transition: 0.2s; border: 1px solid #f0f0f0;
-        }
-        .user-card:active { background: #f5f5f5; transform: scale(0.98); }
-        .user-card img { width: 45px; height: 45px; border-radius: 50%; margin-right: 15px; }
-        .btn-add {
-            padding: 5px 12px; border-radius: 20px; border: none;
-            background: var(--primary); color: white; font-size: 12px;
-        }
+        .item { display: flex; align-items: center; padding: 12px; background: white; margin-bottom: 8px; border-radius: 12px; cursor: pointer; }
+        .item:active { transform: scale(0.98); background: #f0f0f0; }
+        .item img { width: 45px; height: 45px; border-radius: 50%; margin-right: 15px; }
 
-        /* Chat Area */
-        .chat-area {
-            flex: 1; display: flex; flex-direction: column; background: #eef1f5;
-            position: relative;
-        }
-        /* Pattern Background */
-        .chat-area::before {
-            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url("https://www.transparenttextures.com/patterns/cubes.png");
-            opacity: 0.05; pointer-events: none;
-        }
-
-        /* Empty State */
-        #empty-state {
-            height: 100%; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; color: #999;
-        }
-
-        /* Active Chat */
-        #active-chat-interface {
-            display: flex; flex-direction: column; height: 100%; z-index: 5;
-        }
-        .chat-header {
-            background: white; padding: 10px 15px; display: flex; align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        .back-btn { display: none; margin-right: 15px; font-size: 20px; cursor: pointer; }
-        .chat-actions i { font-size: 20px; color: var(--primary); margin-left: 20px; cursor: pointer; }
-
-        .messages-box {
-            flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px;
-        }
-        .msg {
-            max-width: 75%; padding: 10px 15px; border-radius: 15px; font-size: 14px;
-            position: relative; word-wrap: break-word; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        /* SETTINGS MODAL */
+        .settings-modal { position: absolute; bottom: 60px; left: 10px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); width: 250px; z-index: 100; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 14px; }
+        
+        /* CHAT */
+        .chat-area { flex: 1; display: flex; flex-direction: column; background: #eef1f5; position: relative; }
+        .chat-area::before { content: ""; position: absolute; width: 100%; height: 100%; opacity: 0.05; background-image: url("https://www.transparenttextures.com/patterns/cubes.png"); pointer-events: none; }
+        
+        .chat-header { background: white; padding: 10px 15px; display: flex; align-items: center; height: 65px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .back-btn { display: none; margin-right: 15px; font-size: 20px; }
+        
+        .messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; height: 100%; }
+        .msg { max-width: 75%; padding: 10px 15px; border-radius: 15px; font-size: 14px; position: relative; word-wrap: break-word; }
         .sent { align-self: flex-end; background: var(--sent); color: white; border-bottom-right-radius: 2px; }
-        .received { align-self: flex-start; background: var(--received); color: #333; border-bottom-left-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .received { align-self: flex-start; background: var(--received); border-bottom-left-radius: 2px; }
 
-        .input-bar {
-            padding: 10px; background: white; display: flex; align-items: center;
-        }
-        .input-bar input {
-            flex: 1; padding: 12px 20px; background: #f0f2f5; border: none;
-            border-radius: 25px; outline: none; margin-right: 10px;
-        }
-        .send-btn {
-            width: 45px; height: 45px; border-radius: 50%; background: var(--primary);
-            color: white; border: none; display: flex; align-items: center; justify-content: center;
-        }
+        /* View Once Image */
+        .view-once-img { width: 200px; height: 150px; object-fit: cover; filter: blur(20px); cursor: pointer; border-radius: 10px; transition: 0.3s; }
+        .view-once-img.viewed { display: none; }
+        .viewed-text { color: #888; font-style: italic; font-size: 12px; }
 
-        /* Call Overlay */
-        #call-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #2d3436, #000000);
-            z-index: 5000; flex-direction: column; color: white;
-        }
-        .pulse-avatar {
-            width: 120px; height: 120px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.2);
-            margin-bottom: 20px; animation: pulse 2s infinite;
-        }
-        .call-btns { display: flex; gap: 40px; margin-top: 50px; }
-        .btn-call {
-            width: 65px; height: 65px; border-radius: 50%; border: none; color: white;
-            font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
-        .bg-green { background: #2ecc71; }
-        .bg-red { background: #ff4757; }
+        .input-bar { padding: 10px; background: white; display: flex; align-items: center; gap: 10px; }
+        .input-bar input { margin: 0; padding: 12px 20px; background: #f0f2f5; border-radius: 30px; }
+        .icon-btn { width: 40px; height: 40px; border-radius: 50%; background: #f0f2f5; border: none; color: #555; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .icon-btn.active { background: var(--primary); color: white; }
 
-        /* --- ANIMATIONS --- */
-        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); } 70% { box-shadow: 0 0 0 30px rgba(255,255,255,0); } 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); } }
+        /* CALL SCREEN */
+        #call-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #111; z-index: 5000; flex-direction: column; color: white; }
+        #call-avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.2); margin-bottom: 20px; animation: pulse 2s infinite; }
+        .call-controls { display: flex; gap: 30px; margin-top: 50px; }
+        .c-btn { width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 24px; cursor: pointer; display: flex; justify-content: center; align-items: center; color: white; }
+        .bg-red { background: var(--red); } .bg-green { background: var(--green); } .bg-grey { background: #333; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); } 70% { box-shadow: 0 0 0 30px rgba(0,0,0,0); } 100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); } }
 
-        /* --- MOBILE RESPONSIVE LOGIC --- */
+        /* Mobile */
         @media (max-width: 768px) {
             .sidebar { width: 100%; height: 100%; }
-            .chat-area { 
-                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                z-index: 50; transform: translateX(100%); transition: transform 0.3s ease-in-out;
-            }
+            .chat-area { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; transform: translateX(100%); transition: 0.3s; }
             .chat-area.active { transform: translateX(0); }
             .back-btn { display: block; }
         }
@@ -180,94 +86,103 @@
 <body>
 
     <div id="auth-screen" class="center">
-        <div class="auth-card">
-            <h1>TrueChats 💎</h1>
-            <p>Experience the new design.</p>
-            <div class="input-group">
-                <i class="fa fa-envelope" style="color:#aaa"></i>
-                <input type="email" id="email" placeholder="Email Address">
-            </div>
-            <div class="input-group">
-                <i class="fa fa-lock" style="color:#aaa"></i>
-                <input type="password" id="password" placeholder="Password">
-            </div>
-            <button onclick="login()" class="btn-main">Login</button>
-            <button onclick="register()" class="btn-main btn-sec">Create Account</button>
-            <p onclick="forgotPass()" style="font-size:12px; color:#666; margin-top:10px;">Forgot Password?</p>
+        <div class="card">
+            <h1>TrueChats 🔥</h1>
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="login()" class="btn">Login</button>
+            <button onclick="register()" class="btn btn-sec">Register</button>
+            <p onclick="forgotPass()" style="font-size:12px; margin-top:10px; color:#666;">Forgot Password?</p>
         </div>
     </div>
 
     <div id="app-screen" class="hidden">
-        
-        <div id="sidebar" class="sidebar">
+        <div class="sidebar">
             <div class="header">
-                <img id="my-dp" class="my-dp" src="" onclick="changeDP()">
-                <div style="flex:1">
+                <div class="flex center" onclick="document.getElementById('settings-modal').classList.toggle('hidden')">
+                    <img id="my-dp" class="my-dp" src="">
                     <h3 id="my-name">Me</h3>
-                    <small style="color:var(--primary)">● Online</small>
                 </div>
-                <i class="fa fa-sign-out-alt" style="color:red; cursor:pointer;" onclick="logout()"></i>
+                <i class="fa fa-power-off" onclick="logout()" style="color:red; cursor:pointer;"></i>
+            </div>
+
+            <div id="settings-modal" class="settings-modal hidden">
+                <h4>Settings</h4>
+                <div class="setting-row">
+                    <span>Mute Notifications</span>
+                    <input type="checkbox" id="mute-toggle">
+                </div>
+                <div class="setting-row">
+                    <span>Auto-Delete (Hrs)</span>
+                    <select id="delete-time">
+                        <option value="24">24 Hours</option>
+                        <option value="48" selected>48 Hours</option>
+                    </select>
+                </div>
+                <div class="setting-row">
+                    <span>Change DP</span>
+                    <button onclick="changeDP()" style="padding:2px 8px; font-size:10px;">Upload</button>
+                </div>
             </div>
 
             <div class="tabs">
-                <button onclick="showTab('friends')" class="tab-btn active">Chats</button>
-                <button onclick="showTab('search')" class="tab-btn">Search</button>
-                <button onclick="showTab('requests')" class="tab-btn">Requests (<span id="req-count">0</span>)</button>
+                <button onclick="switchTab('friends')" class="tab-btn active">Chats</button>
+                <button onclick="switchTab('calls')" class="tab-btn">Calls</button>
+                <button onclick="switchTab('search')" class="tab-btn">Search</button>
+                <button onclick="switchTab('requests')" class="tab-btn">Requests <span id="req-badge">0</span></button>
             </div>
 
             <div id="tab-friends" class="list-area">Loading...</div>
-            
+            <div id="tab-calls" class="list-area hidden"></div>
             <div id="tab-search" class="list-area hidden">
-                <div class="input-group">
-                    <input type="text" id="search-input" placeholder="Search Email..." onkeyup="searchUsers()">
-                </div>
-                <div id="search-results"></div>
+                <input type="text" id="search-in" placeholder="Search..." onkeyup="searchUsers()" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
+                <div id="search-res"></div>
             </div>
-
             <div id="tab-requests" class="list-area hidden"></div>
         </div>
 
         <div id="chat-area" class="chat-area">
-            <div id="empty-state">
-                <i class="fa fa-comments" style="font-size:60px; color:#ccc; margin-bottom:20px;"></i>
-                <p>Select a friend to start chatting</p>
+            <div id="empty-view" class="center" style="height:100%; color:#999; flex-direction:column;">
+                <i class="fa fa-comments" style="font-size:50px; margin-bottom:10px;"></i>
+                <p>Select a conversation</p>
             </div>
-
-            <div id="active-chat-interface" class="hidden">
+            
+            <div id="chat-view" class="hidden" style="display:flex; flex-direction:column; height:100%;">
                 <div class="chat-header">
                     <i class="fa fa-arrow-left back-btn" onclick="closeChat()"></i>
-                    <img id="chat-img" class="my-dp" style="width:40px; height:40px;">
-                    <div style="flex:1">
-                        <h3 id="chat-name" style="font-size:16px;">User</h3>
+                    <img id="chat-img" class="my-dp">
+                    <div style="flex:1; margin-left:10px;">
+                        <h3 id="chat-name">User</h3>
                     </div>
-                    <div class="chat-actions">
-                        <i class="fa fa-phone" onclick="startCallUI()"></i>
-                        <i class="fa fa-trash" onclick="removeFriend()" style="color:red"></i>
-                    </div>
+                    <i class="fa fa-phone" onclick="startCallUI()" style="font-size:20px; color:var(--primary); cursor:pointer;"></i>
                 </div>
 
-                <div id="messages" class="messages-box"></div>
+                <div id="messages" class="messages"></div>
 
                 <div class="input-bar">
-                    <input type="text" id="msg-input" placeholder="Type a message...">
-                    <button class="send-btn" onclick="sendMessage()"><i class="fa fa-paper-plane"></i></button>
+                    <button class="icon-btn" onclick="sendViewOnce()"><i class="fa fa-eye-slash"></i></button>
+                    <input type="text" id="msg-input" placeholder="Type message...">
+                    <button class="icon-btn active" onclick="sendMessage()"><i class="fa fa-paper-plane"></i></button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="call-overlay" class="center hidden">
-        <img id="call-avatar" class="pulse-avatar" src="">
+    <div id="call-screen" class="center hidden">
+        <img id="call-avatar" src="">
         <h2 id="call-user">User</h2>
         <p id="call-status">Calling...</p>
-        
-        <div class="call-btns">
-            <div id="incoming-btns" class="hidden" style="display:flex; gap:20px;">
-                <button class="btn-call bg-red" onclick="rejectCall()"><i class="fa fa-times"></i></button>
-                <button class="btn-call bg-green" onclick="answerCall()"><i class="fa fa-phone"></i></button>
+        <p id="call-timer" style="margin-top:10px; font-weight:bold;"></p>
+
+        <div class="call-controls">
+            <div id="inc-btns" class="hidden flex" style="gap:20px;">
+                <button class="c-btn bg-red" onclick="rejectCall()"><i class="fa fa-times"></i></button>
+                <button class="c-btn bg-green" onclick="answerCall()"><i class="fa fa-phone"></i></button>
             </div>
-            <div id="outgoing-btns">
-                <button class="btn-call bg-red" onclick="endCall()"><i class="fa fa-phone-slash"></i></button>
+            <div id="ong-btns" class="flex" style="gap:20px;">
+                <button class="c-btn bg-grey" onclick="toggleMute()" id="mute-btn"><i class="fa fa-microphone"></i></button>
+                <button class="c-btn bg-grey" onclick="toggleSpeaker()"><i class="fa fa-volume-up"></i></button>
+                <button class="c-btn bg-red" onclick="endCall()"><i class="fa fa-phone-slash"></i></button>
             </div>
         </div>
     </div>
@@ -280,233 +195,260 @@
         import { getFirestore, collection, addDoc, query, where, onSnapshot, serverTimestamp, updateDoc, doc, setDoc, getDocs, arrayUnion, arrayRemove, getDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
-        const firebaseConfig = {
-          apiKey: "AIzaSyCAsCm1YcsAjHwyvIzxyMrBmZPLw2hlo18",
-          authDomain: "truechats-8dac9.firebaseapp.com",
-          projectId: "truechats-8dac9",
-          storageBucket: "truechats-8dac9.firebasestorage.app",
-          messagingSenderId: "685374771914",
-          appId: "1:685374771914:web:81bf491264c1bb09061a33"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
+        const config={apiKey:"AIzaSyCAsCm1YcsAjHwyvIzxyMrBmZPLw2hlo18",authDomain:"truechats-8dac9.firebaseapp.com",projectId:"truechats-8dac9",storageBucket:"truechats-8dac9.firebasestorage.app",messagingSenderId:"685374771914",appId:"1:685374771914:web:81bf491264c1bb09061a33"};
+        const app=initializeApp(config); const auth=getAuth(app); const db=getFirestore(app); const storage=getStorage(app);
 
         let currentUser, currentChatUser, chatId, peer, activeCall, localStream;
-        const getAvatar = (u) => u.photoURL ? u.photoURL : `https://ui-avatars.com/api/?name=${u.displayName}&background=random&color=fff&size=128`;
+        let callStartTime, callTimerInt;
+        let isMuted = false;
 
-        // --- AUTH ---
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
+        const getAvatar = (u) => u.photoURL || `https://ui-avatars.com/api/?name=${u.displayName}&background=random&color=fff`;
+
+        // AUTH
+        onAuthStateChanged(auth, async(u)=>{
+            if(u){
+                currentUser=u; 
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('app-screen').classList.remove('hidden');
-                document.getElementById('my-name').innerText = user.displayName;
-                document.getElementById('my-dp').src = getAvatar(user);
-                await setDoc(doc(db, "users", user.uid), { uid: user.uid, email: user.email.toLowerCase(), displayName: user.displayName, photoURL: user.photoURL || null }, { merge: true });
-                initPeer(user.uid);
-                loadFriends();
-                loadRequests();
+                document.getElementById('my-name').innerText=u.displayName;
+                document.getElementById('my-dp').src=getAvatar(u);
+                await setDoc(doc(db,"users",u.uid),{uid:u.uid,email:u.email.toLowerCase(),displayName:u.displayName,photoURL:u.photoURL},{merge:true});
+                
+                // Notifications Permission
+                if(Notification.permission !== 'granted') Notification.requestPermission();
+                
+                initPeer(u.uid); loadFriends(); loadRequests(); loadCalls();
             } else {
                 document.getElementById('auth-screen').classList.remove('hidden');
                 document.getElementById('app-screen').classList.add('hidden');
             }
         });
 
-        // --- CHAT OPENING LOGIC (FIXED) ---
-        window.openChat = (u) => {
-            currentChatUser = u;
-            const uid1 = currentUser.uid < u.uid ? currentUser.uid : u.uid;
-            const uid2 = currentUser.uid < u.uid ? u.uid : currentUser.uid;
-            chatId = `${uid1}_${uid2}`;
+        // NOTIFICATIONS
+        function notify(title, body) {
+            const muted = document.getElementById('mute-toggle').checked;
+            if(!muted && document.visibilityState === 'hidden') {
+                new Notification(title, { body: body, icon: 'https://cdn-icons-png.flaticon.com/512/1041/1041916.png' });
+            }
+        }
 
-            document.getElementById('empty-state').classList.add('hidden');
-            document.getElementById('active-chat-interface').classList.remove('hidden');
-            document.getElementById('chat-name').innerText = u.displayName;
-            document.getElementById('chat-img').src = getAvatar(u);
-            
-            // Mobile Slide Animation
+        // CHAT & MESSAGES
+        window.openChat = (u) => {
+            currentChatUser=u;
+            chatId = currentUser.uid < u.uid ? `${currentUser.uid}_${u.uid}` : `${u.uid}_${currentUser.uid}`;
+            document.getElementById('empty-view').classList.add('hidden');
+            document.getElementById('chat-view').classList.remove('hidden');
+            document.getElementById('chat-name').innerText=u.displayName;
+            document.getElementById('chat-img').src=getAvatar(u);
             document.getElementById('chat-area').classList.add('active');
             loadMessages();
         };
 
-        window.closeChat = () => {
-            document.getElementById('chat-area').classList.remove('active');
+        window.sendMessage = async(viewOnce = false, imageUrl = null) => {
+            const txt = document.getElementById('msg-input').value.trim();
+            if((!txt && !imageUrl) || !chatId) return;
+            
+            const hours = document.getElementById('delete-time').value;
+            await addDoc(collection(db,"messages"),{
+                text: imageUrl ? "📷 Photo" : txt,
+                imageUrl: imageUrl,
+                viewOnce: viewOnce,
+                sender: currentUser.uid, chatId: chatId, createdAt: serverTimestamp(),
+                expiresAt: new Date(Date.now() + (hours * 60 * 60 * 1000)).toISOString()
+            });
+            document.getElementById('msg-input').value="";
         };
 
-        // --- MESSAGES ---
-        window.sendMessage = async () => {
-            const txt = document.getElementById('msg-input').value.trim();
-            if(!txt || !chatId) return;
-            await addDoc(collection(db, "messages"), { text: txt, sender: currentUser.uid, chatId: chatId, createdAt: serverTimestamp() });
-            document.getElementById('msg-input').value = "";
-        };
+        window.sendViewOnce = () => {
+             // Simulate Image Upload for View Once
+             const i=document.createElement('input'); i.type='file'; i.accept='image/*';
+             i.onchange = async(e) => {
+                 const f=e.target.files[0]; if(!f) return;
+                 alert("Sending View Once Image...");
+                 const sRef=ref(storage,`chat_media/${Date.now()}_${f.name}`);
+                 await uploadBytes(sRef,f);
+                 const url=await getDownloadURL(sRef);
+                 sendMessage(true, url);
+             };
+             i.click();
+        }
 
         function loadMessages() {
-            const box = document.getElementById('messages');
-            const q = query(collection(db, "messages"), where("chatId", "==", chatId), orderBy("createdAt", "asc"));
-            onSnapshot(q, (snap) => {
-                box.innerHTML = "";
-                snap.forEach(d => {
-                    const data = d.data();
-                    if(data.createdAt && (new Date() - data.createdAt.toDate()) < 172800000) { // 48h
-                        const div = document.createElement('div');
-                        div.className = `msg ${data.sender === currentUser.uid ? 'sent' : 'received'}`;
-                        div.innerHTML = `${data.text}`;
+            const box=document.getElementById('messages');
+            const q=query(collection(db,"messages"),where("chatId","==",chatId),orderBy("createdAt","asc"));
+            onSnapshot(q,(snap)=>{
+                box.innerHTML="";
+                snap.forEach(d=>{
+                    const data=d.data();
+                    if(new Date() < new Date(data.expiresAt)) {
+                        const div=document.createElement('div');
+                        div.className=`msg ${data.sender===currentUser.uid?'sent':'received'}`;
+                        
+                        if(data.imageUrl && data.viewOnce) {
+                            if(data.sender !== currentUser.uid && !data.viewed) {
+                                div.innerHTML = `<img src="${data.imageUrl}" class="view-once-img" onclick="viewImage(this, '${d.id}')"><br><small>Tap to view (1 time)</small>`;
+                            } else if (data.sender === currentUser.uid) {
+                                div.innerHTML = `<i>📷 View Once Photo Sent</i>`;
+                            } else {
+                                div.innerHTML = `<i class="viewed-text">Photo viewed</i>`;
+                            }
+                        } else {
+                            div.innerText=data.text;
+                        }
                         box.appendChild(div);
                     }
                 });
-                box.scrollTop = box.scrollHeight;
+                box.scrollTop=box.scrollHeight;
+                // Notification Logic
+                if(!snap.empty) {
+                    const last = snap.docs[snap.docs.length-1].data();
+                    if(last.sender !== currentUser.uid && Date.now() - last.createdAt?.toDate() < 2000) {
+                        notify("New Message", last.text);
+                    }
+                }
             });
         }
 
-        // --- CALLS ---
-        function initPeer(uid) {
-            if(peer) return;
-            peer = new Peer(uid);
-            peer.on('call', (call) => {
-                activeCall = call;
-                showIncoming(call.peer);
-                window.answerCall = () => {
-                    navigator.mediaDevices.getUserMedia({audio:true}).then(stream => {
-                        localStream = stream;
-                        call.answer(stream);
-                        document.getElementById('call-status').innerText = "Connected";
-                        document.getElementById('incoming-btns').classList.add('hidden');
-                        document.getElementById('outgoing-btns').classList.remove('hidden');
-                        call.on('stream', remote => document.getElementById('remote-audio').srcObject = remote);
-                        call.on('close', closeCall);
+        window.viewImage = async(img, docId) => {
+            img.style.filter = "none"; // Unblur
+            setTimeout(async () => {
+                img.style.display = "none"; // Hide after 3 sec
+                await updateDoc(doc(db, "messages", docId), { viewed: true });
+            }, 5000); 
+        };
+
+        // CALLS & HISTORY
+        function initPeer(uid){
+            if(peer) return; peer=new Peer(uid);
+            peer.on('call',(call)=>{
+                activeCall=call; showIncoming(call.peer);
+                notify("Incoming Call", "Tap to answer");
+                window.answerCall=()=>{
+                    navigator.mediaDevices.getUserMedia({audio:true}).then(s=>{
+                        localStream=s; call.answer(s);
+                        startTimer();
+                        document.getElementById('call-status').innerText="Connected";
+                        document.getElementById('inc-btns').classList.add('hidden');
+                        document.getElementById('ong-btns').classList.remove('hidden');
+                        call.on('stream',r=>{document.getElementById('remote-audio').srcObject=r});
+                        call.on('close',()=>{ stopTimer(); closeCallUI(); saveCallLog(call.peer, false); });
                     });
-                };
-                window.rejectCall = () => { call.close(); closeCall(); };
+                }
+                window.rejectCall=()=>{ call.close(); closeCallUI(); }
             });
         }
 
-        window.startCallUI = async () => {
+        window.startCallUI = async() => {
             if(!currentChatUser) return;
-            document.getElementById('call-overlay').classList.remove('hidden');
-            document.getElementById('call-avatar').src = getAvatar(currentChatUser);
-            document.getElementById('call-user').innerText = currentChatUser.displayName;
-            document.getElementById('call-status').innerText = "Calling...";
-            document.getElementById('incoming-btns').classList.add('hidden');
-            document.getElementById('outgoing-btns').classList.remove('hidden');
+            document.getElementById('call-screen').classList.remove('hidden');
+            document.getElementById('call-avatar').src=getAvatar(currentChatUser);
+            document.getElementById('inc-btns').classList.add('hidden');
+            document.getElementById('ong-btns').classList.remove('hidden');
 
-            try {
+            try{
                 localStream = await navigator.mediaDevices.getUserMedia({audio:true});
                 const call = peer.call(currentChatUser.uid, localStream);
                 activeCall = call;
-                call.on('stream', remote => {
-                    document.getElementById('remote-audio').srcObject = remote;
-                    document.getElementById('call-status').innerText = "Connected";
-                });
-                call.on('close', closeCall);
-            } catch(e) { alert("Mic Error"); closeCall(); }
-        };
-
-        window.endCall = () => { if(activeCall) activeCall.close(); closeCall(); };
-        
-        async function showIncoming(id) {
-            const u = (await getDoc(doc(db, "users", id))).data();
-            document.getElementById('call-overlay').classList.remove('hidden');
-            document.getElementById('call-avatar').src = getAvatar(u);
-            document.getElementById('call-user').innerText = u.displayName;
-            document.getElementById('call-status').innerText = "Incoming Call...";
-            document.getElementById('incoming-btns').classList.remove('hidden');
-            document.getElementById('outgoing-btns').classList.add('hidden');
+                call.on('stream',r=>{ document.getElementById('remote-audio').srcObject=r; startTimer(); document.getElementById('call-status').innerText="Connected"; });
+                call.on('close',()=>{ stopTimer(); closeCallUI(); saveCallLog(currentChatUser.uid, true); });
+            } catch(e){ alert("Mic Denied"); closeCallUI(); }
         }
 
-      function closeCall() {
-            document.getElementById('call-overlay').classList.add('hidden');
+        async function saveCallLog(otherUid, isOutgoing) {
+            const time = document.getElementById('call-timer').innerText || "0s";
+            const expires = new Date(Date.now() + 48*60*60*1000).toISOString();
+            await addDoc(collection(db, "callLogs"), {
+                caller: isOutgoing ? currentUser.uid : otherUid,
+                receiver: isOutgoing ? otherUid : currentUser.uid,
+                duration: time,
+                timestamp: serverTimestamp(),
+                expiresAt: expires
+            });
+        }
+
+        function loadCalls() {
+            const box = document.getElementById('tab-calls');
+            const q = query(collection(db, "callLogs"), orderBy("timestamp", "desc"));
+            onSnapshot(q, async(snap) => {
+                box.innerHTML = "";
+                for(const d of snap.docs) {
+                    const data = d.data();
+                    if(data.caller === currentUser.uid || data.receiver === currentUser.uid) {
+                        if(new Date() < new Date(data.expiresAt)) {
+                            const otherId = data.caller === currentUser.uid ? data.receiver : data.caller;
+                            const u = (await getDoc(doc(db,"users",otherId))).data();
+                            const icon = data.caller === currentUser.uid ? "↗" : "↙";
+                            box.innerHTML += `<div class="item"><img src="${getAvatar(u)}"><div style="flex:1"><b>${u.displayName}</b><br><small>${icon} ${data.duration}</small></div></div>`;
+                        }
+                    }
+                }
+            });
+        }
+
+        window.endCall = () => { if(activeCall) activeCall.close(); stopTimer(); closeCallUI(); }
+        
+        async function showIncoming(id) {
+            const u = (await getDoc(doc(db,"users",id))).data();
+            document.getElementById('call-screen').classList.remove('hidden');
+            document.getElementById('call-avatar').src=getAvatar(u);
+            document.getElementById('call-user').innerText=u.displayName;
+            document.getElementById('call-status').innerText="Incoming Call...";
+            document.getElementById('inc-btns').classList.remove('hidden');
+            document.getElementById('ong-btns').classList.add('hidden');
+        }
+
+        function closeCallUI() {
+            document.getElementById('call-screen').classList.add('hidden');
+            document.getElementById('call-timer').innerText = "";
             if(localStream) localStream.getTracks().forEach(t=>t.stop());
         }
 
-        // --- SEARCH & TABS ---
-        window.searchUsers = async () => {
-            const val = document.getElementById('search-input').value.toLowerCase();
-            const box = document.getElementById('search-results');
-            if(val.length < 3) return box.innerHTML = "";
-            const q = query(collection(db, "users"), where("email", ">=", val), where("email", "<=", val+'\uf8ff'));
-            const snap = await getDocs(q);
-            box.innerHTML = "";
-            snap.forEach(d => {
-                const u = d.data();
-                if(u.uid !== currentUser.uid) {
-                    box.innerHTML += `<div class="user-card"><img src="${getAvatar(u)}"><div style="flex:1"><b>${u.displayName}</b><br><small>${u.email}</small></div><button class="btn-add" id="btn-${u.uid}" onclick="sendReq('${u.uid}')">Add</button></div>`;
-                }
-            });
-        };
-
-        window.sendReq = async (uid) => {
-            await updateDoc(doc(db, "users", uid), { requests: arrayUnion(currentUser.uid) });
-            document.getElementById(`btn-${uid}`).innerText = "Sent ✔";
-        };
-
-        function loadRequests() {
-            onSnapshot(doc(db, "users", currentUser.uid), async (snap) => {
-                const box = document.getElementById('tab-requests');
-                const reqs = snap.data().requests || [];
-                document.getElementById('req-count').innerText = reqs.length;
-                box.innerHTML = "";
-                for(const uid of reqs) {
-                    const u = (await getDoc(doc(db, "users", uid))).data();
-                    box.innerHTML += `<div class="user-card"><img src="${getAvatar(u)}"><div style="flex:1"><b>${u.displayName}</b> wants to connect</div><button class="btn-add" onclick="acceptReq('${uid}')">Accept</button></div>`;
-                }
-            });
+        // TIMER & AUDIO CONTROLS
+        function startTimer() {
+            let s=0; callStartTime = setInterval(()=>{ s++; 
+                document.getElementById('call-timer').innerText = `${Math.floor(s/60)}:${s%60 < 10 ? '0'+s%60 : s%60}`; 
+            }, 1000);
         }
+        function stopTimer() { clearInterval(callTimerInt); }
+        
+        window.toggleMute = () => {
+            isMuted = !isMuted;
+            localStream.getAudioTracks()[0].enabled = !isMuted;
+            document.getElementById('mute-btn').style.background = isMuted ? "var(--red)" : "#333";
+        }
+        window.toggleSpeaker = () => { alert("Use Device Volume Buttons"); } // Browser limitation
 
-        window.acceptReq = async (uid) => {
-            await updateDoc(doc(db, "users", currentUser.uid), { requests: arrayRemove(uid), friends: arrayUnion(uid) });
-            await updateDoc(doc(db, "users", uid), { friends: arrayUnion(currentUser.uid) });
-            alert("Added!");
-        };
-
-        window.showTab = (t) => {
-            document.getElementById('tab-friends').classList.add('hidden');
-            document.getElementById('tab-search').classList.add('hidden');
-            document.getElementById('tab-requests').classList.add('hidden');
+        // NAV & HELPERS
+        window.switchTab=(t)=>{
+            document.querySelectorAll('.list-area').forEach(e=>e.classList.add('hidden'));
             document.getElementById(`tab-${t}`).classList.remove('hidden');
-            
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
             event.target.classList.add('active');
-        };
-
-        function loadFriends() {
-            onSnapshot(doc(db, "users", currentUser.uid), async (snap) => {
-                const box = document.getElementById('tab-friends');
-                box.innerHTML = "";
-                const friends = snap.data().friends || [];
-                for(const fid of friends) {
-                    const f = (await getDoc(doc(db, "users", fid))).data();
-                    const div = document.createElement('div');
-                    div.className = 'user-card';
-                    div.innerHTML = `<img src="${getAvatar(f)}"><div><b>${f.displayName}</b><br><small style="color:var(--primary)">Tap to chat</small></div>`;
-                    div.onclick = () => openChat(f);
-                    box.appendChild(div);
-                }
-            });
         }
-
-        // --- HELPERS ---
-        window.login = async () => { try { await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch(e){ alert(e.message) } };
-        window.register = async () => { try { const c = await createUserWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); await setDoc(doc(db, "users", c.user.uid), { uid: c.user.uid, email: c.user.email, displayName: c.user.email.split('@')[0], friends: [], requests: [] }); } catch(e){ alert(e.message) } };
-        window.logout = () => signOut(auth);
-        window.changeDP = () => {
-            const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*';
-            i.onchange = async (e) => {
-                const f = e.target.files[0]; if(!f) return;
-                alert("Uploading...");
-                const sRef = ref(storage, `profiles/${currentUser.uid}`);
-                await uploadBytes(sRef, f);
-                const url = await getDownloadURL(sRef);
-                await updateProfile(currentUser, { photoURL: url });
-                await updateDoc(doc(db, "users", currentUser.uid), { photoURL: url });
-                document.getElementById('my-dp').src = url;
-            };
-            i.click();
-        };
-        window.removeFriend = async () => { if(confirm("Remove?")) { await updateDoc(doc(db, "users", currentUser.uid), { friends: arrayRemove(currentChatUser.uid) }); await updateDoc(doc(db, "users", currentChatUser.uid), { friends: arrayRemove(currentUser.uid) }); closeChat(); } };
+        window.searchUsers=async()=>{
+            const v=document.getElementById('search-in').value.toLowerCase();
+            const b=document.getElementById('search-res');
+            if(v.length<3)return b.innerHTML="";
+            const q=query(collection(db,"users"),where("email",">=",v),where("email","<=",v+'\uf8ff'));
+            const s=await getDocs(q); b.innerHTML="";
+            s.forEach(d=>{ const u=d.data(); if(u.uid!==currentUser.uid) b.innerHTML+=`<div class="item"><img src="${getAvatar(u)}"><div style="flex:1"><b>${u.displayName}</b></div><button class="btn" style="width:auto; padding:5px 10px;" onclick="sendReq('${u.uid}')">Add</button></div>`; });
+        }
+        window.sendReq=async(uid)=>{ await updateDoc(doc(db,"users",uid),{requests:arrayUnion(currentUser.uid)}); alert("Sent"); }
+        window.loadRequests=()=>{ onSnapshot(doc(db,"users",currentUser.uid),async(s)=>{ 
+            const b=document.getElementById('tab-requests'); const r=s.data().requests||[]; 
+            document.getElementById('req-badge').innerText=r.length; b.innerHTML="";
+            for(const uid of r){ const u=(await getDoc(doc(db,"users",uid))).data(); b.innerHTML+=`<div class="item"><img src="${getAvatar(u)}"><div style="flex:1"><b>${u.displayName}</b></div><button class="btn" style="width:auto; padding:5px 10px;" onclick="accReq('${uid}')">Accept</button></div>`; }
+        })}
+        window.accReq=async(uid)=>{ await updateDoc(doc(db,"users",currentUser.uid),{requests:arrayRemove(uid),friends:arrayUnion(uid)}); await updateDoc(doc(db,"users",uid),{friends:arrayUnion(currentUser.uid)}); }
+        window.loadFriends=()=>{ onSnapshot(doc(db,"users",currentUser.uid),async(s)=>{ 
+            const b=document.getElementById('tab-friends'); b.innerHTML=""; const f=s.data().friends||[];
+            for(const fid of f){ const u=(await getDoc(doc(db,"users",fid))).data(); b.innerHTML+=`<div class="item" onclick="openChat({uid:'${u.uid}',displayName:'${u.displayName}',photoURL:'${u.photoURL}'})"><img src="${getAvatar(u)}"><div><b>${u.displayName}</b><br><small style="color:var(--primary)">Tap to chat</small></div></div>`; }
+        })}
+        window.login=async()=>{try{await signInWithEmailAndPassword(auth,document.getElementById('email').value,document.getElementById('password').value)}catch(e){alert(e.message)}}
+        window.register=async()=>{try{const e=document.getElementById('email').value; const c=await createUserWithEmailAndPassword(auth,e,document.getElementById('password').value); await setDoc(doc(db,"users",c.user.uid),{uid:c.user.uid,email:e,displayName:e.split('@')[0],friends:[],requests:[]})}catch(e){alert(e.message)}}
+        window.logout=()=>signOut(auth);
+        window.changeDP=()=>{const i=document.createElement('input');i.type='file';i.onchange=async(e)=>{const f=e.target.files[0];if(!f)return;alert("Uploading...");const r=ref(storage,`dp/${currentUser.uid}`);await uploadBytes(r,f);const u=await getDownloadURL(r);await updateProfile(currentUser,{photoURL:u});await updateDoc(doc(db,"users",currentUser.uid),{photoURL:u});document.getElementById('my-dp').src=u;};i.click();}
+        window.closeChat=()=>{document.getElementById('chat-area').classList.remove('active');}
     </script>
 </body>
 </html>
