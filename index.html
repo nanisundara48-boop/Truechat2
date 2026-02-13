@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TrueChats</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="login-screen" class="container active">
+        <div class="glass-card">
+            <h1>TrueChats 💬</h1>
+            <p>Secure. Fast. Private.</p>
+            
+            <div class="input-group">
+                <i class="fa-solid fa-envelope"></i>
+                <input type="email" id="email" placeholder="Email Address">
+            </div>
+            
+            <div class="input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" id="password" placeholder="Password">
+            </div>
+
+            <button onclick="login()" class="btn-primary">Login</button>
+            <button onclick="register()" class="btn-secondary">Create Account</button>
+            
+            <p onclick="forgotPass()" class="forgot-link">Forgot Password?</p>
+            <div id="status-msg"></div>
+        </div>
+    </div>
+
+    <div id="app-screen" class="app-container hidden">
+        <header>
+            <div class="profile-section" onclick="openProfile()">
+                <img id="my-dp" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile">
+                <div class="user-details">
+                    <span id="my-username">User</span>
+                    <span class="online-status">● Online</span>
+                </div>
+            </div>
+            <div class="header-icons">
+                <i class="fa-solid fa-phone" onclick="startCall()" title="Call ID"></i>
+                <i class="fa-solid fa-moon" onclick="toggleTheme()" title="Theme"></i>
+                <i class="fa-solid fa-right-from-bracket" onclick="logout()" title="Logout"></i>
+            </div>
+        </header>
+
+        <div id="chat-container">
+            <div class="welcome-msg">
+                <p>🔒 Messages are auto-deleted after 48 hours.</p>
+            </div>
+            </div>
+
+        <div class="input-area">
+            <input type="text" id="msg-input" placeholder="Type a message...">
+            <button onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <audio id="remote-audio" autoplay></audio>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
