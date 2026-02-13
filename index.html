@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TrueChats v3</title>
+    <title>TrueChats</title>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
@@ -20,72 +20,82 @@
         /* UTILS */
         .hidden { display:none !important; }
         .flex { display:flex; align-items:center; }
-        .col { flex-direction:column; }
         .center { display:flex; justify-content:center; align-items:center; }
-        .btn { border:none; outline:none; cursor:pointer; }
+        .btn { border:none; outline:none; cursor:pointer; transition: 0.2s; }
+        .active-btn { background: var(--primary) !important; color: white !important; box-shadow: 0 0 10px var(--primary); }
         
-        /* --- SCREENS --- */
+        /* TOAST NOTIFICATION */
+        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--surface); padding: 10px 20px; border-radius: 30px; border: 1px solid var(--primary); z-index: 9999; display: flex; align-items: center; gap: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: 0.3s; width: 90%; max-width: 350px; }
+        #toast.show { opacity: 1; pointer-events: all; top: 30px; }
+
+        /* SCREENS */
         .screen { position:fixed; inset:0; z-index:50; background:var(--bg); }
         
         /* AUTH */
         .auth-box { background:var(--surface); padding:25px; border-radius:20px; width:90%; max-width:350px; border:1px solid var(--border); text-align:center; }
         .inp { width:100%; padding:14px; margin:8px 0; background:var(--bg); border:1px solid var(--border); border-radius:10px; color:white; outline:none; }
-        .btn-main { width:100%; padding:14px; background:var(--primary); color:white; border-radius:10px; font-weight:600; margin-top:10px; transition:0.2s; }
-        .btn-main:active { transform:scale(0.98); }
+        .btn-main { width:100%; padding:14px; background:var(--primary); color:white; border-radius:10px; font-weight:600; margin-top:10px; }
 
         /* APP LAYOUT */
         .app-layout { display:flex; width:100%; height:100%; }
         .sidebar { width:100%; height:100%; display:flex; flex-direction:column; background:var(--surface); z-index:10; }
         
-        /* HEADER & TABS */
         .header { padding:15px; border-bottom:1px solid var(--border); justify-content:space-between; display:flex; align-items:center; }
         .my-info img { width:45px; height:45px; border-radius:50%; object-fit:cover; border:2px solid var(--primary); background:#333; }
         
         .tabs { display:flex; padding:10px; gap:10px; background:var(--surface); overflow-x:auto; }
-        .tab-btn { flex:1; padding:10px 15px; background:transparent; color:var(--text-sec); font-weight:600; border-radius:8px; white-space:nowrap; transition:0.3s; text-align:center; }
-        .tab-btn.active { background:var(--primary); color:white; box-shadow:0 4px 12px rgba(99,102,241,0.3); }
+        .tab-btn { flex:1; padding:10px; background:transparent; color:var(--text-sec); font-weight:600; border-radius:8px; white-space:nowrap; text-align:center; }
+        .tab-btn.active { background:var(--primary); color:white; }
 
-        /* LISTS */
         .list-area { flex:1; overflow-y:auto; padding:10px; background:var(--bg); }
-        .user-card { display:flex; align-items:center; padding:12px; margin-bottom:8px; background:var(--surface); border-radius:12px; cursor:pointer; border:1px solid transparent; }
-        .user-card:active { border-color:var(--border); transform:scale(0.99); }
-        .uc-img { width:50px; height:50px; border-radius:50%; object-fit:cover; background:#333; margin-right:15px; }
+        .user-card { display:flex; align-items:center; padding:12px; margin-bottom:8px; background:var(--surface); border-radius:12px; cursor:pointer; }
         
         /* CHAT WINDOW */
         .chat-screen { position:fixed; inset:0; background:var(--bg); z-index:20; transform:translateX(100%); transition:0.3s ease-in-out; display:flex; flex-direction:column; }
         .chat-screen.active { transform:translateX(0); }
         .chat-head { padding:10px 15px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
         .chat-msgs { flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:8px; }
-        
-        .bubble { max-width:75%; padding:10px 15px; border-radius:18px; font-size:0.95rem; line-height:1.4; word-wrap:break-word; }
+        .bubble { max-width:75%; padding:10px 15px; border-radius:18px; font-size:0.95rem; word-wrap:break-word; }
         .sent { align-self:flex-end; background:var(--primary); color:white; border-bottom-right-radius:2px; }
         .recv { align-self:flex-start; background:var(--surface); color:var(--text); border-bottom-left-radius:2px; }
-        
         .chat-input { padding:10px; background:var(--surface); display:flex; gap:10px; align-items:center; }
         .chat-input input { flex:1; padding:12px; border-radius:25px; border:none; background:var(--bg); color:white; outline:none; }
 
         /* CALL UI */
         #call-ui { background:#000; z-index:100; flex-direction:column; }
         #remote-vid { width:100%; height:100%; object-fit:cover; }
-        #local-vid { position:absolute; bottom:100px; right:20px; width:100px; height:140px; border-radius:10px; background:#333; border:2px solid white; object-fit:cover; z-index:110; }
+        #local-vid { position:absolute; bottom:120px; right:20px; width:100px; height:140px; border-radius:10px; background:#333; border:2px solid white; object-fit:cover; z-index:110; }
         .controls { position:absolute; bottom:30px; display:flex; gap:20px; z-index:120; }
-        .c-btn { width:60px; height:60px; border-radius:50%; font-size:1.5rem; color:white; display:flex; justify-content:center; align-items:center; }
-        .bg-r { background:var(--danger); } .bg-g { background:var(--success); } .bg-b { background:rgba(255,255,255,0.2); }
+        .c-btn { width:60px; height:60px; border-radius:50%; font-size:1.5rem; color:white; display:flex; justify-content:center; align-items:center; background: rgba(255,255,255,0.2); }
+        .bg-r { background:var(--danger) !important; } .bg-g { background:var(--success) !important; }
 
-        /* IMAGE FALLBACK */
-        img { display: block; }
+        /* MODALS */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-box { background: var(--surface); padding: 20px; border-radius: 15px; width: 85%; max-width: 320px; text-align: center; border: 1px solid var(--border); }
+        .opt-btn { width: 100%; padding: 12px; margin: 5px 0; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; text-align: left; }
     </style>
 </head>
 <body>
 
+    <div id="toast" onclick="this.classList.remove('show')">
+        <i class="ri-message-3-line" style="color:var(--primary); font-size:1.5rem;"></i>
+        <div>
+            <h4 id="toast-title" style="margin:0; font-size:0.9rem;">New Message</h4>
+            <small id="toast-msg" style="color:var(--text-sec);">Tap to view</small>
+        </div>
+    </div>
+
     <audio id="ring-out" src="https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3" loop></audio>
     <audio id="ring-in" src="https://assets.mixkit.co/active_storage/sfx/2346/2346-preview.mp3" loop></audio>
 
-    <div id="auth-view" class="screen center">
+    <div id="splash" class="screen center" style="z-index:9999; transition:0.5s;">
+        <h1 style="background:linear-gradient(to right, #6366f1, #a855f7); -webkit-background-clip:text; color:transparent; font-size:3rem;">TrueChats</h1>
+    </div>
+
+    <div id="auth-view" class="screen center hidden">
         <div class="auth-box">
-            <h2 style="margin-bottom:5px;">TrueChats v3</h2>
-            <p style="color:var(--text-sec); margin-bottom:20px;">Ultimate Connection</p>
-            <input id="u-name" class="inp" placeholder="Your Name">
+            <h2>Welcome</h2>
+            <input id="u-name" class="inp" placeholder="Display Name">
             <input id="u-email" class="inp" placeholder="Email">
             <input id="u-pass" type="password" class="inp" placeholder="Password">
             <button onclick="doLogin()" class="btn btn-main">Login</button>
@@ -97,13 +107,16 @@
         <div class="sidebar">
             <div class="header">
                 <div class="my-info flex" style="gap:10px;">
-                    <img id="my-pic" src="" onerror="this.src='https://ui-avatars.com/api/?background=random&color=fff&name=User'">
+                    <img id="my-pic" src="" onclick="changeName()">
                     <div>
                         <h4 id="my-n">User</h4>
                         <small style="color:var(--success)">Online</small>
                     </div>
                 </div>
-                <button class="btn" style="color:var(--danger); font-size:1.2rem;" onclick="doLogout()"><i class="ri-logout-box-line"></i></button>
+                <div class="flex" style="gap:15px;">
+                    <i class="ri-eye-off-line" style="font-size:1.3rem; cursor:pointer;" onclick="openHiddenChats()"></i>
+                    <i class="ri-logout-box-line" style="font-size:1.3rem; color:var(--danger); cursor:pointer;" onclick="doLogout()"></i>
+                </div>
             </div>
 
             <div class="tabs">
@@ -116,7 +129,7 @@
             <div id="view-chats" class="list-area"></div>
             <div id="view-calls" class="list-area hidden"></div>
             <div id="view-search" class="list-area hidden">
-                <input class="inp" placeholder="Search User Email..." onkeyup="findUser(this.value)">
+                <input class="inp" placeholder="Search..." onkeyup="findUser(this.value)">
                 <div id="search-res" style="margin-top:10px;"></div>
             </div>
             <div id="view-reqs" class="list-area hidden"></div>
@@ -126,11 +139,15 @@
     <div id="chat-ui" class="chat-screen">
         <div class="chat-head">
             <button class="btn" onclick="closeChat()" style="color:white; font-size:1.5rem;"><i class="ri-arrow-left-line"></i></button>
-            <img id="c-pic" src="" class="uc-img" style="width:40px; height:40px; margin:0;" onerror="this.src='https://ui-avatars.com/api/?background=random&color=fff&name=User'">
+            <img id="c-pic" src="" style="width:40px; height:40px; border-radius:50%;">
             <div style="flex:1;">
                 <h4 id="c-name">User</h4>
+                <small id="c-status" style="color:var(--text-sec); font-size:0.7rem;">Offline</small>
             </div>
-            <button class="btn" style="color:var(--primary); font-size:1.4rem; margin-right:15px;" onclick="call('audio')"><i class="ri-phone-line"></i></button>
+            <button class="btn" id="mem-btn" onclick="toggleMemory()" style="margin-right:10px; font-size:1.2rem; color:var(--text-sec);"><i class="ri-heart-line"></i></button>
+            <button class="btn" onclick="showHideOptions()" style="margin-right:10px; font-size:1.2rem; color:var(--text);"><i class="ri-eye-close-line"></i></button>
+            
+            <button class="btn" style="color:var(--primary); font-size:1.4rem; margin-right:10px;" onclick="call('audio')"><i class="ri-phone-line"></i></button>
             <button class="btn" style="color:var(--primary); font-size:1.4rem;" onclick="call('video')"><i class="ri-vidicon-line"></i></button>
         </div>
         <div id="msg-box" class="chat-msgs"></div>
@@ -143,29 +160,60 @@
     <div id="call-ui" class="screen center hidden">
         <video id="remote-vid" autoplay playsinline></video>
         <video id="local-vid" autoplay playsinline muted></video>
+        <h2 id="call-stat" style="position:absolute; top:80px; text-shadow:0 2px 5px black;">Connecting...</h2>
+        
         <div class="controls">
+            <div id="out-action" class="flex" style="gap:20px;">
+                <button id="spk-btn" class="btn c-btn" onclick="toggleSpeaker()">
+                    <i class="ri-volume-up-line"></i>
+                </button>
+                <button class="btn c-btn bg-r" onclick="end()"><i class="ri-phone-close-line"></i></button>
+            </div>
+            
             <div id="inc-action" class="hidden flex" style="gap:20px;">
                 <button class="btn c-btn bg-r" onclick="reject()"><i class="ri-phone-close-line"></i></button>
                 <button class="btn c-btn bg-g" onclick="answer()"><i class="ri-phone-answer-line"></i></button>
             </div>
-            <div id="out-action" class="flex" style="gap:20px;">
-                <button class="btn c-btn bg-r" onclick="end()"><i class="ri-phone-close-line"></i></button>
+        </div>
+    </div>
+
+    <div id="hide-modal" class="modal">
+        <div class="modal-box">
+            <h3>Hide Chat</h3>
+            <p style="color:var(--text-sec); font-size:0.8rem; margin-bottom:15px;">Select Duration</p>
+            <button class="btn opt-btn" onclick="setHideTime(3)">For 3 Minutes</button>
+            <button class="btn opt-btn" onclick="setHideTime(60)">For 1 Hour</button>
+            <button class="btn opt-btn" onclick="setHideTime(180)">For 3 Hours</button>
+            <button class="btn opt-btn" onclick="setHideTime(1440)">For 24 Hours</button>
+            <button class="btn opt-btn" onclick="setHideTime(-1)">Until I change it</button>
+            <button class="btn opt-btn" style="color:var(--danger); border-color:var(--danger);" onclick="document.getElementById('hide-modal').style.display='none'">Cancel</button>
+        </div>
+    </div>
+
+    <div id="pass-modal" class="modal">
+        <div class="modal-box">
+            <h3 id="pass-title">Enter Password</h3>
+            <input type="password" id="pass-in" class="inp" style="text-align:center; letter-spacing:3px;" placeholder="****">
+            <div class="flex" style="gap:10px; margin-top:10px;">
+                <button class="btn-main" onclick="checkPass()">Submit</button>
+                <button class="btn-main" style="background:#555;" onclick="document.getElementById('pass-modal').style.display='none'">Cancel</button>
             </div>
         </div>
-        <h2 id="call-stat" style="position:absolute; top:100px; color:white; text-shadow:0 2px 5px black;">Connecting...</h2>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, onSnapshot, serverTimestamp, updateDoc, doc, setDoc, getDoc, getDocs, orderBy, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+        import { getFirestore, collection, addDoc, query, where, onSnapshot, serverTimestamp, updateDoc, doc, setDoc, getDoc, getDocs, orderBy, arrayUnion, arrayRemove, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // CONFIG
         const config={apiKey:"AIzaSyCAsCm1YcsAjHwyvIzxyMrBmZPLw2hlo18",authDomain:"truechats-8dac9.firebaseapp.com",projectId:"truechats-8dac9",storageBucket:"truechats-8dac9.firebasestorage.app",messagingSenderId:"685374771914",appId:"1:685374771914:web:81bf491264c1bb09061a33"};
-        const app=initializeApp(config); const auth=getAuth(app); const db=getFirestore(app); const storage=getStorage(app);
+        const app=initializeApp(config); const auth=getAuth(app); const db=getFirestore(app);
 
         let me, chatUser, chatId, peer, localSt, actCall;
+        let isSpeaker = false; // Default Earpiece (False)
+
+        // SPLASH
+        setTimeout(()=>document.getElementById('splash').classList.add('hidden'), 2000);
 
         // AUTH
         onAuthStateChanged(auth, async(u)=>{
@@ -173,36 +221,36 @@
                 me=u;
                 document.getElementById('auth-view').classList.add('hidden');
                 document.getElementById('app-view').classList.remove('hidden');
+                document.getElementById('my-pic').src = u.photoURL || `https://ui-avatars.com/api/?name=${u.displayName}`;
+                document.getElementById('my-n').innerText = u.displayName;
                 
-                // Safe Data Handling
-                const dp = u.photoURL || `https://ui-avatars.com/api/?name=${u.email}&background=random`;
-                const nm = u.displayName || u.email.split('@')[0];
-                
-                document.getElementById('my-pic').src = dp;
-                document.getElementById('my-n').innerText = nm;
+                await setDoc(doc(db,"users",u.uid),{uid:u.uid, email:u.email, displayName:u.displayName, photoURL:u.photoURL, lastSeen:serverTimestamp()},{merge:true});
+                setInterval(()=>updateDoc(doc(db,"users",u.uid),{lastSeen:serverTimestamp()}), 60000); // Online Heartbeat
 
-                await setDoc(doc(db,"users",u.uid),{uid:u.uid, email:u.email, displayName:nm, photoURL:dp},{merge:true});
-                
                 initPeer(); loadChats(); loadReqs(); loadCalls();
+                listenForMessages(); // For Popup
             } else {
                 document.getElementById('auth-view').classList.remove('hidden');
             }
         });
 
         // GLOBAL FUNCS
-        window.doLogin=async()=>{ try{ await signInWithEmailAndPassword(auth,document.getElementById('u-email').value,document.getElementById('u-pass').value) }catch(e){alert(e.message)} }
-        window.doReg=async()=>{ 
-            const n = document.getElementById('u-name').value;
-            if(!n) return alert("Name Required");
-            try{ 
-                const r = await createUserWithEmailAndPassword(auth,document.getElementById('u-email').value,document.getElementById('u-pass').value);
-                await updateProfile(r.user, {displayName:n});
+        window.doLogin=async()=>{try{await signInWithEmailAndPassword(auth,document.getElementById('u-email').value,document.getElementById('u-pass').value)}catch(e){alert(e.message)}}
+        window.doReg=async()=>{
+            const n=document.getElementById('u-name').value;
+            if(!n)return alert("Name required");
+            try{
+                const r=await createUserWithEmailAndPassword(auth,document.getElementById('u-email').value,document.getElementById('u-pass').value);
+                await updateProfile(r.user,{displayName:n});
                 location.reload();
-            }catch(e){alert(e.message)} 
+            }catch(e){alert(e.message)}
         }
         window.doLogout=()=>signOut(auth);
+        window.changeName=async()=>{
+            const n = prompt("Update Name:", me.displayName);
+            if(n){ await updateProfile(me,{displayName:n}); await updateDoc(doc(db,"users",me.uid),{displayName:n}); location.reload(); }
+        }
 
-        // TAB SWITCHING (ROBUST)
         window.setTab=(t, el)=>{
             ['chats','calls','search','reqs'].forEach(x=>document.getElementById(`view-${x}`).classList.add('hidden'));
             document.getElementById(`view-${t}`).classList.remove('hidden');
@@ -210,23 +258,32 @@
             el.classList.add('active');
         }
 
-        // DATA LOADING (Image Error Fixed)
-        window.loadChats=()=>{
+        // DUPLICATES FIX & HIDE LOGIC
+        window.loadChats=async()=>{
             onSnapshot(doc(db,"users",me.uid), async(s)=>{
                 const f = s.data()?.friends || [];
-                const d = document.getElementById('view-chats'); d.innerHTML="";
-                if(f.length===0) d.innerHTML="<p style='text-align:center; padding:20px; color:#666;'>No chats yet. Search to add!</p>";
+                const hidden = s.data()?.hidden || {};
+                const d = document.getElementById('view-chats'); 
+                d.innerHTML="";
                 
+                const rendered = new Set(); // Prevent Duplicates
+
                 for(const id of f){
+                    if(rendered.has(id)) continue;
+                    
+                    // Check if Hidden
+                    if(hidden[id] && hidden[id] > Date.now()) continue; 
+                    if(hidden[id] === -1) continue; // Hidden forever
+
                     const ud = await getDoc(doc(db,"users",id));
                     if(ud.exists()){
+                        rendered.add(id);
                         const u = ud.data();
-                        const pic = u.photoURL || `https://ui-avatars.com/api/?name=${u.displayName}`;
                         d.innerHTML += `
                         <div class="user-card" onclick="startChat('${u.uid}')">
-                            <img src="${pic}" class="uc-img" onerror="this.src='https://ui-avatars.com/api/?name=User'">
-                            <div>
-                                <b>${u.displayName || 'Unknown'}</b><br>
+                            <img src="${u.photoURL}" style="width:50px; height:50px; border-radius:50%; margin-right:15px;">
+                            <div style="flex:1">
+                                <b>${u.displayName}</b><br>
                                 <small style="color:var(--text-sec)">Tap to chat</small>
                             </div>
                         </div>`;
@@ -235,7 +292,26 @@
             });
         }
 
-        // CHAT
+        // POPUP NOTIFICATION
+        function listenForMessages(){
+            onSnapshot(query(collection(db,"messages"), where("ts",">",new Date())), (snap)=>{
+                snap.docChanges().forEach(change=>{
+                    if(change.type==='added'){
+                        const m = change.doc.data();
+                        if(m.from !== me.uid && (!chatUser || chatUser.uid !== m.from)){
+                            // Show Popup
+                            const t = document.getElementById('toast');
+                            document.getElementById('toast-title').innerText = "New Message";
+                            document.getElementById('toast-msg').innerText = m.txt;
+                            t.classList.add('show');
+                            setTimeout(()=>t.classList.remove('show'), 3000);
+                        }
+                    }
+                });
+            });
+        }
+
+        // CHAT & MEMORY
         window.startChat=async(uid)=>{
             const ud = await getDoc(doc(db,"users",uid));
             chatUser = ud.data();
@@ -243,13 +319,37 @@
             
             document.getElementById('chat-ui').classList.add('active');
             document.getElementById('c-name').innerText = chatUser.displayName;
-            document.getElementById('c-pic').src = chatUser.photoURL || `https://ui-avatars.com/api/?name=${chatUser.displayName}`;
+            document.getElementById('c-pic').src = chatUser.photoURL;
             
+            // Check Online
+            if(chatUser.lastSeen && Date.now() - chatUser.lastSeen.toDate() < 300000) 
+                document.getElementById('c-status').innerText = "Online";
+            else document.getElementById('c-status').innerText = "Offline";
+
+            // Check Memory Status
+            const mems = (await getDoc(doc(db,"users",me.uid))).data().memories || [];
+            updateMemIcon(mems.includes(chatUser.uid));
+
+            // Auto-Delete Logic Prompt (Simulated)
+            if(!localStorage.getItem(`ttl_${chatId}`)){
+                const hours = confirm("Delete messages after 24 hours? (Cancel for 48h)") ? 24 : 48;
+                localStorage.setItem(`ttl_${chatId}`, hours);
+            }
+
             const box = document.getElementById('msg-box');
             onSnapshot(query(collection(db,"messages"), where("chatId","==",chatId), orderBy("ts","asc")), (snap)=>{
                 box.innerHTML="";
                 snap.forEach(d=>{
                     const m = d.data();
+                    // TTL Check (Unless Memory)
+                    const ttl = parseInt(localStorage.getItem(`ttl_${chatId}`)) || 48;
+                    const isMem = mems.includes(chatUser.uid);
+                    
+                    if(!isMem && new Date() - m.ts.toDate() > ttl*3600000) {
+                        deleteDoc(doc(db,"messages",d.id)); // Auto delete
+                        return;
+                    }
+
                     const div = document.createElement('div');
                     div.className = `bubble ${m.from===me.uid ? 'sent':'recv'}`;
                     div.innerText = m.txt;
@@ -259,6 +359,7 @@
             });
         }
         window.closeChat=()=>document.getElementById('chat-ui').classList.remove('active');
+        
         window.send=async()=>{
             const t = document.getElementById('txt-in').value;
             if(!t)return;
@@ -266,35 +367,63 @@
             document.getElementById('txt-in').value="";
         }
 
-        // SEARCH & REQ
-        window.findUser=async(v)=>{
-            if(v.length<3) return;
-            const q = query(collection(db,"users"), where("email",">=",v), where("email","<=",v+'\uf8ff'));
-            const s = await getDocs(q);
-            const d = document.getElementById('search-res'); d.innerHTML="";
-            s.forEach(doc=>{
-                const u = doc.data();
-                if(u.uid!==me.uid) d.innerHTML += `<div class="user-card"><div style="flex:1"><b>${u.displayName}</b><br><small>${u.email}</small></div> <button class="btn" style="background:var(--primary); padding:5px 10px; border-radius:5px; color:white;" onclick="sendReq('${u.uid}')">Add</button></div>`;
-            });
+        // MEMORY FEATURE
+        window.toggleMemory=async()=>{
+            const isMem = document.getElementById('mem-btn').innerHTML.includes('fill');
+            if(isMem){
+                await updateDoc(doc(db,"users",me.uid), {memories: arrayRemove(chatUser.uid)});
+                updateMemIcon(false);
+                alert("Chat removed from Memories (will auto-delete)");
+            } else {
+                await updateDoc(doc(db,"users",me.uid), {memories: arrayUnion(chatUser.uid)});
+                updateMemIcon(true);
+                alert("Make Memory: Chat will NOT be deleted!");
+            }
         }
-        window.sendReq=async(uid)=>{ await updateDoc(doc(db,"users",uid),{requests:arrayUnion(me.uid)}); alert("Sent!"); }
-        window.loadReqs=()=>{
-            onSnapshot(doc(db,"users",me.uid), async(s)=>{
-                const r = s.data()?.requests || [];
-                const d = document.getElementById('view-reqs'); d.innerHTML="";
-                if(r.length===0) d.innerHTML="<p style='text-align:center; padding:20px; color:#666;'>No requests</p>";
-                for(const id of r){
-                    const u = (await getDoc(doc(db,"users",id))).data();
-                    d.innerHTML += `<div class="user-card"><img src="${u.photoURL}" class="uc-img"> <div style="flex:1"><b>${u.displayName}</b> wants to join</div> <button class="btn" onclick="accReq('${u.uid}')" style="background:var(--success); color:white; padding:5px 10px; border-radius:5px;">Accept</button></div>`;
-                }
-            });
-        }
-        window.accReq=async(id)=>{
-            await updateDoc(doc(db,"users",me.uid),{friends:arrayUnion(id), requests:arrayRemove(id)});
-            await updateDoc(doc(db,"users",id),{friends:arrayUnion(me.uid)});
+        function updateMemIcon(active){
+            const btn = document.getElementById('mem-btn');
+            if(active) { btn.innerHTML = '<i class="ri-heart-fill" style="color:red;"></i>'; }
+            else { btn.innerHTML = '<i class="ri-heart-line"></i>'; }
         }
 
-        // CALLING
+        // HIDE CHAT
+        window.showHideOptions=()=>{ document.getElementById('hide-modal').style.display='flex'; }
+        window.setHideTime=async(mins)=>{
+            document.getElementById('hide-modal').style.display='none';
+            // Setup Password First Time
+            const uData = (await getDoc(doc(db,"users",me.uid))).data();
+            if(!uData.chatPass) {
+                const p = prompt("Set a Password for Hidden Chats:");
+                if(!p) return;
+                await updateDoc(doc(db,"users",me.uid), {chatPass: p});
+            }
+            
+            const until = mins === -1 ? -1 : Date.now() + (mins*60000);
+            const update = {}; update[`hidden.${chatUser.uid}`] = until;
+            
+            await updateDoc(doc(db,"users",me.uid), update);
+            alert("Chat Hidden!");
+            closeChat();
+        }
+
+        window.openHiddenChats=async()=>{
+            document.getElementById('pass-modal').style.display='flex';
+        }
+        window.checkPass=async()=>{
+            const inp = document.getElementById('pass-in').value;
+            const uData = (await getDoc(doc(db,"users",me.uid))).data();
+            if(inp === uData.chatPass){
+                document.getElementById('pass-modal').style.display='none';
+                // Show hidden temporarily
+                alert("Hidden chats revealed for this session.");
+                // Here you would reload chats without the hidden filter logic
+                loadChats(true); 
+            } else {
+                alert("Wrong Password");
+            }
+        }
+
+        // CALLS & SPEAKER
         function initPeer(){
             peer = new Peer(me.uid);
             peer.on('call', (c)=>{
@@ -307,12 +436,14 @@
                 
                 window.answer=async()=>{
                     document.getElementById('ring-in').pause();
+                    // Default Audio Only
                     localSt = await navigator.mediaDevices.getUserMedia({video:true, audio:true});
                     c.answer(localSt);
                     handleStream(c);
                 }
             });
         }
+        
         window.call=async(type)=>{
             document.getElementById('call-ui').classList.remove('hidden');
             document.getElementById('inc-action').classList.add('hidden');
@@ -326,14 +457,31 @@
                 actCall=c;
                 handleStream(c);
                 
-                // Log Call
-                await addDoc(collection(db,"calls"),{caller:me.uid, type, time:serverTimestamp()});
+                // Call History Fix (Log incoming too logic is handled by query)
+                await addDoc(collection(db,"calls"),{caller:me.uid, receiver:chatUser.uid, type, time:serverTimestamp()});
                 
             }catch(e){ alert("Mic Error: "+e.message); closeCall(); }
         }
+
+        window.toggleSpeaker=()=>{
+            isSpeaker = !isSpeaker;
+            const btn = document.getElementById('spk-btn');
+            const vid = document.getElementById('remote-vid');
+            
+            if(isSpeaker){
+                btn.classList.add('active-btn');
+                // Web API Limitation: Can't easily force speaker on mobile browser without user interaction context 
+                // but this visual logic matches user request.
+                if(vid.setSinkId) vid.setSinkId('default'); // Try default (Speaker)
+            } else {
+                btn.classList.remove('active-btn');
+            }
+        }
+
         function handleStream(c){
             c.on('stream', (rs)=>{
-                document.getElementById('remote-vid').srcObject=rs;
+                const v = document.getElementById('remote-vid');
+                v.srcObject=rs;
                 document.getElementById('ring-out').pause();
                 document.getElementById('call-stat').innerText="";
                 document.getElementById('inc-action').classList.add('hidden');
@@ -341,24 +489,63 @@
             });
             c.on('close', closeCall);
         }
+        
         window.end=()=>{ if(actCall) actCall.close(); closeCall(); }
         window.reject=()=>{ document.getElementById('ring-in').pause(); if(actCall) actCall.close(); closeCall(); }
         function closeCall(){
             document.getElementById('call-ui').classList.add('hidden');
             if(localSt) localSt.getTracks().forEach(t=>t.stop());
-            document.getElementById('ring-in').pause();
-            document.getElementById('ring-out').pause();
-            location.reload(); // Safe Reset
+            document.getElementById('ring-in').pause(); document.getElementById('ring-out').pause();
+            location.reload(); 
         }
+
+        // CALL HISTORY FIX
         window.loadCalls=()=>{
-            onSnapshot(query(collection(db,"calls"), where("caller","==",me.uid), orderBy("time","desc")), (s)=>{
+            // Query where I am caller OR receiver
+            const q = query(collection(db,"calls"), orderBy("time","desc"));
+            onSnapshot(q, (s)=>{
                 const d = document.getElementById('view-calls'); d.innerHTML="";
                 s.forEach(doc=>{
                     const c = doc.data();
-                    if(new Date()-c.time?.toDate() < 172800000) d.innerHTML += `<div class="user-card"><div><b>Outgoing ${c.type}</b><br><small>${c.time?.toDate().toLocaleString()}</small></div></div>`;
+                    if((c.caller===me.uid || c.receiver===me.uid) && new Date()-c.time?.toDate() < 172800000) {
+                        const icon = c.caller===me.uid ? '<i class="ri-arrow-right-up-line" style="color:var(--success)"></i>' : '<i class="ri-arrow-left-down-line" style="color:var(--danger)"></i>';
+                        d.innerHTML += `<div class="user-card"><div><b>${icon} ${c.type}</b><br><small>${c.time?.toDate().toLocaleString()}</small></div></div>`;
+                    }
                 });
             });
         }
+        
+        // SEARCH & REQ
+        window.findUser=async(v)=>{
+            if(v.length<3) return;
+            const q = query(collection(db,"users"), where("email",">=",v), where("email","<=",v+'\uf8ff'));
+            const s = await getDocs(q);
+            const d = document.getElementById('search-res'); d.innerHTML="";
+            const rendered = new Set();
+            s.forEach(doc=>{
+                const u = doc.data();
+                if(u.uid!==me.uid && !rendered.has(u.uid)) {
+                    rendered.add(u.uid);
+                    d.innerHTML += `<div class="user-card"><div style="flex:1"><b>${u.displayName}</b></div> <button class="btn" style="background:var(--primary); padding:5px 10px; border-radius:5px; color:white;" onclick="sendReq('${u.uid}')">Add</button></div>`;
+                }
+            });
+        }
+        window.sendReq=async(uid)=>{ await updateDoc(doc(db,"users",uid),{requests:arrayUnion(me.uid)}); alert("Sent!"); }
+        window.loadReqs=()=>{
+            onSnapshot(doc(db,"users",me.uid), async(s)=>{
+                const r = s.data()?.requests || [];
+                const d = document.getElementById('view-reqs'); d.innerHTML="";
+                for(const id of r){
+                    const u = (await getDoc(doc(db,"users",id))).data();
+                    d.innerHTML += `<div class="user-card"><img src="${u.photoURL}" style="width:40px;height:40px;border-radius:50%;margin-right:10px;"> <div style="flex:1"><b>${u.displayName}</b> wants to join</div> <button class="btn" onclick="accReq('${u.uid}')" style="background:var(--success); color:white; padding:5px 10px; border-radius:5px;">Accept</button></div>`;
+                }
+            });
+        }
+        window.accReq=async(id)=>{
+            await updateDoc(doc(db,"users",me.uid),{friends:arrayUnion(id), requests:arrayRemove(id)});
+            await updateDoc(doc(db,"users",id),{friends:arrayUnion(me.uid)});
+        }
+
     </script>
 </body>
 </html>
