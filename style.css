@@ -1,0 +1,39 @@
+:root {
+    --bg-color: #f0f2f5;
+    --chat-bg: #e5ddd5;
+    --sent-bg: #d9fdd3;
+    --received-bg: #ffffff;
+    --text-color: #000;
+}
+
+/* Themes */
+.theme-blue { --header-bg: #008069; --btn-bg: #008069; }
+.theme-dark { --bg-color: #121212; --chat-bg: #202c33; --sent-bg: #005c4b; --received-bg: #202c33; --text-color: #fff; --header-bg: #202c33; }
+.theme-purple { --header-bg: #6a1b9a; --btn-bg: #6a1b9a; --sent-bg: #e1bee7; }
+.theme-red { --header-bg: #c62828; --btn-bg: #c62828; --sent-bg: #ffcdd2; }
+
+body { font-family: sans-serif; margin: 0; background: var(--bg-color); color: var(--text-color); }
+.screen { display: none; height: 100vh; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* Login */
+#login-screen { justify-content: center; align-items: center; padding: 20px; }
+input { padding: 10px; margin: 10px 0; width: 80%; border-radius: 5px; border: 1px solid #ccc; }
+button { padding: 10px 20px; background: var(--btn-bg); color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+
+/* Chat */
+header { background: var(--header-bg); padding: 10px; display: flex; justify-content: space-between; align-items: center; color: white; }
+.user-info img { border-radius: 50%; width: 40px; height: 40px; margin-right: 10px; }
+#chat-container { flex: 1; overflow-y: auto; padding: 10px; background: var(--chat-bg); display: flex; flex-direction: column; }
+
+.message { max-width: 70%; padding: 8px 12px; margin: 5px; border-radius: 10px; position: relative; font-size: 14px; }
+.sent { align-self: flex-end; background: var(--sent-bg); }
+.received { align-self: flex-start; background: var(--received-bg); }
+.status { font-size: 10px; float: right; margin-left: 5px; color: gray; }
+
+.input-area { display: flex; padding: 10px; background: var(--bg-color); }
+.input-area input { flex: 1; margin: 0 10px 0 0; }
+
+/* Modal */
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; }
+.hidden { display: none !important; }

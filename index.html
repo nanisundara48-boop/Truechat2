@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrueChats</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-blue"> <div id="login-screen" class="screen active">
+        <h2>TrueChats Login</h2>
+        <input type="email" id="email" placeholder="Email Address">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <button onclick="register()">Register</button>
+        <p onclick="forgotPass()" style="cursor:pointer; color:blue;">Forgot Password?</p>
+        <div id="auth-msg"></div>
+    </div>
+
+    <div id="app-screen" class="screen hidden">
+        <header>
+            <div class="user-info" onclick="openProfile()">
+                <img id="my-dp" src="https://via.placeholder.com/40" alt="DP">
+                <span id="my-username">User</span>
+            </div>
+            <div class="actions">
+                <i class="fa-solid fa-phone" onclick="startCall()"></i>
+                <i class="fa-solid fa-palette" onclick="toggleTheme()"></i>
+                <i class="fa-solid fa-language" onclick="toggleLang()"></i>
+                <i class="fa-solid fa-right-from-bracket" onclick="logout()"></i>
+            </div>
+        </header>
+
+        <div id="chat-container">
+            </div>
+
+        <div class="input-area">
+            <input type="text" id="msg-input" placeholder="Type a message...">
+            <button onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <div id="call-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Incoming Call...</h3>
+            <button onclick="answerCall()">Answer</button>
+            <button onclick="endCall()" style="background:red;">Reject</button>
+        </div>
+    </div>
+    
+    <audio id="remote-audio" autoplay></audio>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
