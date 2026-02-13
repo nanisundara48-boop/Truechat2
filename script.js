@@ -24,229 +24,201 @@ let peer = null;
 let activeCall = null;
 let localStream = null;
 
-// --- UTILS: Get DP or First Letter ---
-function getAvatar(user) {
-    if (user.photoURL && user.photoURL.startsWith('http')) {
-        return user.photoURL;
-    }
-    // Generate First Letter Image if no DP
-    return `https://ui-avatars.com/api/?name=${user.displayName}&background=random&color=fff&size=128`;
-}
+const getAvatar = (u) => u.photoURL ? u.photoURL : `https://ui-avatars.com/api/?name=${u.displayName}&background=random&color=fff`;
 
-// --- AUTH ---
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         currentUser = user;
         document.getElementById('auth-screen').classList.add('hidden');
         document.getElementById('app-screen').classList.remove('hidden');
-        
-        // UI Update
-        const dp = getAvatar(user);
         document.getElementById('my-name').innerText = user.displayName;
-        document.getElementById('my-dp').src = dp;
-
-        // DB Update (Crucial)
-        await setDoc(doc(db, "users", user.uid), {
-            uid: user.uid, 
-            email: user.email.toLowerCase(), 
-            displayName: user.displayName, 
-            photoURL: dp, // Save the generated avatar URL
-            lastSeen: serverTimestamp()
-        }, { merge: true });
-
-        listenFriends();
-        listenRequests();
+        document.getElementById('my-dp').src = getAvatar(user);
+        await setDoc(doc(db, "users", user.uid), { uid: user.uid, email: user.email.toLowerCase(), displayName: user.displayName, photoURL: user.photoURL || null }, { merge: true });
         initPeer(user.uid);
+        loadFriends();
+        loadRequests();
     } else {
         document.getElementById('auth-screen').classList.remove('hidden');
         document.getElementById('app-screen').classList.add('hidden');
     }
 });
 
-// --- MESSAGING ---
-window.sendMessage = async () => {
-    const input = document.getElementById('msg-input');
-    const text = input.value.trim();
-    if (!text || !chatId) return;
+// --- MAIN FIX IS HERE (Chat Opening) ---
+window.openChat = (u) => {
+    currentChatUser = u;
+    const uid1 = currentUser.uid < u.uid ? currentUser.uid : u.uid;
+    const uid2 = currentUser.uid < u.uid ? u.uid : currentUser.uid;
+    chatId = `${uid1}_${uid2}`;
 
-    await addDoc(collection(db, "messages"), {
-        text: text, sender: currentUser.uid, chatId: chatId, createdAt: serverTimestamp(), seen: false
-    });
-    input.value = "";
+    document.getElementById('empty-state').classList.add('hidden');
+    document.getElementById('chat-interface').classList.remove('hidden');
+    document.getElementById('chat-name').innerText = u.displayName;
+    document.getElementById('chat-img').src = getAvatar(u);
+    
+    // Fix for Mobile View
+    const chatArea = document.querySelector('.chat-area');
+    chatArea.classList.remove('hidden-mobile'); // Invisible class ni teesestunnam
+    chatArea.classList.add('active-chat-mobile'); // Slide effect add chestunnam
+    
+    loadMessages();
+};
+
+window.closeChat = () => {
+    const chatArea = document.querySelector('.chat-area');
+    chatArea.classList.remove('active-chat-mobile');
+    // Animation complete ayyaka hide cheyali
+    setTimeout(() => {
+        chatArea.classList.add('hidden-mobile');
+    }, 300);
+};
+
+// --- MESSAGES ---
+window.sendMessage = async () => {
+    const txt = document.getElementById('msg-text').value.trim();
+    if(!txt || !chatId) return;
+    await addDoc(collection(db, "messages"), { text: txt, sender: currentUser.uid, chatId: chatId, createdAt: serverTimestamp(), seen: false });
+    document.getElementById('msg-text').value = "";
 };
 
 function loadMessages() {
-    const container = document.getElementById('messages-container');
-    container.innerHTML = "";
-    
+    const box = document.getElementById('messages');
+    box.innerHTML = "";
     const q = query(collection(db, "messages"), where("chatId", "==", chatId), orderBy("createdAt", "asc"));
-    onSnapshot(q, (snapshot) => {
-        container.innerHTML = "";
-        snapshot.forEach((doc) => {
-            const data = doc.data();
-            // Check expiry 48h
-            let expired = false;
-            if(data.createdAt) {
-                if ((new Date() - data.createdAt.toDate()) / 36e5 > 48) expired = true;
-            }
-            
-            if(!expired) {
+    onSnapshot(q, (snap) => {
+        box.innerHTML = "";
+        snap.forEach(d => {
+            const data = d.data();
+            const isExpired = data.createdAt && (new Date() - data.createdAt.toDate()) > (48 * 60 * 60 * 1000);
+            if(!isExpired) {
                 const div = document.createElement('div');
                 div.className = `msg ${data.sender === currentUser.uid ? 'sent' : 'received'}`;
-                div.innerHTML = `${data.text} <span style="font-size:10px; margin-left:5px; opacity:0.7">${new Date(data.createdAt?.toDate()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>`;
-                container.appendChild(div);
+                const time = data.createdAt ? data.createdAt.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '...';
+                const tick = data.sender === currentUser.uid ? '<i class="fa fa-check"></i>' : '';
+                div.innerHTML = `${data.text} <span style="font-size:10px; float:right; margin-top:5px; margin-left:5px; opacity:0.7">${time} ${tick}</span>`;
+                box.appendChild(div);
             }
         });
-        container.scrollTop = container.scrollHeight;
+        box.scrollTop = box.scrollHeight;
     });
 }
 
-// --- CALLING (Full Screen Logic) ---
+// --- CALLING ---
 function initPeer(uid) {
     if(peer) return;
     peer = new Peer(uid);
-    
     peer.on('call', (call) => {
         activeCall = call;
         showIncomingCall(call.peer);
-        
         window.answerCall = () => {
             navigator.mediaDevices.getUserMedia({audio:true}).then(stream => {
                 localStream = stream;
                 call.answer(stream);
-                updateCallUI("Connected", false);
-                call.on('stream', remote => {
-                    const aud = document.getElementById('remote-audio');
-                    aud.srcObject = remote;
-                    aud.play().catch(e => console.log("Auto-play blocked"));
-                });
-                call.on('close', closeCallScreen);
+                document.getElementById('call-status').innerText = "Connected";
+                document.getElementById('incoming-btns').classList.add('hidden');
+                document.getElementById('outgoing-btns').classList.remove('hidden');
+                call.on('stream', remote => { document.getElementById('remote-audio').srcObject = remote; });
+                call.on('close', closeCallUI);
             });
         };
-        window.rejectCall = () => { call.close(); closeCallScreen(); };
+        window.rejectCall = () => { call.close(); closeCallUI(); };
     });
 }
-
 window.startCallUI = async () => {
     if(!currentChatUser) return;
-    
     document.getElementById('call-screen').classList.remove('hidden');
-    document.getElementById('call-name').innerText = currentChatUser.displayName;
     document.getElementById('call-avatar').src = getAvatar(currentChatUser);
+    document.getElementById('call-user').innerText = currentChatUser.displayName;
     document.getElementById('call-status').innerText = "Calling...";
     document.getElementById('incoming-btns').classList.add('hidden');
-    document.getElementById('ongoing-btns').classList.remove('hidden');
-
+    document.getElementById('outgoing-btns').classList.remove('hidden');
     try {
         localStream = await navigator.mediaDevices.getUserMedia({audio:true});
         const call = peer.call(currentChatUser.uid, localStream);
         activeCall = call;
-
-        call.on('stream', remote => {
-             const aud = document.getElementById('remote-audio');
-             aud.srcObject = remote;
-             aud.play();
-             document.getElementById('call-status').innerText = "Connected";
-        });
-        call.on('close', closeCallScreen);
-        call.on('error', () => { alert("Call Failed/User Offline"); closeCallScreen(); });
-    } catch(e) { alert("Mic Permission Denied"); closeCallScreen(); }
+        call.on('stream', remote => { document.getElementById('remote-audio').srcObject = remote; document.getElementById('call-status').innerText = "Connected"; });
+        call.on('close', closeCallUI);
+        call.on('error', () => { alert("Call Failed"); closeCallUI(); });
+    } catch(e) { alert("Mic Permission Denied"); closeCallUI(); }
 };
-
-window.endCall = () => { if(activeCall) activeCall.close(); closeCallScreen(); };
-
+window.endCall = () => { if(activeCall) activeCall.close(); closeCallUI(); };
 async function showIncomingCall(callerId) {
     const snap = await getDoc(doc(db, "users", callerId));
-    const data = snap.data();
-    
+    const u = snap.data();
     document.getElementById('call-screen').classList.remove('hidden');
-    document.getElementById('call-name').innerText = data ? data.displayName : "Unknown";
-    document.getElementById('call-avatar').src = data ? getAvatar(data) : "";
+    document.getElementById('call-avatar').src = getAvatar(u);
+    document.getElementById('call-user').innerText = u.displayName;
     document.getElementById('call-status').innerText = "Incoming Call...";
     document.getElementById('incoming-btns').classList.remove('hidden');
-    document.getElementById('ongoing-btns').classList.add('hidden');
+    document.getElementById('outgoing-btns').classList.add('hidden');
 }
-
-function updateCallUI(status, isIncoming) {
-    document.getElementById('call-status').innerText = status;
-    if(!isIncoming) {
-        document.getElementById('incoming-btns').classList.add('hidden');
-        document.getElementById('ongoing-btns').classList.remove('hidden');
-    }
-}
-
-function closeCallScreen() {
+function closeCallUI() {
     document.getElementById('call-screen').classList.add('hidden');
     if(localStream) localStream.getTracks().forEach(t => t.stop());
-    activeCall = null;
 }
 
-// --- SEARCH & REQUESTS (Tick Logic) ---
-window.liveSearch = async () => {
-    const input = document.getElementById('search-input').value.toLowerCase();
+// --- OTHERS ---
+window.searchUsers = async () => {
+    const val = document.getElementById('search-input').value.toLowerCase();
     const res = document.getElementById('search-results');
-    if(input.length < 3) return res.innerHTML = "";
-
-    const q = query(collection(db, "users"), where("email", ">=", input), where("email", "<=", input+'\uf8ff'));
+    if(val.length < 3) return res.innerHTML = "";
+    const q = query(collection(db, "users"), where("email", ">=", val), where("email", "<=", val+'\uf8ff'));
     const snap = await getDocs(q);
     res.innerHTML = "";
-
     snap.forEach(d => {
         const u = d.data();
         if(u.uid !== currentUser.uid) {
             const div = document.createElement('div');
             div.className = 'user-item';
-            div.innerHTML = `
-                <img src="${getAvatar(u)}">
-                <div style="flex:1"><h4>${u.displayName}</h4><small>${u.email}</small></div>
-                <button class="btn-outline" id="btn-${u.uid}" onclick="sendReq('${u.uid}')"><i class="fa fa-user-plus"></i> Add</button>
-            `;
+            div.innerHTML = `<img src="${getAvatar(u)}"><div style="flex:1"><b>${u.displayName}</b><br><small>${u.email}</small></div><button id="btn-${u.uid}" onclick="sendReq('${u.uid}')" style="background:#008069; color:white; border:none; padding:5px 10px; border-radius:5px;">Add</button>`;
             res.appendChild(div);
         }
     });
 };
-
 window.sendReq = async (uid) => {
     const btn = document.getElementById(`btn-${uid}`);
-    btn.innerHTML = `<i class="fa fa-spinner fa-spin"></i>`;
-    try {
-        await updateDoc(doc(db, "users", uid), { requests: arrayUnion(currentUser.uid) });
-        // Update Button UI to Green Tick
-        btn.innerHTML = `<i class="fa fa-check"></i> Sent`;
-        btn.style.background = "#2ecc71";
-        btn.style.color = "white";
-        btn.style.border = "none";
-    } catch(e) { alert("Failed"); btn.innerHTML = "Add"; }
+    try { await updateDoc(doc(db, "users", uid), { requests: arrayUnion(currentUser.uid) }); btn.innerHTML = `<i class="fa fa-check"></i> Sent`; btn.style.background = "#2ecc71"; } catch(e) { alert("Failed"); }
 };
-
-function listenRequests() {
+function loadRequests() {
     onSnapshot(doc(db, "users", currentUser.uid), async (snap) => {
         const list = document.getElementById('requests-list');
         const reqs = snap.data().requests || [];
-        document.getElementById('req-badge').innerText = reqs.length;
-        list.innerHTML = reqs.length ? "" : "<p style='text-align:center;color:#999'>No requests</p>";
-
+        document.getElementById('req-count').innerText = reqs.length;
+        list.innerHTML = "";
         for (const uid of reqs) {
             const u = (await getDoc(doc(db, "users", uid))).data();
             const div = document.createElement('div');
             div.className = 'user-item';
-            div.innerHTML = `
-                <img src="${getAvatar(u)}">
-                <div style="flex:1"><h4>${u.displayName}</h4></div>
-                <button class="btn-main" onclick="acceptReq('${uid}')">Accept</button>
-            `;
+            div.innerHTML = `<img src="${getAvatar(u)}"><div style="flex:1"><b>${u.displayName}</b> sent request</div><button onclick="acceptReq('${uid}')" style="background:#008069; color:white; border:none; padding:5px 10px; border-radius:5px;">Accept</button>`;
             list.appendChild(div);
         }
     });
 }
-
 window.acceptReq = async (uid) => {
     await updateDoc(doc(db, "users", currentUser.uid), { requests: arrayRemove(uid), friends: arrayUnion(uid) });
     await updateDoc(doc(db, "users", uid), { friends: arrayUnion(currentUser.uid) });
     alert("Accepted! Friend Added ✔");
 };
-
-// --- DP UPLOAD ---
+window.switchTab = (t) => {
+    document.querySelectorAll('.tab-content').forEach(e => e.classList.add('hidden'));
+    document.getElementById(`${t}-tab`).classList.remove('hidden');
+    document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active-tab'));
+    event.target.classList.add('active-tab');
+};
+function loadFriends() {
+    onSnapshot(doc(db, "users", currentUser.uid), async (snap) => {
+        const list = document.getElementById('friends-list');
+        list.innerHTML = "";
+        const friends = snap.data().friends || [];
+        for (const fid of friends) {
+            const f = (await getDoc(doc(db, "users", fid))).data();
+            const div = document.createElement('div');
+            div.className = 'user-item';
+            div.innerHTML = `<img src="${getAvatar(f)}"><div><b>${f.displayName}</b><br><small>Tap to chat</small></div>`;
+            div.onclick = () => openChat(f);
+            list.appendChild(div);
+        }
+    });
+}
 window.changeDP = () => {
     const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*';
     i.onchange = async (e) => {
@@ -261,58 +233,21 @@ window.changeDP = () => {
     };
     i.click();
 };
-
-// --- AUTH & NAV ---
-window.login = async () => {
-    try { await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); }
-    catch(e) { alert(e.message); }
-};
-window.register = async () => {
-    const e = document.getElementById('email').value;
-    try {
+window.login = async () => { try { await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch(e){ alert(e.message) } };
+window.register = async () => { 
+    try { 
+        const e = document.getElementById('email').value;
         const c = await createUserWithEmailAndPassword(auth, e, document.getElementById('password').value);
-        // Save with Generated Avatar
-        const genAvatar = `https://ui-avatars.com/api/?name=${e.split('@')[0]}&background=random&color=fff`;
-        await setDoc(doc(db, "users", c.user.uid), {
-            uid: c.user.uid, email: e, displayName: e.split('@')[0], 
-            photoURL: genAvatar, friends: [], requests: []
-        });
-    } catch(e) { alert(e.message); }
+        await setDoc(doc(db, "users", c.user.uid), { uid: c.user.uid, email: e, displayName: e.split('@')[0], photoURL: null, friends: [], requests: [] });
+    } catch(e){ alert(e.message) } 
 };
 window.logout = () => signOut(auth);
-window.showTab = (t) => {
-    document.querySelectorAll('.tab-content').forEach(e => e.classList.add('hidden'));
-    document.getElementById(`tab-${t}`).classList.remove('hidden');
-    document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active-tab'));
-    event.currentTarget.classList.add('active-tab');
+window.forgotPass = () => { const e = prompt("Email:"); if(e) sendPasswordResetEmail(auth, e); };
+window.removeFriend = async () => {
+    if(confirm("Remove friend?")) {
+        await updateDoc(doc(db, "users", currentUser.uid), { friends: arrayRemove(currentChatUser.uid) });
+        await updateDoc(doc(db, "users", currentChatUser.uid), { friends: arrayRemove(currentUser.uid) });
+        closeChat();
+    }
 };
-function listenFriends() {
-    onSnapshot(doc(db, "users", currentUser.uid), async (snap) => {
-        const list = document.getElementById('friends-list');
-        list.innerHTML = "";
-        const friends = snap.data().friends || [];
-        for(const fid of friends) {
-            const f = (await getDoc(doc(db, "users", fid))).data();
-            const div = document.createElement('div');
-            div.className = 'user-item';
-            div.innerHTML = `<img src="${getAvatar(f)}"><div><h4>${f.displayName}</h4><small style='color:green'>Tap to chat</small></div>`;
-            div.onclick = () => openChat(f);
-            list.appendChild(div);
-        }
-    });
-}
-window.openChat = (f) => {
-    currentChatUser = f;
-    const uid1 = currentUser.uid < f.uid ? currentUser.uid : f.uid;
-    const uid2 = currentUser.uid < f.uid ? f.uid : currentUser.uid;
-    chatId = `${uid1}_${uid2}`;
-    
-    document.getElementById('empty-state').classList.add('hidden');
-    document.getElementById('active-chat').classList.remove('hidden');
-    document.getElementById('chat-user-name').innerText = f.displayName;
-    document.getElementById('chat-user-img').src = getAvatar(f);
-    document.querySelector('.chat-area').classList.add('active');
-    loadMessages();
-};
-window.closeChat = () => document.querySelector('.chat-area').classList.remove('active');
-window.toggleMenu = () => document.getElementById('chat-menu').classList.toggle('hidden');
+  
