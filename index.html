@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>True Chats Ultimate</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap');
+        body { font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; overflow: hidden; }
+
+        /* THEMES */
+        :root {
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --accent: #2563eb;
+            --sent-bg: #2563eb;
+            --sent-text: #ffffff;
+        }
+
+        body.dark-mode {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f3f4f6;
+            --accent: #3b82f6;
+            --sent-bg: #3b82f6;
+            --sent-text: #ffffff;
+        }
+
+        body.love-mode {
+            --bg-color: #2a0a12;
+            --card-bg: #4a0d1d;
+            --text-color: #ffe4e6;
+            --accent: #ff0055;
+            --sent-bg: #ff0055;
+            --sent-text: #ffffff;
+        }
+
+        /* UTILS */
+        .app-bg { background-color: var(--bg-color); color: var(--text-color); transition: all 0.5s ease; }
+        .card { background-color: var(--card-bg); transition: all 0.5s ease; }
+        .hidden { display: none !important; }
+        
+        /* Floating Hearts */
+        .hearts-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; display: none; }
+        body.love-mode .hearts-bg { display: block; }
+        .heart { position: absolute; animation: float 4s linear infinite; opacity: 0; }
+        @keyframes float { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
+
+        /* Modal */
+        .modal { background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
+    </style>
+</head>
+<body class="app-bg h-screen w-screen flex flex-col">
+
+    <div id="authScreen" class="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center p-6">
+        <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-blue-300">
+            <i class="fa-solid fa-bolt text-4xl text-white"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-800 mb-1">True Chats</h1>
+        <p class="text-sm text-gray-500 mb-8">Secure. Private. Instant.</p>
+        
+        <input type="email" id="emailIn" placeholder="Email" class="w-full bg-gray-100 p-4 rounded-xl mb-3 outline-none">
+        <input type="password" id="passIn" placeholder="Password" class="w-full bg-gray-100 p-4 rounded-xl mb-6 outline-none">
+        
+        <button onclick="handleAuth('login')" class="w-full bg-blue-600 text-white p-4 rounded-xl font-bold shadow-lg mb-3">Login</button>
+        <button onclick="handleAuth('register')" class="w-full border border-blue-600 text-blue-600 p-4 rounded-xl font-bold">Create Account</button>
+        <p id="authMsg" class="text-red-500 mt-4 text-sm"></p>
+    </div>
+
+    <div id="mainApp" class="hidden flex-1 flex flex-col relative h-full">
+        
+        <div id="heartsContainer" class="hearts-bg"></div>
+
+        <div class="card p-4 flex justify-between items-center shadow-md z-20 relative">
+            <div class="flex items-center gap-3">
+                <i onclick="openScanner()" class="fa-solid fa-qrcode text-2xl cursor-pointer" style="color: var(--accent);"></i>
+                <h2 class="text-xl font-bold">Chats</h2>
+            </div>
+            <div class="flex items-center gap-4">
+                <i onclick="toggleLoveMode()" id="heartBtn" class="fa-regular fa-heart text-2xl cursor-pointer text-gray-400"></i>
+                <img id="myHeaderDp" src="" class="w-10 h-10 rounded-full border-2 border-gray-200 object-cover" onclick="showTab('profile')">
+            </div>
+        </div>
+
+        <div id="contentArea" class="flex-1 overflow-y-auto relative z-10 pb-20">
+            
+            <div id="tab-chats" class="p-2">
+                <div class="p-2 sticky top-0 bg-transparent z-10">
+                    <input type="text" id="searchBar" onkeyup="doSearch(this.value)" placeholder="Search friends..." 
+                           class="w-full p-3 px-5 rounded-full card shadow-sm outline-none border border-gray-100">
+                </div>
+                <div id="searchResults" class="hidden px-2 mb-2"></div>
+                <div id="chatList" class="space-y-2 mt-2">
+                    <div class="text-center mt-10 opacity-50 text-sm">Loading chats...</div>
+                </div>
+            </div>
+
+            <div id="tab-profile" class="hidden p-6 flex flex-col items-center text-center">
+                <img id="profileDp" src="" class="w-28 h-28 rounded-full border-4 border-white shadow-lg mb-4 object-cover">
+                <h2 id="profileName" class="text-2xl font-bold mb-1">User Name</h2>
+                <p id="profileEmail" class="text-sm opacity-60 mb-6">user@email.com</p>
+                
+                <div class="bg-white p-4 rounded-xl shadow-lg mb-6">
+                    <img id="myQrCode" src="" class="w-48 h-48 mx-auto">
+                    <p class="text-xs text-gray-400 mt-2">Scan to add me instantly</p>
+                </div>
+
+                <button onclick="openPasswordModal()" class="w-full card p-4 rounded-xl mb-3 flex justify-between items-center shadow-sm">
+                    <span><i class="fa-solid fa-lock mr-2 text-pink-500"></i> Hidden Chat Password</span>
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </button>
+                
+                <button onclick="doLogout()" class="w-full bg-red-500 text-white p-4 rounded-xl font-bold shadow-md">Logout</button>
+            </div>
+        </div>
+
+        <div class="card fixed bottom-0 w-full p-3 flex justify-around items-center shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-20">
+            <div onclick="showTab('chats')" class="flex flex-col items-center opacity-70 hover:opacity-100 cursor-pointer">
+                <i class="fa-solid fa-comment-dots text-xl mb-1"></i>
+                <span class="text-[10px] font-bold">Chats</span>
+            </div>
+            <div onclick="showTab('profile')" class="flex flex-col items-center opacity-70 hover:opacity-100 cursor-pointer">
+                <i class="fa-solid fa-user text-xl mb-1"></i>
+                <span class="text-[10px] font-bold">Profile</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="chatRoom" class="fixed inset-0 z-40 app-bg hidden flex flex-col">
+        <div class="card p-3 shadow-md flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <i onclick="closeChat()" class="fa-solid fa-arrow-left text-xl cursor-pointer p-2"></i>
+                <img id="chatUserDp" src="" class="w-10 h-10 rounded-full object-cover">
+                <div>
+                    <h3 id="chatUserName" class="font-bold text-sm">User</h3>
+                    <p class="text-xs text-green-500">Online</p>
+                </div>
+            </div>
+            <div class="flex gap-4 text-xl" style="color: var(--accent);">
+                <i class="fa-solid fa-phone"></i>
+                <i class="fa-solid fa-video"></i>
+                <i onclick="toggleHideChat()" class="fa-solid fa-eye-slash cursor-pointer text-gray-400"></i>
+            </div>
+        </div>
+
+        <div id="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-2"></div>
+
+        <div class="card p-3 border-t flex items-center gap-2">
+            <input type="text" id="msgInput" placeholder="Message..." class="flex-1 bg-gray-100 text-black p-3 rounded-full outline-none">
+            <button onclick="sendMessage()" class="w-12 h-12 rounded-full flex items-center justify-center text-white shadow-md" style="background-color: var(--accent);">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id="scannerModal" class="fixed inset-0 z-50 modal hidden flex flex-col items-center justify-center p-4">
+        <div class="bg-white p-4 rounded-2xl w-full max-w-sm">
+            <h3 class="font-bold text-center mb-4 text-black">Scan Friend's QR</h3>
+            <div id="reader" class="w-full h-64 bg-gray-200 rounded-lg overflow-hidden"></div>
+            <button onclick="document.getElementById('scannerModal').classList.add('hidden')" class="w-full mt-4 p-3 bg-red-500 text-white rounded-xl">Close</button>
+        </div>
+    </div>
+
+    <div id="passwordModal" class="fixed inset-0 z-50 modal hidden flex flex-col items-center justify-center p-6">
+        <div class="bg-white p-6 rounded-2xl w-full max-w-xs shadow-2xl relative">
+            <i onclick="closePassModal()" class="fa-solid fa-xmark absolute top-4 right-4 text-xl cursor-pointer text-black"></i>
+            
+            <h3 id="passTitle" class="text-xl font-bold text-center mb-2 text-black">Enter Password</h3>
+            <p id="passSub" class="text-xs text-gray-500 text-center mb-6">To access hidden chats</p>
+            
+            <div class="relative mb-4">
+                <input type="password" id="privatePassInput" placeholder="****" class="w-full p-4 rounded-xl border-2 border-gray-200 outline-none text-center text-2xl tracking-widest text-black">
+                <i onclick="togglePassVis()" id="eyeIcon" class="fa-solid fa-eye absolute right-4 top-5 text-gray-400 cursor-pointer"></i>
+            </div>
+
+            <button onclick="submitPassword()" class="w-full bg-pink-600 text-white p-4 rounded-xl font-bold shadow-lg mb-3">Submit</button>
+            <p onclick="forgotPassword()" class="text-center text-xs text-blue-500 cursor-pointer underline">Forgot Password?</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, getDoc, setDoc, updateDoc, arrayUnion, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        // FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyCAsCm1YcsAjHwyvIzxyMrBmZPLw2hlo18",
+            authDomain: "truechats-8dac9.firebaseapp.com",
+            projectId: "truechats-8dac9",
+            storageBucket: "truechats-8dac9.firebasestorage.app",
+            messagingSenderId: "685374771914",
+            appId: "1:685374771914:web:81bf491264c1bb09061a33"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // STATE
+        let currentUser = null;
+        let currentChatId = null;
+        let isLoveMode = false;
+        let passAction = "enter"; // 'enter' or 'set'
+
+        // AUTH
+        window.handleAuth = async (type) => {
+            const e = document.getElementById('emailIn').value;
+            const p = document.getElementById('passIn').value;
+            try {
+                if(type === 'login') await signInWithEmailAndPassword(auth, e, p);
+                else {
+                    const res = await createUserWithEmailAndPassword(auth, e, p);
+                    // Store lowercase username for search
+                    await setDoc(doc(db, "users", res.user.uid), {
+                        uid: res.user.uid,
+                        username: e.split('@')[0],
+                        username_lower: e.split('@')[0].toLowerCase(), 
+                        email: e,
+                        photoURL: `https://ui-avatars.com/api/?name=${e}&background=random`,
+                        privatePassword: null
+                    });
+                }
+            } catch(err) { document.getElementById('authMsg').innerText = err.message; }
+        };
+
+        window.doLogout = () => signOut(auth);
+
+        onAuthStateChanged(auth, (user) => {
+            if(user) {
+                currentUser = user;
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                loadUserData();
+                loadChats();
+            } else {
+                document.getElementById('authScreen').classList.remove('hidden');
+                document.getElementById('mainApp').classList.add('hidden');
+            }
+        });
+
+        // LOAD DATA
+        async function loadUserData() {
+            const snap = await getDoc(doc(db, "users", currentUser.uid));
+            const data = snap.data();
+            
+            // Header & Profile Info
+            document.getElementById('myHeaderDp').src = data.photoURL;
+            document.getElementById('profileDp').src = data.photoURL;
+            document.getElementById('profileName').innerText = data.username;
+            document.getElementById('profileEmail').innerText = data.email;
+            
+            // Generate QR Code (using API)
+            document.getElementById('myQrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${currentUser.uid}`;
+        }
+
+        // CHAT LIST
+        function loadChats() {
+            const q = query(collection(db, "chats"), where("participants", "array-contains", currentUser.uid), orderBy("timestamp", "desc"));
+            onSnapshot(q, (snapshot) => {
+                const list = document.getElementById('chatList');
+                list.innerHTML = "";
+                snapshot.forEach(async d => {
+                    const chat = d.data();
+                    if(chat.isHidden && !isLoveMode) return; // Hide private chats
+
+                    const otherUid = chat.participants.find(id => id !== currentUser.uid);
+                    const uSnap = await getDoc(doc(db, "users", otherUid));
+                    const uData = uSnap.data() || {username: "User", photoURL: ""};
+
+                    const div = document.createElement('div');
+                    div.className = "card p-3 rounded-xl flex items-center gap-3 cursor-pointer shadow-sm mb-2";
+                    div.innerHTML = `
+                        <img src="${uData.photoURL}" class="w-12 h-12 rounded-full bg-gray-200">
+                        <div class="flex-1">
+                            <div class="flex justify-between">
+                                <h4 class="font-bold">${uData.username}</h4>
+                                <span class="text-xs opacity-50">${new Date(chat.timestamp?.toDate()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+                            </div>
+                            <p class="text-sm opacity-70 truncate">${chat.lastMessage || 'Tap to chat'}</p>
+                        </div>
+                        ${chat.isHidden ? '<i class="fa-solid fa-heart text-pink-500 text-xs"></i>' : ''}
+                    `;
+                    div.onclick = () => openChat(d.id, uData);
+                    list.appendChild(div);
+                });
+            });
+        }
+
+        // SEARCH (FIXED)
+        window.doSearch = async (val) => {
+            const res = document.getElementById('searchResults');
+            const term = val.toLowerCase();
+            if(term.length < 3) { res.classList.add('hidden'); return; }
+            
+            res.classList.remove('hidden');
+            res.innerHTML = '<div class="text-center text-xs p-2">Searching...</div>';
+            
+            // Search logic using >= and <= for prefix matching
+            const q = query(collection(db, "users"), 
+                where("username_lower", ">=", term), 
+                where("username_lower", "<=", term + "\uf8ff"));
+
+            const snap = await getDoc(doc(db, "users", currentUser.uid)); // trigger
+            onSnapshot(q, (s) => {
+                res.innerHTML = "";
+                if(s.empty) { res.innerHTML = '<div class="text-center text-xs p-2">No users found</div>'; return; }
+                
+                s.forEach(d => {
+                    const u = d.data();
+                    if(u.uid === currentUser.uid) return;
+                    
+                    const div = document.createElement('div');
+                    div.className = "flex justify-between items-center p-3 card rounded-lg mb-1 shadow-sm";
+                    div.innerHTML = `<span class="font-bold">${u.username}</span> <button class="text-xs bg-blue-500 text-white px-3 py-1 rounded-full">Chat</button>`;
+                    div.onclick = () => createChat(u.uid);
+                    res.appendChild(div);
+                });
+            });
+        };
+
+        window.createChat = async (uid) => {
+            const chatId = [currentUser.uid, uid].sort().join("_");
+            await setDoc(doc(db, "chats", chatId), {
+                participants: [currentUser.uid, uid],
+                timestamp: serverTimestamp(),
+                lastMessage: "👋 New Connection",
+                isHidden: false
+            }, {merge: true});
+            document.getElementById('searchBar').value = "";
+            document.getElementById('searchResults').classList.add('hidden');
+            showTab('chats');
+        };
+
+        // QR SCANNER
+        window.openScanner = () => {
+            document.getElementById('scannerModal').classList.remove('hidden');
+            const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+            scanner.render(async (decodedText) => {
+                scanner.clear();
+                document.getElementById('scannerModal').classList.add('hidden');
+                // Assume decodedText is UID
+                await createChat(decodedText);
+                alert("Friend Verified & Added!");
+            }, (err) => {});
+        };
+
+        // PASSWORD & PRIVATE MODE LOGIC
+        window.toggleLoveMode = async () => {
+            if(isLoveMode) {
+                // Turn OFF
+                isLoveMode = false;
+                document.body.className = "app-bg"; // Reset theme
+                document.getElementById('heartBtn').classList.replace('fa-solid', 'fa-regular');
+                document.getElementById('heartBtn').classList.remove('text-pink-500');
+                loadChats();
+            } else {
+                // Turn ON
+                const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+                const pass = userDoc.data().privatePassword;
+                
+                passAction = pass ? "enter" : "set";
+                
+                document.getElementById('passwordModal').classList.remove('hidden');
+                document.getElementById('passTitle').innerText = pass ? "Enter Private Password" : "Set New Password";
+                document.getElementById('passSub').innerText = pass ? "To unlock hidden chats" : "Create a password for private mode";
+                document.getElementById('privatePassInput').value = "";
+            }
+        };
+
+        window.openPasswordModal = () => {
+             passAction = "set";
+             document.getElementById('passwordModal').classList.remove('hidden');
+             document.getElementById('passTitle').innerText = "Change Password";
+             document.getElementById('passSub').innerText = "Set a new privacy password";
+             document.getElementById('privatePassInput').value = "";
+        };
+
+        window.submitPassword = async () => {
+            const input = document.getElementById('privatePassInput').value;
+            if(!input) return alert("Enter a password");
+
+            if(passAction === "set") {
+                await updateDoc(doc(db, "users", currentUser.uid), { privatePassword: input });
+                alert("Password Saved!");
+                closePassModal();
+            } else {
+                // Check Password
+                const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+                if(userDoc.data().privatePassword === input) {
+                    // Success: Enable Love Mode
+                    isLoveMode = true;
+                    document.body.className = "love-mode";
+                    document.getElementById('heartBtn').classList.replace('fa-regular', 'fa-solid');
+                    document.getElementById('heartBtn').classList.add('text-pink-500');
+                    createHearts();
+                    loadChats();
+                    closePassModal();
+                } else {
+                    alert("Wrong Password!");
+                }
+            }
+        };
+
+        window.forgotPassword = async () => {
+            if(confirm("Reset Private Password? (This will clear your old password)")) {
+                await updateDoc(doc(db, "users", currentUser.uid), { privatePassword: null });
+                alert("Password Cleared. Please set a new one.");
+                passAction = "set";
+                document.getElementById('passTitle').innerText = "Set New Password";
+            }
+        };
+
+        // UTILS
+        window.showTab = (id) => {
+            document.getElementById('tab-chats').classList.add('hidden');
+            document.getElementById('tab-profile').classList.add('hidden');
+            document.getElementById('tab-'+id).classList.remove('hidden');
+        };
+        
+        window.togglePassVis = () => {
+            const inp = document.getElementById('privatePassInput');
+            const icon = document.getElementById('eyeIcon');
+            if(inp.type === "password") { inp.type = "text"; icon.classList.replace('fa-eye', 'fa-eye-slash'); }
+            else { inp.type = "password"; icon.classList.replace('fa-eye-slash', 'fa-eye'); }
+        };
+        
+        window.closePassModal = () => document.getElementById('passwordModal').classList.add('hidden');
+
+        function createHearts() {
+            const container = document.getElementById('heartsContainer');
+            if(!container) return;
+            // Add a few hearts
+            for(let i=0; i<5; i++) {
+                const h = document.createElement('i');
+                h.className = "fa-solid fa-heart heart text-pink-500";
+                h.style.left = Math.random() * 100 + "%";
+                h.style.animationDuration = (Math.random() * 2 + 3) + "s";
+                h.style.fontSize = (Math.random() * 20 + 10) + "px";
+                container.appendChild(h);
+                setTimeout(() => h.remove(), 5000);
+            }
+            if(isLoveMode) setTimeout(createHearts, 500);
+        }
+
+        // CHAT FUNCTIONS (Same as before but refined)
+        window.openChat = (cid, u) => {
+            currentChatId = cid;
+            document.getElementById('chatRoom').classList.remove('hidden');
+            document.getElementById('chatUserName').innerText = u.username;
+            document.getElementById('chatUserDp').src = u.photoURL;
+            
+            onSnapshot(query(collection(db, "chats", cid, "messages"), orderBy("timestamp", "asc")), (snap) => {
+                const con = document.getElementById('messagesContainer');
+                con.innerHTML = "";
+                snap.forEach(d => {
+                    const m = d.data();
+                    const isMe = m.sender === currentUser.uid;
+                    con.innerHTML += `
+                    <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
+                        <div class="p-2 px-4 rounded-xl max-w-[75%] text-sm mb-1 ${isMe ? 'rounded-br-none' : 'rounded-bl-none'}" 
+                             style="background-color: ${isMe ? 'var(--sent-bg)' : 'var(--card-bg)'}; color: ${isMe ? 'var(--sent-text)' : 'var(--text-color)'}">
+                            ${m.text}
+                        </div>
+                    </div>`;
+                });
+                con.scrollTop = con.scrollHeight;
+            });
+        };
+
+        window.sendMessage = async () => {
+            const inp = document.getElementById('msgInput');
+            if(!inp.value) return;
+            await addDoc(collection(db, "chats", currentChatId, "messages"), {
+                text: inp.value, sender: currentUser.uid, timestamp: serverTimestamp()
+            });
+            await updateDoc(doc(db, "chats", currentChatId), { lastMessage: inp.value, timestamp: serverTimestamp() });
+            inp.value = "";
+        };
+
+        window.closeChat = () => document.getElementById('chatRoom').classList.add('hidden');
+        
+        window.toggleHideChat = async () => {
+             const ref = doc(db, "chats", currentChatId);
+             const s = await getDoc(ref);
+             await updateDoc(ref, { isHidden: !s.data().isHidden });
+             alert("Privacy updated!");
+             closeChat();
+        };
+
+    </script>
+</body>
+</html>
