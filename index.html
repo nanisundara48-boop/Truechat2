@@ -2,506 +2,571 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TrueChats Pro Max</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>True Chats - Love & Private</title>
     
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
     <style>
-        :root {
-            --primary: #6366f1; --bg: #0f172a; --surface: #1e293b;
-            --text: #f8fafc; --text-sec: #94a3b8; --border: #334155;
-            --msg-sent: #4f46e5; --msg-recv: #334155;
-            --success: #10b981; --danger: #ef4444;
+        body { overflow: hidden; }
+        .love-theme-bg { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #feada6 100%); }
+        .premium-theme-bg { background-color: #f3f4f6; }
+        .glass { background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(4px); border: 1px solid rgba(255, 255, 255, 0.18); }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .animate-pulse-fast { animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.3); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.3); }
+            70% { transform: scale(1); }
         }
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans',sans-serif; -webkit-tap-highlight-color:transparent; }
-        body { background:var(--bg); color:var(--text); height:100dvh; overflow:hidden; display:flex; flex-direction:column; }
-        
-        /* UI UTILS */
-        .hidden { display:none !important; }
-        .flex { display:flex; align-items:center; }
-        .center { display:flex; justify-content:center; align-items:center; }
-        .btn { background:none; border:none; cursor:pointer; color:var(--text); transition:0.2s; outline:none; }
-        .inp { width:100%; padding:14px; margin:10px 0; background:var(--bg); border:1px solid var(--border); color:white; border-radius:12px; outline:none; }
-        .btn-main { width:100%; padding:14px; background:var(--primary); color:white; border-radius:12px; font-weight:700; border:none; cursor:pointer; }
-        .btn-main:active { transform:scale(0.98); }
-
-        /* AUTH SCREEN */
-        .auth-screen { position:fixed; inset:0; background:var(--bg); z-index:1000; }
-        .auth-box { background:var(--surface); padding:35px; border-radius:24px; width:90%; max-width:380px; text-align:center; border:1px solid var(--border); box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); }
-
-        /* APP LAYOUT */
-        .sidebar { width:100%; height:100%; display:flex; flex-direction:column; background:var(--surface); z-index:10; }
-        .header { padding:15px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface); }
-        .tabs { display:flex; padding:10px; gap:8px; background:var(--surface); }
-        .tab-btn { flex:1; padding:10px; border-radius:10px; color:var(--text-sec); font-weight:700; text-align:center; cursor:pointer; font-size:0.8rem; }
-        .tab-btn.active { background:var(--primary); color:white; box-shadow:0 4px 12px rgba(99,102,241,0.3); }
-
-        /* LISTS */
-        .list-area { flex:1; overflow-y:auto; padding:12px; background:var(--bg); }
-        .item { display:flex; align-items:center; padding:14px; margin-bottom:10px; background:var(--surface); border-radius:16px; cursor:pointer; border:1px solid transparent; transition:0.2s; }
-        .item:active { border-color:var(--primary); background:#253045; }
-        .avatar-box { position:relative; margin-right:15px; }
-        .avatar, .emoji-dp { width:55px; height:55px; border-radius:50%; object-fit:cover; border:2px solid var(--border); background:#333; display:flex; align-items:center; justify-content:center; font-size:24px; }
-        .online-dot { position:absolute; bottom:2px; right:2px; width:14px; height:14px; background:var(--success); border-radius:50%; border:2px solid var(--surface); display:none; }
-        .online-dot.active { display:block; }
-        
-        /* CHAT VIEW */
-        .chat-view { position:fixed; inset:0; background:var(--bg); z-index:500; transform:translateX(100%); transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); display:flex; flex-direction:column; }
-        .chat-view.active { transform:translateX(0); }
-        .chat-header { padding:10px 15px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; height:70px; }
-        .messages { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:8px; background-image: radial-gradient(var(--border) 1px, transparent 1px); background-size: 20px 20px; }
-        .bubble { max-width:75%; padding:10px 16px; border-radius:20px; font-size:0.95rem; line-height:1.4; position:relative; }
-        .sent { align-self:flex-end; background:var(--msg-sent); color:white; border-bottom-right-radius:2px; }
-        .recv { align-self:flex-start; background:var(--msg-recv); color:var(--text); border-bottom-left-radius:2px; }
-        .m-meta { font-size:0.65rem; opacity:0.6; display:block; text-align:right; margin-top:4px; }
-
-        /* CALL SCREEN */
-        #call-screen { background:#0a0a0a; z-index:2000; flex-direction:column; }
-        #remote-vid { width:100%; height:100%; object-fit:cover; }
-        #local-vid { position:absolute; bottom:130px; right:20px; width:110px; height:160px; border:2px solid rgba(255,255,255,0.3); border-radius:15px; object-fit:cover; z-index:2100; box-shadow:0 10px 25px rgba(0,0,0,0.5); }
-        .call-controls { position:absolute; bottom:40px; display:flex; gap:25px; z-index:2200; width:100%; justify-content:center; }
-        .c-btn { width:65px; height:65px; border-radius:50%; font-size:1.8rem; color:white; display:flex; justify-content:center; align-items:center; background:rgba(255,255,255,0.1); backdrop-filter:blur(10px); }
-        .bg-red { background:var(--danger) !important; } .bg-green { background:var(--success) !important; }
-        .btn-hl { background:white !important; color:black !important; }
-
-        /* MODALS */
-        .modal { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:3000; display:none; justify-content:center; align-items:center; backdrop-filter:blur(8px); }
-        .modal-box { background:var(--surface); padding:30px; border-radius:24px; width:85%; max-width:340px; text-align:center; border:1px solid var(--border); }
-
-        /* TOAST POPUP */
-        #toast { position:fixed; top:-100px; left:50%; transform:translateX(-50%); background:var(--surface); padding:12px 20px; border-radius:50px; border:1px solid var(--primary); z-index:9999; display:flex; align-items:center; gap:12px; transition:0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); box-shadow:0 10px 30px rgba(0,0,0,0.5); cursor:pointer; }
-        #toast.show { top:20px; }
+        .heart-beat { animation: heartBeat 1.5s infinite; }
     </style>
 </head>
 <body>
+    <div id="root"></div>
 
-    <div id="toast" onclick="this.classList.remove('show')">
-        <i class="ri-chat-voice-fill" style="color:var(--primary); font-size:1.5rem;"></i>
-        <div style="text-align:left;">
-            <b id="t-name" style="font-size:0.9rem; display:block;">New Message</b>
-            <small id="t-msg" style="color:var(--text-sec);">Tap to open chat</small>
-        </div>
-    </div>
+    <script type="text/babel">
+        // --- FIREBASE SDK & CONFIG (From your Image) ---
+        // Note: In a real HTML file, we use the compat libraries for CDN usage
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-    <audio id="ring-out" src="https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3" loop></audio>
-    <audio id="ring-in" src="https://assets.mixkit.co/active_storage/sfx/2346/2346-preview.mp3" loop></audio>
-
-    <div id="auth-ui" class="auth-screen center">
-        <div class="auth-box">
-            <h1 style="color:var(--primary); margin-bottom:5px;">TrueChats</h1>
-            <p style="color:var(--text-sec); margin-bottom:20px; font-size:0.9rem;">The Ultimate Pro Messenger</p>
-            <input id="reg-name" class="inp" placeholder="Your Display Name">
-            <input id="u-email" class="inp" placeholder="Email Address">
-            <input id="u-pass" type="password" class="inp" placeholder="Password">
-            <button onclick="doAuth('login')" class="btn-main" style="margin-bottom:12px;">Login</button>
-            <button onclick="doAuth('reg')" class="btn-main" style="background:transparent; border:1px solid var(--primary); color:var(--primary);">Create Account</button>
-        </div>
-    </div>
-
-    <div id="app-ui" class="hidden" style="width:100%; height:100%; display:flex;">
-        <div class="sidebar">
-            <div class="header">
-                <div class="flex" style="gap:12px; cursor:pointer;" onclick="accessHidden()">
-                    <i class="ri-shield-keyhole-fill" id="lock-icon" style="font-size:1.5rem; color:var(--text-sec);"></i>
-                    <h2 id="app-title" style="font-weight:700;">Chats</h2>
-                </div>
-                <div class="flex" style="gap:18px;">
-                    <i class="ri-logout-circle-r-line" style="font-size:1.4rem; color:var(--danger); cursor:pointer;" onclick="logout()"></i>
-                    <img id="my-pic" src="" style="width:42px;height:42px;border-radius:50%;border:2px solid var(--primary); object-fit:cover;" onclick="changeDP()">
-                </div>
-            </div>
-
-            <div class="tabs">
-                <div class="tab-btn active" onclick="switchTab('chats',this)">CHATS</div>
-                <div class="tab-btn" onclick="switchTab('calls',this)">HISTORY</div>
-                <div class="tab-btn" onclick="switchTab('search',this)">SEARCH</div>
-                <div class="tab-btn" onclick="switchTab('reqs',this)">REQUESTS</div>
-            </div>
-
-            <div id="view-chats" class="list-area"></div>
-            <div id="view-calls" class="list-area hidden"></div>
-            <div id="view-search" class="list-area hidden">
-                <input class="inp" placeholder="Find user by email..." onkeyup="searchUsers(this.value)">
-                <div id="search-list"></div>
-            </div>
-            <div id="view-reqs" class="list-area hidden"></div>
-        </div>
-    </div>
-
-    <div id="chat-ui" class="chat-view">
-        <div class="chat-header">
-            <button class="btn" onclick="closeChat()"><i class="ri-arrow-left-s-line" style="font-size:2rem;"></i></button>
-            <div id="head-dp-box"></div>
-            <div style="flex:1;" onclick="viewUserInfo()">
-                <h4 id="head-name" style="font-weight:700;">User Name</h4>
-                <small id="head-status" style="color:var(--success); font-size:0.75rem;">Online</small>
-            </div>
-            <div class="flex" style="gap:15px;">
-                <button class="btn" onclick="toggleHideChat()"><i class="ri-eye-off-fill" id="hide-icon"></i></button>
-                <button class="btn" onclick="callUser('voice')"><i class="ri-phone-fill" style="color:var(--primary); font-size:1.4rem;"></i></button>
-                <button class="btn" onclick="callUser('video')"><i class="ri-vidicon-fill" style="color:var(--primary); font-size:1.4rem;"></i></button>
-            </div>
-        </div>
-        <div id="msg-box" class="messages"></div>
-        <div class="flex" style="padding:12px; background:var(--surface); gap:10px;">
-            <button class="btn" onclick="toggleMemory()"><i class="ri-heart-3-line" id="mem-icon" style="font-size:1.4rem;"></i></button>
-            <input id="msg-input" class="inp" style="margin:0; border-radius:30px; padding:12px 20px;" placeholder="Type a message..." onkeypress="if(event.key==='Enter')sendMsg()">
-            <button class="btn" style="background:var(--primary); width:48px; height:48px; border-radius:50%;" onclick="sendMsg()"><i class="ri-send-plane-2-fill"></i></button>
-        </div>
-    </div>
-
-    <div id="call-ui" class="screen center hidden">
-        <video id="remote-vid" autoplay playsinline></video>
-        <video id="local-vid" autoplay playsinline muted></video>
-        <div style="position:absolute; top:80px; text-align:center;">
-            <h2 id="call-u-name" style="font-size:1.8rem;">User</h2>
-            <p id="call-status-txt">Connecting...</p>
-        </div>
-        <div class="call-controls">
-            <div id="inc-actions" class="hidden flex" style="gap:35px;">
-                <div class="c-btn bg-red" onclick="rejectCall()"><i class="ri-phone-line" style="transform:rotate(135deg)"></i></div>
-                <div class="c-btn bg-green" onclick="answerCall()"><i class="ri-phone-fill"></i></div>
-            </div>
-            <div id="active-actions" class="flex" style="gap:20px;">
-                <div class="c-btn" id="spk-toggle" onclick="toggleSpk()"><i class="ri-volume-up-fill"></i></div>
-                <div class="c-btn bg-red" onclick="endCall()"><i class="ri-phone-line" style="transform:rotate(135deg)"></i></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="pass-modal" class="modal">
-        <div class="modal-box">
-            <h3 id="m-title" style="margin-bottom:10px;">Security Check</h3>
-            <input id="m-pass" type="password" class="inp" style="text-align:center; letter-spacing:8px; font-size:1.5rem;" placeholder="****" maxlength="4">
-            <button onclick="submitModal()" class="btn-main">Verify Password</button>
-            <button onclick="closeModal()" class="btn" style="margin-top:10px; color:var(--text-sec);">Cancel</button>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, onSnapshot, serverTimestamp, updateDoc, doc, setDoc, getDoc, getDocs, orderBy, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-
-        // FIREBASE & MONGODB INTEGRATION
-        const config = {
+        const firebaseConfig = {
             apiKey: "AIzaSyCAsCm1YcsAjHwyvIzxyMrBmZPLw2hlo18",
             authDomain: "truechats-8dac9.firebaseapp.com",
             projectId: "truechats-8dac9",
-            storageBucket: "truechats-8dac9.firebasestorage.app",
+            storageBucket: "truechats-8dac9.appspot.com",
             messagingSenderId: "685374771914",
             appId: "1:685374771914:web:81bf491264c1bb09061a33"
         };
-        const mongoDB_URL = "mongodb+srv://nani1248:nani1248@cluster0.jljbrjd.mongodb.net/?appName=Cluster0";
 
-        const app = initializeApp(config);
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app);
 
-        let me, chatU, chatId, peer, localSt, actCall, isHiddenMode = false;
-        let modalTask = null, tempPass = "";
-
-        // --- AUTH LOGIC ---
-        onAuthStateChanged(auth, async(u) => {
-            if(u){
-                me = u;
-                document.getElementById('auth-ui').classList.add('hidden');
-                document.getElementById('app-ui').classList.remove('hidden');
-                
-                const dp = u.photoURL || `https://ui-avatars.com/api/?name=${u.displayName}&background=random`;
-                document.getElementById('my-pic').src = dp;
-                
-                await setDoc(doc(db,"users",u.uid), {
-                    uid:u.uid, email:u.email.toLowerCase(), displayName:u.displayName, 
-                    photoURL:dp, lastSeen:serverTimestamp(), online:true
-                }, {merge:true});
-
-                // Real-time Listeners
-                initPeer(); loadChats(); loadReqs(); loadHistory(); listenMessages();
-            } else {
-                document.getElementById('auth-ui').classList.remove('hidden');
-            }
-        });
-
-        window.doAuth = async(type) => {
-            const e = document.getElementById('u-email').value, p = document.getElementById('u-pass').value, n = document.getElementById('reg-name').value;
-            try {
-                if(type === 'reg'){
-                    if(!n) return alert("Name is required");
-                    const res = await createUserWithEmailAndPassword(auth, e, p);
-                    await updateProfile(res.user, {displayName: n});
-                    location.reload();
-                } else {
-                    await signInWithEmailAndPassword(auth, e, p);
-                }
-            } catch(err){ alert(err.message); }
-        };
-        window.logout = () => signOut(auth);
-
-        // --- CHAT LIST & PRIVACY ---
-        window.loadChats = () => {
-            onSnapshot(doc(db,"users",me.uid), async(snap) => {
-                const d = snap.data();
-                const friends = d.friends || [];
-                const hidden = d.hidden || [];
-                const list = document.getElementById('view-chats'); list.innerHTML = "";
-                
-                for(const id of friends){
-                    // Privacy Logic: Filter based on Hidden Mode
-                    if(!isHiddenMode && hidden.includes(id)) continue; 
-                    if(isHiddenMode && !hidden.includes(id)) continue;
-
-                    const uDoc = await getDoc(doc(db,"users",id));
-                    if(uDoc.exists()){
-                        const u = uDoc.data();
-                        const isOnline = u.online && (Date.now() - u.lastSeen?.toDate()) < 120000;
-                        
-                        const div = document.createElement('div');
-                        div.className = 'item';
-                        div.onclick = () => openChat(u);
-                        div.innerHTML = `
-                            <div class="avatar-box">
-                                <img src="${u.photoURL}" class="avatar">
-                                <div class="online-dot ${isOnline?'active':''}"></div>
-                            </div>
-                            <div style="flex:1">
-                                <b>${u.displayName}</b><br>
-                                <small style="color:var(--text-sec)">${isOnline?'Online':'Tap to chat'}</small>
-                            </div>
-                        `;
-                        list.appendChild(div);
-                    }
-                }
-                document.getElementById('app-title').innerText = isHiddenMode ? "Hidden Mode" : "Chats";
-                document.getElementById('lock-icon').style.color = isHiddenMode ? "var(--primary)" : "var(--text-sec)";
-            });
-        };
-
-        // --- HIDDEN CHATS (PASSWORD PROTECTED) ---
-        window.accessHidden = async() => {
-            const d = (await getDoc(doc(db,"users",me.uid))).data();
-            if(!d.chatPass) return alert("No password set. Hide a chat first.");
-            
-            if(isHiddenMode) { isHiddenMode = false; loadChats(); }
-            else { modalTask = 'unlock'; document.getElementById('pass-modal').style.display='flex'; }
-        };
-
-        window.toggleHideChat = async() => {
-            const d = (await getDoc(doc(db,"users",me.uid))).data();
-            const hidden = d.hidden || [];
-            
-            if(hidden.includes(chatU.uid)){
-                await updateDoc(doc(db,"users",me.uid), { hidden: arrayRemove(chatU.uid) });
-                alert("Chat Unhidden!");
-                document.getElementById('hide-icon').className = "ri-eye-off-fill";
-            } else {
-                if(!d.chatPass) { modalTask = 'setup_1'; document.getElementById('pass-modal').style.display='flex'; }
-                else { await updateDoc(doc(db,"users",me.uid), { hidden: arrayUnion(chatU.uid) }); alert("Chat Hidden!"); closeChat(); }
-            }
-        };
-
-        window.submitModal = async() => {
-            const val = document.getElementById('m-pass').value;
-            document.getElementById('m-pass').value = "";
-            const d = (await getDoc(doc(db,"users",me.uid))).data();
-
-            if(modalTask === 'unlock'){
-                if(val === d.chatPass) { isHiddenMode = true; loadChats(); closeModal(); } else alert("Wrong Password!");
-            } else if(modalTask === 'setup_1'){
-                tempPass = val; modalTask = 'setup_2'; document.getElementById('m-title').innerText = "Confirm PIN";
-            } else if(modalTask === 'setup_2'){
-                if(tempPass === val) { await updateDoc(doc(db,"users",me.uid), { chatPass: val, hidden: arrayUnion(chatU.uid) }); alert("Hidden!"); closeChat(); closeModal(); } else alert("Mismatch!");
-            }
-        };
-        window.closeModal = () => document.getElementById('pass-modal').style.display='none';
-
-        // --- CHAT ENGINE (NO INDEX ERROR) ---
-        window.openChat = (u) => {
-            chatU = u; chatId = [me.uid, u.uid].sort().join("_");
-            document.getElementById('chat-ui').classList.add('active');
-            document.getElementById('head-name').innerText = u.displayName;
-            document.getElementById('head-dp-box').innerHTML = `<img src="${u.photoURL}" class="avatar" style="width:40px; height:40px;">`;
-            
-            // Check Online Status
-            const isOnline = u.online && (Date.now() - u.lastSeen?.toDate()) < 120000;
-            document.getElementById('head-status').innerText = isOnline ? "Online" : "Offline";
-            document.getElementById('head-status').style.color = isOnline ? "var(--success)" : "var(--text-sec)";
-
-            // Check Memory Status
-            getDoc(doc(db,"users",me.uid)).then(s=>{
-                const mems = s.data().memories || [];
-                document.getElementById('mem-icon').className = mems.includes(u.uid) ? "ri-heart-3-fill" : "ri-heart-3-line";
-                document.getElementById('mem-icon').style.color = mems.includes(u.uid) ? "var(--danger)" : "var(--text-sec)";
-                
-                const hidden = s.data().hidden || [];
-                document.getElementById('hide-icon').className = hidden.includes(u.uid) ? "ri-eye-fill" : "ri-eye-off-fill";
-            });
-
-            const box = document.getElementById('msg-box');
-            // Simplified Query to avoid Index Error
-            onSnapshot(query(collection(db,"messages"), where("chatId","==",chatId)), (snap) => {
-                let msgs = [];
-                snap.forEach(d => msgs.push({id: d.id, ...d.data()}));
-                // Client-side sorting
-                msgs.sort((a,b) => a.ts?.toDate() - b.ts?.toDate());
-                
-                box.innerHTML = "";
-                msgs.forEach(m => {
-                    const div = document.createElement('div');
-                    div.className = `bubble ${m.from===me.uid?'sent':'recv'}`;
-                    const time = m.ts ? m.ts.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '...';
-                    div.innerHTML = `${m.txt} <span class="m-meta">${time}</span>`;
-                    box.appendChild(div);
-                });
-                box.scrollTop = box.scrollHeight;
-            });
-        };
-
-        window.sendMsg = async() => {
-            const t = document.getElementById('msg-input').value.trim();
-            if(!t) return;
-            await addDoc(collection(db,"messages"), {txt:t, from:me.uid, chatId, ts:serverTimestamp()});
-            document.getElementById('msg-input').value = "";
-        };
-        window.closeChat = () => document.getElementById('chat-ui').classList.remove('active');
-
-        // --- CALLS (PRO SYSTEM & SPEAKER) ---
-        function initPeer(){
-            peer = new Peer(me.uid);
-            peer.on('call', (c) => {
-                actCall = c;
-                getDoc(doc(db,"users",c.peer)).then(s=>{
-                    const u = s.data();
-                    document.getElementById('call-ui').classList.remove('hidden');
-                    document.getElementById('inc-actions').classList.remove('hidden');
-                    document.getElementById('active-actions').classList.add('hidden');
-                    document.getElementById('call-u-name').innerText = u.displayName;
-                    document.getElementById('call-status-txt').innerText = "Incoming " + c.metadata.type;
-                    document.getElementById('ring-in').play();
-                    
-                    window.answerCall = async() => {
-                        document.getElementById('ring-in').pause();
-                        localSt = await navigator.mediaDevices.getUserMedia({video: c.metadata.type==='video', audio:true});
-                        if(c.metadata.type==='video') document.getElementById('local-vid').srcObject = localSt;
-                        c.answer(localSt); handleCallStream(c);
-                    };
-                });
-            });
-        }
-
-        window.callUser = async(type) => {
-            document.getElementById('call-ui').classList.remove('hidden');
-            document.getElementById('call-u-name').innerText = chatU.displayName;
-            document.getElementById('call-status-txt').innerText = "Calling...";
-            document.getElementById('ring-out').play();
-            
-            // 84s Auto-Cut
-            setTimeout(() => { if(actCall && !actCall.open) endCall(); }, 84000);
-
-            try {
-                localSt = await navigator.mediaDevices.getUserMedia({video: type==='video', audio:true});
-                if(type==='video') document.getElementById('local-vid').srcObject = localSt;
-                else document.getElementById('local-vid').classList.add('hidden');
-
-                const c = peer.call(chatU.uid, localSt, {metadata:{type}});
-                actCall = c; handleCallStream(c);
-                await addDoc(collection(db,"calls"), {from:me.uid, to:chatU.uid, type, ts:serverTimestamp()});
-            } catch(e){ alert("Mic Permission Denied!"); endCall(); }
-        };
-
-        function handleCallStream(c){
-            c.on('stream', (rs) => {
-                document.getElementById('ring-out').pause();
-                document.getElementById('call-status-txt').innerText = "Connected";
-                document.getElementById('inc-actions').classList.add('hidden');
-                document.getElementById('active-actions').classList.remove('hidden');
-                document.getElementById('remote-vid').srcObject = rs;
-            });
-            c.on('close', endCall);
-        }
-
-        window.endCall = () => { if(actCall) actCall.close(); document.getElementById('call-ui').classList.add('hidden'); location.reload(); };
-        window.rejectCall = () => { document.getElementById('ring-in').pause(); if(actCall) actCall.close(); endCall(); };
-        window.toggleSpk = () => document.getElementById('spk-toggle').classList.toggle('btn-hl');
-
-        // --- HISTORY, SEARCH & REQS ---
-                window.loadHistory = () => {
-            onSnapshot(query(collection(db,"calls"), where("from","==",me.uid)), (s) => {
-                const list = document.getElementById('view-calls'); list.innerHTML = "";
-                s.forEach(doc => {
-                    const c = doc.data();
-                    list.innerHTML += `<div class="item"><div><b>Outgoing ${c.type}</b><br><small>${c.ts?.toDate().toLocaleString()}</small></div></div>`;
-                });
-            });
-        };
-
-        window.switchTab = (t,el) => {
-            ['chats','calls','search','reqs'].forEach(x=>document.getElementById(`view-${x}`).classList.add('hidden'));
-            document.getElementById(`view-${t}`).classList.remove('hidden');
-            document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-            el.classList.add('active');
-        };
-
-        window.searchUsers = async(v) => {
-            if(v.length < 3) return;
-            const q = query(collection(db,"users"), where("email",">=",v), where("email","<=",v+'\uf8ff'));
-            const s = await getDocs(q);
-            const d = document.getElementById('search-list'); d.innerHTML = "";
-            s.forEach(doc => {
-                const u = doc.data(); if(u.uid !== me.uid) d.innerHTML += `<div class="item"><div><b>${u.displayName}</b><br><small>${u.email}</small></div><button onclick="sendReq('${u.uid}')" class="btn-main" style="width:auto; padding:5px 15px; margin-left:auto;">Add</button></div>`;
-            });
-        };
-        window.sendReq = async(id) => { await updateDoc(doc(db,"users",id), {requests: arrayUnion(me.uid)}); alert("Request Sent!"); };
+        // --- GLOBAL VARIABLES & ICONS ---
+        const { useState, useEffect, useRef } = React;
         
-        window.loadReqs = () => {
-            onSnapshot(doc(db,"users",me.uid), async(s) => {
-                const reqs = s.data().requests || [];
-                const d = document.getElementById('view-reqs'); d.innerHTML = "";
-                for(const id of reqs){
-                    const u = (await getDoc(doc(db,"users",id))).data();
-                    d.innerHTML += `<div class="item"><div><b>${u.displayName}</b> wants to join</div><button onclick="accReq('${u.uid}')" class="btn-main" style="width:auto; padding:5px; background:var(--success); margin-left:auto;">Accept</button></div>`;
+        // Dummy Friends Data (Simulating MongoDB Users)
+        const MOCK_FRIENDS = [
+            { id: '101', name: 'Nani', username: '@nani1248', avatar: null, status: 'online', type: 'general' },
+            { id: '102', name: 'My Love', username: '@sweety', avatar: null, status: 'offline', type: 'private' }, 
+            { id: '103', name: 'Raju Bhai', username: '@raju', avatar: null, status: 'online', type: 'general' }
+        ];
+
+        const FRIEND_REQUESTS = [
+            { id: 201, name: 'Varun', mutual: 3 },
+            { id: 202, name: 'Priya', mutual: 1 }
+        ];
+
+/* --- PART 1 END --- */
+        /* --- PART 2 START --- */
+
+        function App() {
+            // User & Auth State
+            const [user, setUser] = useState(null);
+            
+            // App Layout State
+            const [isLoveTheme, setIsLoveTheme] = useState(false);
+            const [currentChat, setCurrentChat] = useState(null);
+            const [showRequests, setShowRequests] = useState(false);
+            
+            // Privacy Features State
+            const [isPrivateMode, setIsPrivateMode] = useState(false); // Hidden chats visible?
+            const [showPasswordModal, setShowPasswordModal] = useState(false);
+            const [passwordInput, setPasswordInput] = useState("");
+            const [privatePassword, setPrivatePassword] = useState("1234"); // Default password
+            
+            // Message Features State
+            const [messages, setMessages] = useState([]);
+            const [inputText, setInputText] = useState("");
+            const [replyTo, setReplyTo] = useState(null); // For Swipe to Reply
+            const [editingMsgId, setEditingMsgId] = useState(null); // For Edit
+            const [seenAfterDelete, setSeenAfterDelete] = useState(false); // Toggle
+            const [disappearTimer, setDisappearTimer] = useState(null); // 24h/48h
+
+            // Video Call State
+            const [isVideoCall, setIsVideoCall] = useState(false);
+            const [isMicDenied, setIsMicDenied] = useState(false);
+
+            // Auth Listener
+            useEffect(() => {
+                const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
+                return () => unsubscribe();
+            }, []);
+
+            // Login Handler
+            const handleLogin = async () => {
+                const provider = new GoogleAuthProvider();
+                try { await signInWithPopup(auth, provider); } 
+                catch (error) { console.error("Login Error:", error); }
+            };
+
+            // Privacy Mode Logic
+            const togglePrivateMode = () => {
+                if (isPrivateMode) {
+                    setIsPrivateMode(false); // Hide everything
+                    setCurrentChat(null);
+                } else {
+                    setShowPasswordModal(true); // Ask password
                 }
-            });
-        };
-        window.accReq = async(id) => { await updateDoc(doc(db,"users",me.uid), {friends:arrayUnion(id), requests:arrayRemove(id)}); await updateDoc(doc(db,"users",id), {friends:arrayUnion(me.uid)}); };
+            };
 
-        window.toggleMemory = async() => {
-            const s = await getDoc(doc(db,"users",me.uid));
-            const mems = s.data().memories || [];
-            if(mems.includes(chatU.uid)) await updateDoc(doc(db,"users",me.uid), {memories: arrayRemove(chatU.uid)});
-            else await updateDoc(doc(db,"users",me.uid), {memories: arrayUnion(chatU.uid)});
-            alert("Memory Status Updated!");
-        };
+            const verifyPassword = () => {
+                if (passwordInput === privatePassword) {
+                    setIsPrivateMode(true);
+                    setShowPasswordModal(false);
+                    setPasswordInput("");
+                } else {
+                    alert("Wrong Password! Try again.");
+                }
+            };
 
-        function listenMessages() {
-            onSnapshot(query(collection(db,"messages"), where("ts",">",new Date())), (snap) => {
-                snap.docChanges().forEach(change => {
-                    if(change.type==='added'){
-                        const m = change.doc.data();
-                        if(m.from !== me.uid && (!chatU || chatU.uid !== m.from)){
-                            const toast = document.getElementById('toast');
-                            document.getElementById('t-msg').innerText = m.txt;
-                            toast.classList.add('show');
-                            setTimeout(()=>toast.classList.remove('show'), 4000);
-                        }
+            // Message Sending Logic
+            const sendMessage = async () => {
+                if (!inputText.trim()) return;
+
+                if (editingMsgId) {
+                    // Update Existing Message (Edit Feature)
+                    // In real Firebase: await updateDoc(doc(db, "chats", editingMsgId), { text: inputText, edited: true });
+                    setMessages(msgs => msgs.map(m => m.id === editingMsgId ? { ...m, text: inputText, isEdited: true } : m));
+                    setEditingMsgId(null);
+                    setInputText("");
+                    return;
+                }
+
+                const newMsg = {
+                    id: Date.now(),
+                    text: inputText,
+                    sender: user.uid,
+                    timestamp: Date.now(),
+                    seen: false,
+                    isEdited: false,
+                    replyTo: replyTo, // Included Replied Message
+                    seenAfterDelete: seenAfterDelete // Feature flag
+                };
+
+                // Add to local state (Simulating Firebase real-time listener)
+                setMessages(prev => [newMsg, ...prev]);
+                setInputText("");
+                setReplyTo(null);
+
+                // Simulate Auto Reply
+                setTimeout(() => {
+                    setMessages(prev => [{
+                        id: Date.now() + 1, text: "Received!", sender: 'other', timestamp: Date.now(), seen: false
+                    }, ...prev]);
+                }, 1500);
+            };
+
+            // Delete Message Logic (Delete for Me vs Everyone)
+            const deleteMessage = (msgId, timestamp) => {
+                const now = Date.now();
+                const diffMins = (now - timestamp) / 1000 / 60;
+                
+                if (diffMins > 24 * 60) {
+                    // After 24 Hours -> Delete for Me only
+                    setMessages(prev => prev.filter(m => m.id !== msgId));
+                } else {
+                    // Within 24 Hours -> Confirm
+                    if(confirm("Delete for Everyone?")) {
+                         setMessages(prev => prev.filter(m => m.id !== msgId));
                     }
-                });
-            });
+                }
+            };
+            
+            // Edit Check (20 Mins Limit)
+            const handleEdit = (msg) => {
+                const diffMins = (Date.now() - msg.timestamp) / 1000 / 60;
+                if (diffMins > 20) {
+                    alert("Edit time (20 mins) expired!");
+                } else {
+                    setInputText(msg.text);
+                    setEditingMsgId(msg.id);
+                }
+            };
+
+/* --- PART 2 END --- */
+        /* --- PART 3 START --- */
+
+            // Render Header
+            const Header = () => (
+                <div className={`h-16 flex items-center justify-between px-4 shadow-md z-20 transition-all ${isLoveTheme ? 'bg-pink-600 text-white' : 'bg-white text-gray-800'}`}>
+                    <div className="flex items-center gap-2">
+                        <h1 className="text-xl font-bold font-serif tracking-wide">True Chats</h1>
+                    </div>
+
+                    <div className="flex items-center gap-3 md:gap-5">
+                        {/* Friend Requests */}
+                        <div className="relative cursor-pointer" onClick={() => setShowRequests(!showRequests)}>
+                            <i className="fas fa-user-friends text-xl"></i>
+                            {FRIEND_REQUESTS.length > 0 && <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center border border-white">.</span>}
+                        </div>
+
+                        {/* Theme Toggle Heart */}
+                        <div className="cursor-pointer hover:scale-110 transition" onClick={() => setIsLoveTheme(!isLoveTheme)}>
+                            {isLoveTheme ? 
+                                <i className="fas fa-heart text-red-200 text-xl heart-beat"></i> : 
+                                <i className="far fa-heart text-xl"></i>
+                            }
+                        </div>
+
+                        {/* Privacy Eye (Toggle Hidden Chats) */}
+                        <div className="cursor-pointer" onClick={togglePrivateMode}>
+                            {isPrivateMode ? 
+                                <i className="fas fa-eye text-red-500 text-xl"></i> : 
+                                <div className="flex items-center"><i className="fas fa-eye-slash text-gray-400 text-xl"></i><div className="w-2 h-2 ml-1 bg-white rounded-full border border-gray-300"></div></div>
+                            }
+                        </div>
+
+                        {/* Message Disappearing Timer */}
+                        <div className="relative group">
+                             <i className="fas fa-clock text-xl cursor-pointer"></i>
+                             <div className="absolute right-0 top-8 bg-white shadow-lg rounded p-2 hidden group-hover:block w-32 text-gray-800 text-sm">
+                                <div className="hover:bg-gray-100 p-1 cursor-pointer" onClick={() => setDisappearTimer(24)}>Min 24 hrs</div>
+                                <div className="hover:bg-gray-100 p-1 cursor-pointer" onClick={() => setDisappearTimer(48)}>Max 48 hrs</div>
+                             </div>
+                        </div>
+
+                        {/* User Profile */}
+                        <div className="relative group cursor-pointer">
+                            {user?.photoURL ? 
+                                <img src={user.photoURL} className="w-8 h-8 rounded-full border-2 border-white" /> : 
+                                <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center font-bold">U</div>
+                            }
+                            {/* Profile Dropdown */}
+                            <div className="absolute right-0 top-10 w-48 bg-white shadow-xl rounded-lg p-3 hidden group-hover:block z-50 text-gray-800">
+                                <p className="font-bold border-b pb-1">{user?.displayName}</p>
+                                <p className="text-xs text-gray-500 mt-1">Friends: 15</p>
+                                <button className="w-full text-left text-sm mt-2 hover:bg-gray-100 p-1">Change Username</button>
+                                <button className="w-full text-left text-sm hover:bg-gray-100 p-1">Change Password</button>
+                                <button onClick={() => auth.signOut()} className="w-full text-left text-sm text-red-500 mt-2 font-bold hover:bg-red-50 p-1">Logout</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            // Friend Request Popup
+            const RequestPopup = () => (
+                <div className="absolute top-16 right-16 w-64 bg-white shadow-2xl rounded-lg z-50 p-2 border animate-pulse-fast">
+                    {FRIEND_REQUESTS.map(req => (
+                        <div key={req.id} className="flex justify-between items-center p-2 border-b last:border-0">
+                            <div>
+                                <p className="font-bold text-sm">{req.name}</p>
+                                <p className="text-xs text-gray-500">{req.mutual} Mutual Friends</p>
+                            </div>
+                            <div className="flex gap-1">
+                                <button className="bg-blue-500 text-white px-2 py-1 rounded text-xs">Accept</button>
+                                <button className="bg-gray-200 px-2 py-1 rounded text-xs">X</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+
+            // Sidebar (Chat List)
+            const Sidebar = () => (
+                <div className={`w-full md:w-1/3 lg:w-1/4 border-r flex flex-col ${isLoveTheme ? 'bg-white/80' : 'bg-white'} ${currentChat ? 'hidden md:flex' : 'flex'}`}>
+                    <div className="p-3">
+                        <div className="bg-gray-100 rounded-full px-4 py-2 flex items-center">
+                            <i className="fas fa-search text-gray-400"></i>
+                            <input type="text" placeholder="Search..." className="bg-transparent ml-2 outline-none w-full text-sm"/>
+                        </div>
+                    </div>
+                    
+                    <div className="flex-1 overflow-y-auto">
+                        {MOCK_FRIENDS.map(f => {
+                            // Logic: Show private friends ONLY if private mode is ON
+                            if (f.type === 'private' && !isPrivateMode) return null;
+
+                            return (
+                                <div key={f.id} onClick={() => setCurrentChat(f)} className="flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+                                    <div className="relative">
+                                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg ${isLoveTheme ? 'bg-gradient-to-tr from-pink-400 to-red-500' : 'bg-gray-400'}`}>
+                                            {f.name.charAt(0)}
+                                        </div>
+                                        {f.status === 'online' && <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>}
+                                    </div>
+                                    <div className="ml-3 flex-1">
+                                        <div className="flex justify-between">
+                                            <h3 className={`font-bold ${f.type === 'private' ? 'text-pink-600' : 'text-gray-800'}`}>{f.name}</h3>
+                                            <span className="text-xs text-gray-400">10:45 AM</span>
+                                        </div>
+                                        <p className="text-sm text-gray-500 truncate">Click to chat...</p>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+
+/* --- PART 3 END --- */
+        /* --- PART 4 START --- */
+
+            // Chat Window
+            const ChatWindow = () => {
+                if (!currentChat) return <div className="hidden md:flex flex-1 items-center justify-center text-gray-400 bg-gray-50">Select a chat to start messaging</div>;
+
+                const [show4Dots, setShow4Dots] = useState(false);
+
+                // Swipe to Reply Simulation (Simple Click for now)
+                const handleMessageClick = (msg) => {
+                    // In mobile: Swipe logic. Here: Double click to reply
+                };
+
+                return (
+                    <div className={`flex-1 flex flex-col h-full relative ${isLoveTheme ? 'bg-pink-50' : 'bg-gray-100'}`}>
+                        {/* Chat Header */}
+                        <div className={`h-16 flex items-center justify-between px-4 shadow-sm ${isLoveTheme ? 'bg-pink-100' : 'bg-white'}`}>
+                            <div className="flex items-center cursor-pointer" onClick={() => alert("Receiver Details:\nName: " + currentChat.name + "\nStatus: " + currentChat.status)}>
+                                <i className="fas fa-arrow-left md:hidden mr-3" onClick={(e) => { e.stopPropagation(); setCurrentChat(null); }}></i>
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${isLoveTheme ? 'bg-pink-500' : 'bg-gray-500'}`}>
+                                    {currentChat.name.charAt(0)}
+                                </div>
+                                <div className="ml-3">
+                                    <h3 className="font-bold text-sm">{currentChat.name}</h3>
+                                    <p className="text-xs text-green-500">{currentChat.status}</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-4 text-gray-600">
+                                <i className="fas fa-phone cursor-pointer hover:text-blue-500"></i>
+                                <i className="fas fa-video cursor-pointer hover:text-blue-500" onClick={() => setIsVideoCall(true)}></i>
+                                
+                                {/* 4 Dots Menu */}
+                                <div className="relative">
+                                    <button onClick={() => setShow4Dots(!show4Dots)} className="focus:outline-none font-bold text-lg tracking-widest">::::</button>
+                                    {show4Dots && (
+                                        <div className="absolute right-0 top-8 w-48 bg-white shadow-xl rounded z-50 py-1 text-sm animate-pulse-fast">
+                                            <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Receiver Details</div>
+                                            <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Mute Notifications</div>
+                                            <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Mute Calls</div>
+                                            <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-pink-600 font-bold" onClick={() => alert("Moving to Private Mode! Set Password.")}>Move to Private ❤️</div>
+                                            <div className="border-t"></div>
+                                            <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-red-500">Block User</div>
+                                            <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-red-500">Remove Friend</div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Messages Area */}
+                        <div className="flex-1 overflow-y-auto p-4 flex flex-col-reverse space-y-2 space-y-reverse">
+                            {messages.map((msg) => (
+                                <div key={msg.id} 
+                                     className={`flex flex-col max-w-[70%] ${msg.sender === user.uid ? 'self-end items-end' : 'self-start items-start'}`}
+                                     onDoubleClick={() => setReplyTo(msg)} // Simulate swipe to reply
+                                >
+                                    {/* Sender Name in Group/Public (Optional) */}
+                                    {msg.sender !== user.uid && <span className="text-[10px] text-gray-500 ml-1 mb-1">{currentChat.name}</span>}
+
+                                    <div className={`relative px-4 py-2 rounded-lg shadow-sm 
+                                        ${msg.sender === user.uid 
+                                            ? (isLoveTheme ? 'bg-pink-500 text-white rounded-br-none' : 'bg-blue-600 text-white rounded-br-none') 
+                                            : (isLoveTheme ? 'bg-white text-pink-800 border border-pink-200 rounded-bl-none' : 'bg-white text-gray-800 rounded-bl-none')
+                                        }`}
+                                    >
+                                        {/* Replied Message UI */}
+                                        {msg.replyTo && (
+                                            <div className={`mb-1 p-1 rounded text-xs border-l-2 ${msg.sender === user.uid ? 'bg-black/10 border-white' : 'bg-gray-100 border-blue-500'}`}>
+                                                <span className="font-bold block">Replying to:</span>
+                                                {msg.replyTo.text}
+                                            </div>
+                                        )}
+
+                                        {/* Message Text */}
+                                        <p>{msg.text} {msg.isEdited && <span className="text-[10px] opacity-60 ml-1">(edited)</span>}</p>
+                                        
+                                        {/* Timestamp & Ticks */}
+                                        <div className="flex items-center justify-end gap-1 mt-1">
+                                            <span className="text-[9px] opacity-70">
+                                                {new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                            </span>
+                                            {msg.sender === user.uid && (
+                                                msg.seen ? <i className="fas fa-check-double text-[10px] text-blue-200"></i> : <i className="fas fa-check text-[10px] opacity-70"></i>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Message Actions (Edit/Delete) - Simulating Hold */}
+                                    {msg.sender === user.uid && (
+                                        <div className="flex gap-2 mt-1 text-[10px] text-gray-400 opacity-0 hover:opacity-100 transition-opacity">
+                                            <button onClick={() => handleEdit(msg)} className="hover:text-blue-500">Edit</button>
+                                            <button onClick={() => deleteMessage(msg.id, msg.timestamp)} className="hover:text-red-500">Delete</button>
+                                            <button className="hover:text-gray-600">Unseen</button>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Input Area */}
+                        <div className={`p-3 flex items-center gap-2 border-t ${isLoveTheme ? 'bg-pink-100' : 'bg-white'}`}>
+                            {/* Private Mode: Seen -> Delete Toggle */}
+                            {(isLoveTheme || isPrivateMode) && (
+                                <div className="flex flex-col items-center cursor-pointer" onClick={() => setSeenAfterDelete(!seenAfterDelete)}>
+                                    <div className={`w-8 h-4 rounded-full p-0.5 transition ${seenAfterDelete ? 'bg-pink-500' : 'bg-gray-300'}`}>
+                                        <div className={`w-3 h-3 bg-white rounded-full shadow-sm transform transition ${seenAfterDelete ? 'translate-x-4' : 'translate-x-0'}`}></div>
+                                    </div>
+                                    <span className="text-[8px] text-gray-500">SeenDel</span>
+                                </div>
+                            )}
+
+                            {/* Reply Indicator */}
+                            {replyTo && (
+                                <div className="absolute bottom-16 left-4 right-4 bg-gray-100 p-2 border-l-4 border-blue-500 rounded flex justify-between">
+                                    <div>
+                                        <p className="text-xs text-blue-500 font-bold">Replying to...</p>
+                                        <p className="text-sm truncate">{replyTo.text}</p>
+                                    </div>
+                                    <button onClick={() => setReplyTo(null)} className="text-gray-500 px-2">X</button>
+                                </div>
+                            )}
+
+                            <input 
+                                type="text" 
+                                value={inputText}
+                                onChange={(e) => setInputText(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+                                placeholder={editingMsgId ? "Editing message..." : "Type a message..."}
+                                className="flex-1 px-4 py-2 rounded-full border outline-none focus:ring-2 focus:ring-blue-300 bg-gray-50"
+                            />
+                            
+                            {inputText ? (
+                                <button onClick={sendMessage} className="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center shadow hover:bg-blue-600">
+                                    {editingMsgId ? <i className="fas fa-check"></i> : <i className="fas fa-paper-plane"></i>}
+                                </button>
+                            ) : (
+                                <button className="w-10 h-10 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center">
+                                    <i className="fas fa-microphone"></i>
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                );
+            };
+
+/* --- PART 4 END --- */
+        /* --- PART 5 START --- */
+
+            // Video Call Overlay (Full Screen)
+            const VideoCallUI = () => (
+                <div className="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center text-white">
+                    {/* Header */}
+                    <div className="absolute top-8 left-8">
+                        <h2 className="text-2xl font-bold">{currentChat?.name}</h2>
+                        <p className="text-gray-400 animate-pulse">00:15</p>
+                    </div>
+
+                    {/* Main Video (Opposite User) */}
+                    <div className="w-full h-full flex items-center justify-center bg-gray-800">
+                         <div className="text-center">
+                            <img src={currentChat?.avatar || "https://via.placeholder.com/150"} className="w-32 h-32 rounded-full mb-4 mx-auto animate-pulse border-4 border-green-500" />
+                            <p>Star Video Call Connected...</p>
+                         </div>
+                    </div>
+
+                    {/* Local Video (You) */}
+                    <div className="absolute top-8 right-8 w-32 h-48 bg-gray-900 rounded-lg border border-gray-600 overflow-hidden shadow-2xl">
+                        <div className="w-full h-full flex items-center justify-center text-xs text-gray-500">You</div>
+                    </div>
+
+                    {/* Controls */}
+                    <div className="absolute bottom-10 flex items-center gap-6">
+                        <button onClick={() => setIsMicDenied(!isMicDenied)} className={`p-4 rounded-full ${isMicDenied ? 'bg-white text-black' : 'bg-gray-700'}`}>
+                            {isMicDenied ? <i className="fas fa-microphone-slash"></i> : <i className="fas fa-microphone"></i>}
+                        </button>
+                        <button onClick={() => setIsVideoCall(false)} className="p-5 bg-red-600 rounded-full text-white shadow-lg transform hover:scale-110 transition">
+                            <i className="fas fa-phone-slash text-xl"></i>
+                        </button>
+                        <button className="p-4 rounded-full bg-gray-700 hover:bg-gray-600">
+                            <i className="fas fa-video"></i>
+                        </button>
+                    </div>
+
+                    {/* Permission Error Simulation */}
+                    {isMicDenied && (
+                        <div className="absolute top-1/2 bg-red-500 text-white px-4 py-2 rounded shadow">
+                            Mic Denied! Please enable permissions.
+                        </div>
+                    )}
+                </div>
+            );
+
+            // Password Modal for Privacy
+            const PasswordModal = () => (
+                <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center backdrop-blur-sm">
+                    <div className="bg-white p-6 rounded-lg shadow-2xl w-80 text-center animate-bounce">
+                        <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i className="fas fa-lock text-pink-500 text-xl"></i>
+                        </div>
+                        <h2 className="text-xl font-bold mb-2">Private Access ❤️</h2>
+                        <p className="text-xs text-gray-500 mb-4">Enter passcode to view hidden chats</p>
+                        <input 
+                            type="password" 
+                            className="w-full text-center border-b-2 border-pink-300 outline-none text-2xl tracking-[10px] mb-4 pb-2"
+                            value={passwordInput}
+                            onChange={(e) => setPasswordInput(e.target.value)}
+                            maxLength={4}
+                            placeholder="...."
+                        />
+                        <div className="flex gap-2">
+                            <button onClick={() => setShowPasswordModal(false)} className="flex-1 bg-gray-200 py-2 rounded text-sm font-bold">Cancel</button>
+                            <button onClick={verifyPassword} className="flex-1 bg-pink-500 text-white py-2 rounded text-sm font-bold shadow-lg">Unlock</button>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            // --- MAIN RENDER ---
+            
+            // 1. Login Screen
+            if (!user) {
+                return (
+                    <div className="h-screen w-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+                        <h1 className="text-5xl font-serif mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-pink-600">True Chats</h1>
+                        <p className="text-gray-400 mb-8">Secure. Private. Yours.</p>
+                        <button onClick={handleLogin} className="bg-white text-gray-900 px-8 py-3 rounded-full font-bold shadow-lg hover:bg-gray-200 transition flex items-center gap-2">
+                            <i className="fab fa-google"></i> Sign in with Google
+                        </button>
+                    </div>
+                );
+            }
+
+            // 2. App Screen
+            return (
+                <div className={`h-screen w-screen flex flex-col overflow-hidden ${isLoveTheme ? 'love-theme-bg' : 'premium-theme-bg'}`}>
+                    {isVideoCall && <VideoCallUI />}
+                    {showPasswordModal && <PasswordModal />}
+                    
+                    <Header />
+                    {showRequests && <RequestPopup />}
+                    
+                    <div className="flex flex-1 overflow-hidden">
+                        <Sidebar />
+                        <ChatWindow />
+                    </div>
+                </div>
+            );
         }
 
-        window.changeDP = () => {
-            const i=document.createElement('input'); i.type='file';
-            i.onchange=async(e)=>{
-                const f=e.target.files[0]; if(!f)return;
-                const r=ref(storage,`dp/${me.uid}`); await uploadBytes(r,f);
-                const u=await getDownloadURL(r); await updateProfile(me,{photoURL:u});
-                location.reload();
-            }; i.click();
-        }
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
+/* --- PART 5 END --- */
