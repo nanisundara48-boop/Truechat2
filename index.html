@@ -3,702 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TrueChats Pro Max - Ultimate</title>
+    <title>True Chats Pro Max</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 
     <style>
-        :root {
-            --primary: #6366f1;
-            --bg: #0f172a;
-            --surface: #1e293b;
-            --text: #f8fafc;
-        }
-
-        /* Love Theme Override */
-        body.love-theme {
-            --primary: #ec4899;
-            --bg: #4a044e;
-            --surface: #831843;
-        }
-
-        body { background-color: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; transition: background 0.5s ease; }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-
-        /* Animations */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes heartBeat { 0% { transform: scale(1); } 15% { transform: scale(1.3); } 30% { transform: scale(1); } 45% { transform: scale(1.3); } 100% { transform: scale(1); } }
-        
-        .animate-fade { animation: fadeIn 0.4s ease-out; }
-        .heart-beat { animation: heartBeat 1.5s infinite; color: #ec4899 !important; }
-
-        /* UI Components */
-        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .input-field { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
-        .input-field:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
-        
-        /* Message Bubbles */
+        :root { --primary: #6366f1; --bg: #0f172a; --surface: #1e293b; --text: #f8fafc; }
+        body.love-theme { --primary: #ec4899; --bg: #4a044e; --surface: #831843; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         .msg-sent { background: var(--primary); border-radius: 18px 18px 0 18px; }
         .msg-recv { background: #334155; border-radius: 18px 18px 18px 0; }
-        
-        /* Video Call Overlay */
-        #video-overlay { position: fixed; inset: 0; background: #000; z-index: 50; display: flex; flex-direction: column; }
+        @keyframes beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+        .heart-beat { animation: beat 1s infinite; color: #ff4d94 !important; }
     </style>
 </head>
 <body>
 
-    <audio id="snd-send" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3"></audio>
-    <audio id="snd-recv" src="https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3"></audio>
-    <audio id="snd-ring" src="https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3" loop></audio>
-
-    <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-95 bg-[url('https://source.unsplash.com/random/1920x1080/?technology')] bg-cover bg-blend-overlay">
-        <div class="glass-panel p-8 rounded-2xl w-full max-w-md shadow-2xl animate-fade text-center">
-            <h1 class="text-4xl font-['Pacifico'] text-indigo-400 mb-2">True Chats</h1>
-            <p class="text-gray-400 mb-6">Secure. Private. Limitless.</p>
-            
-            <div id="auth-error" class="hidden bg-red-500/20 text-red-300 p-2 rounded mb-4 text-sm"></div>
-
-            <input id="auth-email" type="email" placeholder="Email Address" class="input-field w-full p-3 rounded-lg mb-3 text-white">
-            <input id="auth-pass" type="password" placeholder="Password" class="input-field w-full p-3 rounded-lg mb-4 text-white">
-            
+    <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950">
+        <div class="glass p-8 rounded-2xl w-full max-w-sm text-center">
+            <h1 class="text-3xl font-bold text-indigo-400 mb-6">True Chats</h1>
+            <input id="u-email" type="email" placeholder="Email" class="w-full p-3 mb-3 rounded-lg bg-slate-800 border border-slate-700 outline-none">
+            <input id="u-pass" type="password" placeholder="Password" class="w-full p-3 mb-4 rounded-lg bg-slate-800 border border-slate-700 outline-none">
             <div id="signup-fields" class="hidden">
-                <input id="auth-name" type="text" placeholder="Display Name" class="input-field w-full p-3 rounded-lg mb-3 text-white">
-                <input type="file" id="auth-dp" class="hidden" accept="image/*">
-                <label for="auth-dp" class="block w-full p-2 border border-dashed border-gray-500 rounded-lg text-gray-400 cursor-pointer hover:border-indigo-400 mb-4">Choose Profile Pic</label>
+                <input id="u-name" type="text" placeholder="Display Name" class="w-full p-3 mb-4 rounded-lg bg-slate-800 border border-slate-700 outline-none">
             </div>
-
-            <button onclick="handleLogin()" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition mb-3">Login</button>
-            <button onclick="toggleAuthMode()" id="btn-toggle" class="text-indigo-400 hover:text-white text-sm">New here? Create Account</button>
+            <button onclick="handleAuth('login')" id="btn-main" class="w-full bg-indigo-600 py-3 rounded-lg font-bold mb-3">Login</button>
+            <button onclick="toggleAuthMode()" id="btn-toggle" class="text-indigo-400 text-sm">Create Account</button>
         </div>
     </div>
 
-    <div id="app-screen" class="hidden h-screen w-full flex">
-        
-        <div id="sidebar" class="w-full md:w-1/3 lg:w-1/4 bg-slate-900 border-r border-slate-700 flex flex-col z-10 relative">
-            <div class="p-4 flex justify-between items-center border-b border-slate-700 bg-opacity-50">
-                <div class="flex items-center gap-3 cursor-pointer" onclick="openProfileSettings()">
-                    <img id="my-avatar" src="" class="w-10 h-10 rounded-full border-2 border-indigo-500 object-cover">
-                    <div class="leading-tight">
-                        <h3 id="my-name" class="font-bold">User</h3>
-                        <span class="text-xs text-green-400">● Online</span>
-                    </div>
-                </div>
-                <div class="flex gap-4 text-xl text-slate-400">
-                    <i class="ri-user-add-line cursor-pointer hover:text-white" onclick="showSearchModal()"></i>
-                    <i id="theme-btn" class="ri-heart-line cursor-pointer hover:text-pink-500" onclick="toggleTheme()"></i>
-                    <i class="ri-logout-box-line cursor-pointer hover:text-red-500" onclick="logout()"></i>
-                </div>
+    <div id="app-screen" class="hidden h-screen flex flex-col">
+        <div class="h-16 border-b border-slate-800 flex items-center justify-between px-4 bg-slate-900">
+            <h2 class="text-xl font-bold">Chats</h2>
+            <div class="flex gap-4 text-xl">
+                <i class="ri-user-search-line cursor-pointer" onclick="showSearch()"></i>
+                <i id="theme-icon" class="ri-heart-line cursor-pointer" onclick="toggleTheme()"></i>
+                <i class="ri-eye-off-line cursor-pointer" onclick="togglePrivacy()"></i>
             </div>
-
-            <div class="p-3">
-                <input onkeyup="filterChats(this.value)" type="text" placeholder="Search chats..." class="input-field w-full p-2 rounded-full text-sm px-4 bg-slate-800 text-white">
-            </div>
-
-            <div class="px-4 pb-2 flex justify-between items-center text-xs text-slate-400">
-                <span>CHATS</span>
-                <div onclick="togglePrivateMode()" class="cursor-pointer flex items-center gap-1 hover:text-white">
-                    <i id="eye-icon" class="ri-eye-off-line"></i> <span id="mode-text">Public</span>
-                </div>
-            </div>
-
-            <div id="chat-list" class="flex-1 overflow-y-auto p-2 space-y-1">
-                </div>
         </div>
+        <div id="chat-list" class="flex-1 overflow-y-auto p-2 space-y-2"></div>
+    </div>
 
-        <div id="chat-area" class="hidden md:flex flex-1 flex-col bg-slate-900 absolute inset-0 md:static z-20 transform transition-transform duration-300 translate-x-full md:translate-x-0">
-            
-            <div class="h-16 border-b border-slate-700 flex items-center justify-between px-4 bg-slate-800/50 backdrop-blur">
-                <div class="flex items-center gap-3">
-                    <i class="ri-arrow-left-line md:hidden text-2xl cursor-pointer" onclick="closeChat()"></i>
-                    <img id="chat-header-img" src="" class="w-10 h-10 rounded-full object-cover">
-                    <div onclick="showUserDetails()" class="cursor-pointer">
-                        <h3 id="chat-header-name" class="font-bold text-white">User</h3>
-                        <span id="chat-header-status" class="text-xs text-slate-400">Offline</span>
-                    </div>
+    <div id="chat-view" class="fixed inset-0 bg-slate-950 z-40 hidden flex flex-col">
+        <div class="h-16 border-b border-slate-800 flex items-center justify-between px-4 bg-slate-900">
+            <div class="flex items-center gap-3">
+                <i class="ri-arrow-left-line text-2xl" onclick="closeChat()"></i>
+                <div class="leading-tight">
+                    <h3 id="chat-header-name" class="font-bold">User</h3>
+                    <span id="chat-header-status" class="text-xs text-slate-400">offline</span>
                 </div>
-                <div class="flex items-center gap-5 text-xl text-indigo-400">
-                    <i class="ri-phone-fill cursor-pointer hover:text-white" onclick="startCall('audio')"></i>
-                    <i class="ri-vidicon-fill cursor-pointer hover:text-white" onclick="startCall('video')"></i>
-                    <i class="ri-more-2-fill cursor-pointer hover:text-white" onclick="toggleChatMenu()"></i>
-                    
-                    <div id="chat-menu" class="hidden absolute top-14 right-4 w-48 bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-50 text-sm text-slate-200">
-                        <div class="p-3 hover:bg-slate-700 cursor-pointer" onclick="hideChat()">Hide Chat ❤️</div>
-                        <div class="p-3 hover:bg-slate-700 cursor-pointer" onclick="toggleDisappearing()">Toggle Disappearing</div>
-                        <div class="p-3 hover:bg-slate-700 cursor-pointer text-red-400" onclick="blockUser()">Block User</div>
+            </div>
+            <div class="flex gap-4 text-2xl text-indigo-400">
+                <i class="ri-phone-fill" onclick="initiateCall('audio')"></i>
+                <i class="ri-vidicon-fill" onclick="initiateCall('video')"></i>
+                <div class="relative group">
+                    <button onclick="toggleChatMenu()" class="font-bold">::::</button>
+                    <div id="chat-menu" class="hidden absolute right-0 top-8 w-40 glass rounded-lg text-sm text-white">
+                        <div class="p-3 border-b border-slate-700" onclick="hideChat()">Hide Chat ❤️</div>
+                        <div class="p-3 text-red-400" onclick="blockUser()">Block</div>
                     </div>
                 </div>
             </div>
-
-            <div id="messages-box" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[url('https://i.pinimg.com/originals/97/c0/07/97c00759d90d786d9b6096d274ad3e07.png')] bg-opacity-10 bg-fixed">
-                </div>
-
-            <div id="typing-indicator" class="hidden px-4 py-1 text-xs text-indigo-400 animate-pulse">
-                typing...
-            </div>
-
-            <div id="img-preview" class="hidden p-2 bg-slate-800 border-t border-slate-700 flex justify-between items-center">
-                <span class="text-xs text-white">Image selected</span>
-                <i class="ri-close-circle-line text-red-400 cursor-pointer text-xl" onclick="clearImage()"></i>
-            </div>
-
-            <div class="p-3 bg-slate-800/80 border-t border-slate-700 flex items-center gap-3">
-                <i class="ri-image-add-line text-2xl text-slate-400 cursor-pointer hover:text-indigo-400" onclick="document.getElementById('msg-image').click()"></i>
-                <input type="file" id="msg-image" hidden accept="image/*" onchange="handleImageSelect()">
-                
-                <input id="msg-input" type="text" placeholder="Type a message..." class="flex-1 bg-slate-700 text-white rounded-full px-4 py-2 focus:outline-none border border-transparent focus:border-indigo-500" onkeyup="handleTyping()" onkeypress="if(event.key==='Enter') sendMessage()">
-                
-                <div onclick="toggleSeenDelete()" class="cursor-pointer flex flex-col items-center">
-                   <i id="sd-icon" class="ri-eye-off-line text-slate-500"></i>
-                   <span class="text-[9px] text-slate-500">SeenDel</span>
-                </div>
-
-                <button onclick="sendMessage()" class="bg-indigo-600 p-2 rounded-full text-white hover:bg-indigo-700 transition shadow-lg">
-                    <i class="ri-send-plane-fill text-xl"></i>
-                </button>
-            </div>
+        </div>
+        <div id="msg-box" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
+        <div class="p-3 bg-slate-900 flex items-center gap-2">
+            <input id="msg-input" type="text" placeholder="Type message..." class="flex-1 bg-slate-800 p-3 rounded-full outline-none border border-slate-700">
+            <button onclick="sendMsg()" class="bg-indigo-600 p-3 rounded-full"><i class="ri-send-plane-fill"></i></button>
         </div>
     </div>
 
-    <div id="search-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-        <div class="bg-slate-800 p-6 rounded-xl w-96 border border-slate-600">
-            <h3 class="text-xl font-bold mb-4 text-white">Find Users</h3>
-            <input id="global-search" type="text" placeholder="Enter email..." class="input-field w-full p-2 rounded mb-4 text-white">
-            <button onclick="searchUsers()" class="w-full bg-indigo-600 text-white py-2 rounded">Search</button>
-            <div id="search-results" class="mt-4 max-h-40 overflow-y-auto space-y-2"></div>
-            <button onclick="document.getElementById('search-modal').classList.add('hidden')" class="mt-4 text-red-400 w-full text-sm">Close</button>
+    <div id="call-overlay" class="fixed inset-0 bg-black z-[100] hidden flex flex-col items-center justify-center">
+        <div class="text-center mb-10">
+            <h2 id="call-user-name" class="text-3xl font-bold mb-2">User</h2>
+            <p id="call-status" class="text-indigo-400 animate-pulse">Calling...</p>
         </div>
-    </div>
-
-    <div id="pass-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/90">
-        <div class="bg-slate-800 p-8 rounded-2xl text-center border border-pink-500 shadow-pink-500/20 shadow-xl">
-            <i class="ri-lock-2-fill text-4xl text-pink-500 mb-4"></i>
-            <h3 class="text-xl font-bold text-white mb-2">Private Zone</h3>
-            <p class="text-slate-400 text-sm mb-4">Enter PIN to access hidden chats</p>
-            <input id="pass-input" type="password" maxlength="4" class="bg-slate-900 border border-slate-600 text-center text-2xl tracking-[10px] w-full p-3 rounded-lg text-white mb-4 focus:border-pink-500 outline-none">
-            <div class="flex gap-2">
-                <button onclick="document.getElementById('pass-modal').classList.add('hidden')" class="flex-1 py-2 bg-slate-700 rounded text-white">Cancel</button>
-                <button onclick="verifyPassword()" class="flex-1 py-2 bg-pink-600 rounded text-white font-bold">Unlock</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="video-overlay" class="hidden">
-        <div class="relative w-full h-full">
-            <video id="remote-video" autoplay class="w-full h-full object-cover"></video>
-            <video id="local-video" autoplay muted class="absolute top-4 right-4 w-32 h-48 bg-slate-800 rounded-xl border-2 border-white shadow-xl object-cover"></video>
-            
-            <div class="absolute bottom-10 left-0 right-0 flex justify-center gap-8">
-                <button onclick="toggleMute()" class="p-4 bg-slate-700 rounded-full hover:bg-slate-600 text-white"><i class="ri-mic-fill text-2xl"></i></button>
-                <button onclick="endCall()" class="p-5 bg-red-600 rounded-full hover:bg-red-700 text-white shadow-lg transform hover:scale-110 transition"><i class="ri-phone-fill text-3xl rotate-[135deg]"></i></button>
-                <button onclick="toggleVideo()" class="p-4 bg-slate-700 rounded-full hover:bg-slate-600 text-white"><i class="ri-camera-fill text-2xl"></i></button>
-            </div>
-            
-            <div class="absolute top-10 left-8">
-                <h2 id="call-name" class="text-2xl font-bold text-white shadow-black drop-shadow-md">User</h2>
-                <span id="call-status" class="text-green-400 font-mono animate-pulse">Connecting...</span>
-            </div>
+        <video id="remote-video" autoplay class="w-full h-1/2 object-cover bg-slate-900 mb-4"></video>
+        <video id="local-video" autoplay muted class="absolute top-4 right-4 w-24 h-32 rounded-lg border border-white object-cover"></video>
+        <div class="flex gap-10">
+            <button onclick="acceptCall()" id="accept-btn" class="hidden bg-green-500 p-5 rounded-full text-3xl"><i class="ri-phone-fill"></i></button>
+            <button onclick="endCall()" class="bg-red-500 p-5 rounded-full text-3xl"><i class="ri-phone-fill rotate-[135deg]"></i></button>
         </div>
     </div>
 
     <script type="module">
-        // --- 1. CONFIGURATION (USING YOUR KEYS) ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, onSnapshot, serverTimestamp, updateDoc, doc, setDoc, getDoc, orderBy, arrayUnion, arrayRemove, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, where, onSnapshot, serverTimestamp, doc, setDoc, getDoc, orderBy, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // --- FIREBASE CONFIG (Updated from screenshot 66663.jpg) ---
         const firebaseConfig = {
             apiKey: "AIzaSyCAsCm1YcsAjHwyvIzxyMrBmZPLw2hlo18",
             authDomain: "truechats-8dac9.firebaseapp.com",
             projectId: "truechats-8dac9",
-            storageBucket: "truechats-8dac9.firebasestorage.app", // Fixed bucket URL based on standard format
+            storageBucket: "truechats-8dac9.firebasestorage.app",
             messagingSenderId: "685374771914",
-            appId: "1:685374771914:web:81bf491264c1bb09061a33"
+            appId: "1:685374771914:web:81bf491264c1bb09061a33",
+            measurementId: "G-7E9QE7G5SQ"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app);
 
-        // --- GLOBAL VARIABLES ---
-        let currentUser = null;
-        let currentChat = null; // Object containing user details
-        let chatId = null;
-        let isPrivate = false;
-        let isLoveTheme = false;
-        let seenDeleteMode = false;
-        let peer = null;
-        let activeCall = null;
-        let localStream = null;
-        let imgFile = null;
+        let currentUser = null, currentChat = null, peer = null, localStream = null, activeCall = null;
 
-        // --- AUTH LOGIC ---
-        window.handleLogin = async () => {
-            const email = document.getElementById('auth-email').value;
-            const pass = document.getElementById('auth-pass').value;
-            const name = document.getElementById('auth-name').value;
-            const isSignup = !document.getElementById('signup-fields').classList.contains('hidden');
-            const errorBox = document.getElementById('auth-error');
-
+        // AUTH
+        window.handleAuth = async (mode) => {
+            const email = document.getElementById('u-email').value, pass = document.getElementById('u-pass').value;
             try {
-                if(isSignup) {
-                    if(!name) throw new Error("Display Name is required");
+                if (mode === 'reg') {
                     const res = await createUserWithEmailAndPassword(auth, email, pass);
-                    
-                    // Upload DP if selected
-                    let photoURL = `https://ui-avatars.com/api/?name=${name}&background=random`;
-                    const file = document.getElementById('auth-dp').files[0];
-                    if(file) {
-                        const storageRef = ref(storage, `profiles/${res.user.uid}`);
-                        await uploadBytes(storageRef, file);
-                        photoURL = await getDownloadURL(storageRef);
-                    }
-
-                    await updateProfile(res.user, { displayName: name, photoURL });
-                    // Create User Doc
-                    await setDoc(doc(db, "users", res.user.uid), {
-                        uid: res.user.uid,
-                        displayName: name,
-                        email: email.toLowerCase(),
-                        photoURL,
-                        friends: [],
-                        hidden: [],
-                        bio: "Hey there! I am using True Chats.",
-                        status: "online",
-                        lastSeen: serverTimestamp()
+                    await setDoc(doc(db, "users", res.user.uid), { 
+                        uid: res.user.uid, email, displayName: document.getElementById('u-name').value, friends: [], hidden: [] 
                     });
-                } else {
-                    await signInWithEmailAndPassword(auth, email, pass);
-                }
-            } catch(err) {
-                errorBox.innerText = err.message;
-                errorBox.classList.remove('hidden');
-                console.error(err);
-            }
+                } else { await signInWithEmailAndPassword(auth, email, pass); }
+            } catch (err) { alert(err.message); }
         };
 
-        window.toggleAuthMode = () => {
-            const signup = document.getElementById('signup-fields');
-            const btn = document.getElementById('btn-login');
-            const toggle = document.getElementById('btn-toggle');
-            
-            if(signup.classList.contains('hidden')) {
-                signup.classList.remove('hidden');
-                btn.innerText = "Create Account";
-                toggle.innerText = "Already have an account? Login";
-            } else {
-                signup.classList.add('hidden');
-                btn.innerText = "Login";
-                toggle.innerText = "New here? Create Account";
-            }
-        };
-
-        window.logout = () => signOut(auth);
-
-        // --- APP INITIALIZATION ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('app-screen').classList.remove('hidden');
-                
-                // Update Sidebar Profile
-                document.getElementById('my-avatar').src = user.photoURL;
-                document.getElementById('my-name').innerText = user.displayName;
-                
-                // Set Online
-                updateDoc(doc(db, "users", user.uid), { status: "online", lastSeen: serverTimestamp() });
-                
-                initListeners();
-                initPeer();
-            } else {
-                document.getElementById('auth-screen').classList.remove('hidden');
-                document.getElementById('app-screen').classList.add('hidden');
-                currentUser = null;
+                initApp();
             }
         });
 
-        // --- FIRESTORE LISTENERS ---
-        function initListeners() {
-            // Listen for User Data Changes (Friends/Hidden)
+        function initApp() {
             onSnapshot(doc(db, "users", currentUser.uid), async (snap) => {
-                if(!snap.exists()) return;
                 const data = snap.data();
-                const friendIds = data.friends || [];
-                const hiddenIds = data.hidden || [];
-
-                const list = document.getElementById('chat-list');
-                list.innerHTML = "";
-
-                for(const fid of friendIds) {
-                    // Privacy Logic
-                    if(isPrivate) {
-                        if(!hiddenIds.includes(fid)) continue;
-                    } else {
-                        if(hiddenIds.includes(fid)) continue;
-                    }
-
-                    // Fetch Friend Data
-                    const fDoc = await getDoc(doc(db, "users", fid));
-                    if(fDoc.exists()) {
-                        const f = fDoc.data();
-                        renderChatListItem(f, hiddenIds.includes(fid));
-                    }
+                const list = document.getElementById('chat-list'); list.innerHTML = "";
+                for (const id of data.friends || []) {
+                    const f = (await getDoc(doc(db, "users", id))).data();
+                    const div = document.createElement('div');
+                    div.className = "p-4 glass rounded-xl flex justify-between items-center cursor-pointer";
+                    div.onclick = () => openChat(f);
+                    div.innerHTML = `<div><h4 class="font-bold">${f.displayName}</h4><p class="text-xs text-slate-400">Online</p></div><i class="ri-arrow-right-s-line"></i>`;
+                    list.appendChild(div);
                 }
             });
+            initPeer();
         }
 
-        function renderChatListItem(user, isHidden) {
-            const div = document.createElement('div');
-            div.className = "flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800 cursor-pointer transition";
-            div.onclick = () => openChat(user);
-            
-            const isOnline = user.status === 'online';
-            
-            div.innerHTML = `
-                <div class="relative">
-                    <img src="${user.photoURL}" class="w-12 h-12 rounded-full object-cover">
-                    ${isOnline ? '<div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-slate-900"></div>' : ''}
-                </div>
-                <div class="flex-1 min-w-0">
-                    <div class="flex justify-between items-baseline">
-                        <h4 class="font-bold text-slate-200 truncate">${user.displayName} ${isHidden ? '❤️' : ''}</h4>
-                    </div>
-                    <p class="text-sm text-slate-400 truncate">${user.bio}</p>
-                </div>
-            `;
-            document.getElementById('chat-list').appendChild(div);
-        }
-
-        // --- MESSAGING LOGIC ---
+        // CHAT
         window.openChat = (user) => {
             currentChat = user;
-            chatId = [currentUser.uid, user.uid].sort().join("_");
-            
-            // UI Update
-            document.getElementById('chat-area').classList.remove('translate-x-full');
+            document.getElementById('chat-view').classList.remove('hidden');
             document.getElementById('chat-header-name').innerText = user.displayName;
-            document.getElementById('chat-header-img').src = user.photoURL;
-            document.getElementById('chat-header-status').innerText = user.status === 'online' ? 'Online' : 'Last seen recently';
-            
-            // Listen for Messages
+            const chatId = [currentUser.uid, user.uid].sort().join("_");
             const q = query(collection(db, "messages"), where("chatId", "==", chatId), orderBy("ts", "asc"));
             onSnapshot(q, (snap) => {
-                const box = document.getElementById('messages-box');
-                box.innerHTML = "";
+                const box = document.getElementById('msg-box'); box.innerHTML = "";
                 snap.forEach(d => {
-                    const m = d.data();
-                    renderMessage(m, d.id, box);
+                    const m = d.data(), isMe = m.from === currentUser.uid;
+                    const div = document.createElement('div');
+                    div.className = `flex ${isMe ? 'justify-end' : 'justify-start'}`;
+                    div.innerHTML = `<div class="p-3 max-w-[80%] ${isMe ? 'msg-sent' : 'msg-recv'}">${m.txt}</div>`;
+                    box.appendChild(div);
                 });
                 box.scrollTop = box.scrollHeight;
             });
-
-            // Listen for Typing
-            onSnapshot(doc(db, "chats", chatId), (snap) => {
-                if(snap.exists()) {
-                    const data = snap.data();
-                    const indicator = document.getElementById('typing-indicator');
-                    if(data[user.uid] === 'typing') {
-                        indicator.classList.remove('hidden');
-                    } else {
-                        indicator.classList.add('hidden');
-                    }
-                }
-            });
         };
 
-        function renderMessage(m, id, box) {
-            const isMe = m.from === currentUser.uid;
-            
-            // Seen -> Delete Logic
-            if(m.seenDelete && !isMe && !m.seen) {
-                updateDoc(doc(db, "messages", id), { seen: true });
-                setTimeout(() => deleteDoc(doc(db, "messages", id)), 2000); // Delete after 2s
-            }
-
-            const div = document.createElement('div');
-            div.className = `flex ${isMe ? 'justify-end' : 'justify-start'}`;
-            
-            let content = "";
-            if(m.img) {
-                content = `<img src="${m.img}" class="max-w-[200px] rounded-lg mb-1 cursor-pointer" onclick="window.open(this.src)">`;
-            }
-            if(m.txt) {
-                content += `<p>${m.txt}</p>`;
-            }
-
-            div.innerHTML = `
-                <div class="max-w-[75%] p-3 text-white shadow-md ${isMe ? 'msg-sent' : 'msg-recv'} animate-fade">
-                    ${content}
-                    <div class="flex justify-end items-center gap-1 mt-1">
-                        <span class="text-[10px] opacity-70">${m.ts ? new Date(m.ts.toDate()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '...'}</span>
-                        ${isMe ? (m.seen ? '<i class="ri-check-double-line text-blue-300 text-xs"></i>' : '<i class="ri-check-line text-xs"></i>') : ''}
-                    </div>
-                </div>
-            `;
-            box.appendChild(div);
-        }
-
-        window.sendMessage = async () => {
-            const input = document.getElementById('msg-input');
-            const txt = input.value.trim();
-            
-            if(!txt && !imgFile) return;
-
-            document.getElementById('snd-send').play();
-
-            let imgUrl = null;
-            if(imgFile) {
-                const imgRef = ref(storage, `chats/${Date.now()}_${imgFile.name}`);
-                await uploadBytes(imgRef, imgFile);
-                imgUrl = await getDownloadURL(imgRef);
-            }
-
-            await addDoc(collection(db, "messages"), {
-                chatId,
-                from: currentUser.uid,
-                to: currentChat.uid,
-                txt: txt,
-                img: imgUrl,
-                ts: serverTimestamp(),
-                seen: false,
-                seenDelete: seenDeleteMode
-            });
-
-            input.value = "";
-            clearImage();
+        window.sendMsg = async () => {
+            const txt = document.getElementById('msg-input').value;
+            if (!txt) return;
+            const chatId = [currentUser.uid, currentChat.uid].sort().join("_");
+            await addDoc(collection(db, "messages"), { chatId, from: currentUser.uid, txt, ts: serverTimestamp() });
+            document.getElementById('msg-input').value = "";
         };
 
-        // --- TYPING & UTILS ---
-        window.handleTyping = () => {
-            // Debounce typing status update
-            setDoc(doc(db, "chats", chatId), { [currentUser.uid]: "typing" }, { merge: true });
-            setTimeout(() => {
-                setDoc(doc(db, "chats", chatId), { [currentUser.uid]: "idle" }, { merge: true });
-            }, 2000);
-        };
-
-        window.handleImageSelect = () => {
-            imgFile = document.getElementById('msg-image').files[0];
-            if(imgFile) {
-                document.getElementById('img-preview').classList.remove('hidden');
-            }
-        };
-
-        window.clearImage = () => {
-            imgFile = null;
-            document.getElementById('msg-image').value = "";
-            document.getElementById('img-preview').classList.add('hidden');
-        };
-
-        window.closeChat = () => {
-            document.getElementById('chat-area').classList.add('translate-x-full');
-            currentChat = null;
-        };
-
-        // --- ADVANCED FEATURES (Search, Hide, Theme) ---
-        window.showSearchModal = () => document.getElementById('search-modal').classList.remove('hidden');
-        
-        window.searchUsers = async () => {
-            const term = document.getElementById('global-search').value.toLowerCase();
-            const q = query(collection(db, "users"), where("email", ">=", term), where("email", "<=", term + "\uf8ff"));
-            const snap = await getDoc(doc(db, "users", currentUser.uid)); // get my friends
-            
-            // Note: In a real app, you'd use a better search index. This is a basic prefix search.
-            // For demo, we might not get results if email isn't exact in prefix.
-            // Let's rely on exact match for simplicity or just loop top 10.
-            
-            // Alternative: List all users (Not recommended for prod, okay for demo)
-            // const q2 = query(collection(db, "users"), limit(10));
-            // Let's stick to email search.
-            
-            // To make search work for the demo, ensure you type the exact start of the email.
-        };
-
-        // Adding Friend Logic (Simplified)
-        window.addFriend = async (uid) => {
-            await updateDoc(doc(db, "users", currentUser.uid), { friends: arrayUnion(uid) });
-            await updateDoc(doc(db, "users", uid), { friends: arrayUnion(currentUser.uid) });
-            alert("User added!");
-            document.getElementById('search-modal').classList.add('hidden');
-        };
-        
-        // Manual Search implementation for demo
-        window.searchUsers = async () => {
-            const val = document.getElementById('global-search').value;
-            // Fetch users (Inefficient for large DB, ok for demo)
-            // Better: use 'where' email == val
-            const q = query(collection(db, "users"), where("email", "==", val));
-            const snap = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js").then(m => m.getDocs(q));
-            
-            const div = document.getElementById('search-results');
-            div.innerHTML = "";
-            
-            snap.forEach(d => {
-                const u = d.data();
-                if(u.uid === currentUser.uid) return;
-                div.innerHTML += `
-                    <div class="flex justify-between items-center bg-slate-700 p-2 rounded">
-                        <span>${u.displayName}</span>
-                        <button onclick="addFriend('${u.uid}')" class="bg-green-500 px-2 py-1 rounded text-xs text-black font-bold">Add</button>
-                    </div>
-                `;
-            });
-            
-            if(snap.empty) div.innerHTML = "<p class='text-slate-400 text-sm'>No user found with that email.</p>";
-        };
-
-        window.toggleTheme = () => {
-            isLoveTheme = !isLoveTheme;
-            if(isLoveTheme) {
-                document.body.classList.add('love-theme');
-                document.getElementById('theme-btn').className = "ri-heart-fill heart-beat";
-            } else {
-                document.body.classList.remove('love-theme');
-                document.getElementById('theme-btn').className = "ri-heart-line";
-            }
-        };
-
-        // --- PRIVACY & HIDING ---
-        window.togglePrivateMode = () => {
-            // Ask for password
-            document.getElementById('pass-modal').classList.remove('hidden');
-        };
-
-        window.verifyPassword = () => {
-            const p = document.getElementById('pass-input').value;
-            if(p === "1234") { // Demo PIN
-                isPrivate = !isPrivate;
-                document.getElementById('pass-modal').classList.add('hidden');
-                document.getElementById('pass-input').value = "";
-                
-                const eye = document.getElementById('eye-icon');
-                const txt = document.getElementById('mode-text');
-                
-                if(isPrivate) {
-                    eye.className = "ri-eye-fill text-pink-500";
-                    txt.innerText = "Private";
-                    txt.classList.add("text-pink-500");
-                } else {
-                    eye.className = "ri-eye-off-line";
-                    txt.innerText = "Public";
-                    txt.classList.remove("text-pink-500");
-                }
-                
-                initListeners(); // Reload list
-            } else {
-                alert("Wrong PIN!");
-            }
-        };
-
-        window.hideChat = async () => {
-            if(!currentChat) return;
-            await updateDoc(doc(db, "users", currentUser.uid), { hidden: arrayUnion(currentChat.uid) });
-            alert("Chat Hidden! Enable Private Mode to view.");
-            closeChat();
-        };
-
-        window.toggleChatMenu = () => {
-            document.getElementById('chat-menu').classList.toggle('hidden');
-        };
-        
-        window.toggleSeenDelete = () => {
-            seenDeleteMode = !seenDeleteMode;
-            const icon = document.getElementById('sd-icon');
-            icon.className = seenDeleteMode ? "ri-eye-line text-indigo-500" : "ri-eye-off-line text-slate-500";
-        };
-
-        // --- VIDEO CALLS (PeerJS) ---
+        // CALL LOGIC (DIRECT CALL FIX)
         function initPeer() {
             peer = new Peer(currentUser.uid);
-            
             peer.on('call', (call) => {
-                // Incoming Call
-                if(confirm("Incoming Call... Accept?")) {
-                    document.getElementById('video-overlay').classList.remove('hidden');
-                    document.getElementById('snd-ring').play();
-                    
-                    navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(stream => {
-                        localStream = stream;
-                        document.getElementById('local-video').srcObject = stream;
-                        call.answer(stream);
-                        activeCall = call;
-                        
-                        call.on('stream', (remoteStream) => {
-                            document.getElementById('remote-video').srcObject = remoteStream;
-                            document.getElementById('call-status').innerText = "Connected";
-                            document.getElementById('snd-ring').pause();
-                        });
-                        
-                        call.on('close', endCall);
-                    });
-                }
+                activeCall = call;
+                document.getElementById('call-overlay').classList.remove('hidden');
+                document.getElementById('accept-btn').classList.remove('hidden');
+                document.getElementById('call-status').innerText = "Incoming Call...";
+                getDoc(doc(db, "users", call.peer)).then(s => {
+                    document.getElementById('call-user-name').innerText = s.data().displayName;
+                });
             });
         }
 
-        window.startCall = (type) => {
-            if(!currentChat) return;
-            document.getElementById('video-overlay').classList.remove('hidden');
-            document.getElementById('call-name').innerText = currentChat.displayName;
+        window.initiateCall = async (type) => {
+            document.getElementById('call-overlay').classList.remove('hidden');
+            document.getElementById('call-user-name').innerText = currentChat.displayName;
             document.getElementById('call-status').innerText = "Calling...";
             
-            const isVideo = type === 'video';
+            localStream = await navigator.mediaDevices.getUserMedia({ video: type === 'video', audio: true });
+            document.getElementById('local-video').srcObject = localStream;
             
-            navigator.mediaDevices.getUserMedia({video: isVideo, audio: true}).then(stream => {
-                localStream = stream;
-                if(isVideo) document.getElementById('local-video').srcObject = stream;
-                
-                const call = peer.call(currentChat.uid, stream);
-                activeCall = call;
-                
-                call.on('stream', (remoteStream) => {
-                    document.getElementById('remote-video').srcObject = remoteStream;
-                    document.getElementById('call-status').innerText = "Connected";
-                });
-                
-                call.on('close', endCall);
-                call.on('error', (err) => { alert("Call failed"); endCall(); });
-            }).catch(e => {
-                alert("Please allow Camera/Mic permissions.");
-                endCall();
+            const call = peer.call(currentChat.uid, localStream);
+            activeCall = call;
+            call.on('stream', (rs) => {
+                document.getElementById('call-status').innerText = "Connected";
+                document.getElementById('remote-video').srcObject = rs;
+            });
+        };
+
+        window.acceptCall = async () => {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            document.getElementById('local-video').srcObject = localStream;
+            activeCall.answer(localStream);
+            document.getElementById('accept-btn').classList.add('hidden');
+            activeCall.on('stream', (rs) => {
+                document.getElementById('call-status').innerText = "Connected";
+                document.getElementById('remote-video').srcObject = rs;
             });
         };
 
         window.endCall = () => {
-            if(activeCall) activeCall.close();
-            if(localStream) localStream.getTracks().forEach(track => track.stop());
-            document.getElementById('video-overlay').classList.add('hidden');
-            document.getElementById('snd-ring').pause();
+            if (activeCall) activeCall.close();
+            if (localStream) localStream.getTracks().forEach(t => t.stop());
+            document.getElementById('call-overlay').classList.add('hidden');
         };
 
-        window.toggleMute = () => {
-            if(localStream) {
-                const track = localStream.getAudioTracks()[0];
-                track.enabled = !track.enabled;
+        // UI HELPERS
+        window.toggleTheme = () => {
+            const body = document.body;
+            body.classList.toggle('love-theme');
+            const icon = document.getElementById('theme-icon');
+            icon.className = body.classList.contains('love-theme') ? "ri-heart-fill heart-beat" : "ri-heart-line";
+        };
+        window.closeChat = () => document.getElementById('chat-view').classList.add('hidden');
+        window.toggleAuthMode = () => {
+            const fields = document.getElementById('signup-fields');
+            const btn = document.getElementById('btn-main'), toggle = document.getElementById('btn-toggle');
+            if (fields.classList.contains('hidden')) {
+                fields.classList.remove('hidden');
+                btn.innerText = "Create Account"; toggle.innerText = "Back to Login";
+                window.authMode = 'reg';
+            } else {
+                fields.classList.add('hidden');
+                btn.innerText = "Login"; toggle.innerText = "Create Account";
+                window.authMode = 'login';
             }
         };
-
-        window.toggleVideo = () => {
-            if(localStream) {
-                const track = localStream.getVideoTracks()[0];
-                track.enabled = !track.enabled;
-            }
+        window.handleAuth = (mode) => {
+            const finalMode = window.authMode || mode;
+            window.handleAuthMain(finalMode);
         };
-
-        // --- Window Globals ---
-        // (Needed because type="module" isolates scope)
-        window.handleLogin = handleLogin;
-        window.toggleAuthMode = toggleAuthMode;
-        // ... (Other functions are attached to window automatically if defined via window.func = ...)
-        
+        window.handleAuthMain = window.handleAuth;
+        window.toggleChatMenu = () => document.getElementById('chat-menu').classList.toggle('hidden');
     </script>
 </body>
 </html>
