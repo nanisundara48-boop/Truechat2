@@ -2,352 +2,568 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>True Chats - Private & Secure</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TrueChats Pro Max</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
     <style>
-        body { overflow: hidden; font-family: 'Segoe UI', sans-serif; }
-        .love-theme-bg { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #feada6 100%); }
-        .premium-theme-bg { background-color: #f3f4f6; }
-        .animate-pulse-fast { animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        @keyframes heartBeat {
-            0% { transform: scale(1); }
-            14% { transform: scale(1.3); }
-            28% { transform: scale(1); }
-            42% { transform: scale(1.3); }
-            70% { transform: scale(1); }
+        :root {
+            --primary: #6366f1; --bg: #0f172a; --surface: #1e293b;
+            --text: #f8fafc; --text-sec: #94a3b8; --border: #334155;
+            --msg-sent: #4f46e5; --msg-recv: #334155;
+            --success: #10b981; --danger: #ef4444;
+            --gradient: none;
         }
-        .heart-beat { animation: heartBeat 1.5s infinite; }
-        /* Scrollbar Hide */
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Love Theme Variables */
+        body.love-theme {
+            --primary: #ec4899; --bg: #831843; --surface: #9d174d;
+            --text: #fff1f2; --text-sec: #fbcfe8; --border: #be185d;
+            --msg-sent: #db2777; --msg-recv: #831843;
+            --gradient: linear-gradient(135deg, #831843, #be185d);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans',sans-serif; -webkit-tap-highlight-color:transparent; }
+        body { background:var(--bg); color:var(--text); height:100dvh; overflow:hidden; display:flex; flex-direction:column; transition: background 0.5s; }
+        body.love-theme { background: var(--gradient); }
+
+        /* UI UTILS */
+        .hidden { display:none !important; }
+        .flex { display:flex; align-items:center; }
+        .center { display:flex; justify-content:center; align-items:center; }
+        .btn { background:none; border:none; cursor:pointer; color:var(--text); transition:0.2s; outline:none; padding: 8px; border-radius: 50%; }
+        .btn:active { transform:scale(0.9); background: rgba(255,255,255,0.1); }
+        .inp { width:100%; padding:14px; margin:10px 0; background:var(--bg); border:1px solid var(--border); color:white; border-radius:12px; outline:none; }
+        .btn-main { width:100%; padding:14px; background:var(--primary); color:white; border-radius:12px; font-weight:700; border:none; cursor:pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        
+        /* AUTH SCREEN */
+        .auth-screen { position:fixed; inset:0; background:var(--bg); z-index:1000; }
+        .auth-box { background:var(--surface); padding:35px; border-radius:24px; width:90%; max-width:380px; text-align:center; border:1px solid var(--border); box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); }
+
+        /* HEADER & SIDEBAR */
+        .sidebar { width:100%; height:100%; display:flex; flex-direction:column; background:var(--surface); z-index:10; }
+        .header { padding:15px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface); transition: background 0.3s; }
+        .icon-btn { position: relative; cursor: pointer; font-size: 1.4rem; padding: 5px; color: var(--text-sec); }
+        .icon-btn:hover { color: var(--text); }
+        .red-dot { position: absolute; top: 0; right: 0; width: 10px; height: 10px; background: var(--danger); border-radius: 50%; border: 2px solid var(--surface); display: none; }
+        
+        /* LISTS */
+        .list-area { flex:1; overflow-y:auto; padding:12px; background:var(--bg); }
+        .item { display:flex; align-items:center; padding:14px; margin-bottom:10px; background:var(--surface); border-radius:16px; cursor:pointer; border:1px solid transparent; transition:0.2s; }
+        .item:active { border-color:var(--primary); background:rgba(255,255,255,0.05); }
+        .avatar { width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid var(--border); background:#333; }
+        
+        /* CHAT VIEW */
+        .chat-view { position:fixed; inset:0; background:var(--bg); z-index:500; transform:translateX(100%); transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); display:flex; flex-direction:column; }
+        .chat-view.active { transform:translateX(0); }
+        .chat-header { padding:10px 15px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; height:70px; }
+        
+        /* MESSAGES */
+        .messages { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:8px; background-image: radial-gradient(var(--border) 1px, transparent 1px); background-size: 20px 20px; }
+        .bubble { max-width:75%; padding:10px 16px; border-radius:20px; font-size:0.95rem; line-height:1.4; position:relative; word-wrap: break-word; }
+        .sent { align-self:flex-end; background:var(--msg-sent); color:white; border-bottom-right-radius:2px; }
+        .recv { align-self:flex-start; background:var(--msg-recv); color:var(--text); border-bottom-left-radius:2px; }
+        .msg-info { font-size: 0.65rem; display: flex; justify-content: flex-end; gap: 4px; align-items: center; opacity: 0.8; margin-top: 4px; }
+
+        /* 4 DOTS MENU */
+        .menu-dropdown { position: absolute; top: 60px; right: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 5px; width: 180px; z-index: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; }
+        .menu-item { padding: 10px; font-size: 0.9rem; cursor: pointer; border-radius: 8px; display: flex; align-items: center; gap: 10px; }
+        .menu-item:hover { background: rgba(255,255,255,0.1); }
+        .menu-item.danger { color: var(--danger); }
+
+        /* REPLY BOX */
+        .reply-preview { background: var(--surface); padding: 10px; border-left: 3px solid var(--primary); display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
+
+        /* CALL SCREEN */
+        #call-screen { position: fixed; inset: 0; background:#000; z-index:2000; display: flex; flex-direction:column; align-items: center; justify-content: center; }
+        #remote-vid { width:100%; height:100%; object-fit:cover; position: absolute; top: 0; left: 0; }
+        #local-vid { position:absolute; top:20px; right:20px; width:100px; height:140px; border:2px solid white; border-radius:12px; object-fit:cover; z-index:2100; box-shadow:0 10px 25px rgba(0,0,0,0.5); }
+        .call-controls { position:absolute; bottom:40px; display:flex; gap:25px; z-index:2200; width:100%; justify-content:center; }
+        .c-btn { width:65px; height:65px; border-radius:50%; font-size:1.8rem; color:white; display:flex; justify-content:center; align-items:center; background:rgba(255,255,255,0.2); backdrop-filter:blur(10px); cursor: pointer; }
+        .bg-red { background:var(--danger) !important; } .bg-green { background:var(--success) !important; }
+
+        /* MODALS & ANIMATIONS */
+        .modal { position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:3000; display:none; justify-content:center; align-items:center; backdrop-filter:blur(5px); }
+        .heart-beat { animation: heartBeat 1.5s infinite; color: var(--danger) !important; }
+        @keyframes heartBeat { 0%{transform:scale(1);} 14%{transform:scale(1.3);} 28%{transform:scale(1);} 42%{transform:scale(1.3);} 70%{transform:scale(1);} }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
     </style>
 </head>
 <body>
-    <div id="root"></div>
 
-    <script type="text/babel" data-type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    <audio id="ring-out" src="https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3" loop></audio>
+    <audio id="ring-in" src="https://assets.mixkit.co/active_storage/sfx/2346/2346-preview.mp3" loop></audio>
 
-        // --- FIREBASE CONFIG (Your Keys) ---
+    <div id="auth-ui" class="auth-screen center">
+        <div class="auth-box">
+            <h1 style="color:var(--primary); font-family: 'Dancing Script', cursive; font-size: 3rem;">True Chats</h1>
+            <p style="color:var(--text-sec); margin-bottom:20px;">Secure. Private. Yours.</p>
+            <input id="reg-name" class="inp" placeholder="Display Name (For Signup)">
+            <input id="u-email" class="inp" placeholder="Email Address">
+            <input id="u-pass" type="password" class="inp" placeholder="Password">
+            <button onclick="doAuth('login')" class="btn-main" style="margin-bottom:12px;">Login</button>
+            <button onclick="doAuth('reg')" class="btn-main" style="background:transparent; border:1px solid var(--primary); color:var(--primary);">Create Account</button>
+        </div>
+    </div>
+
+    <div id="app-ui" class="hidden" style="width:100%; height:100%; display:flex;">
+        <div class="sidebar">
+            <div class="header">
+                <div class="flex" style="gap:10px;">
+                    <h2 id="app-logo" style="font-family: 'Dancing Script', cursive; font-size: 1.8rem; font-weight: 700;">True Chats</h2>
+                </div>
+                <div class="flex" style="gap:15px;">
+                    <div class="icon-btn" onclick="switchTab('reqs')">
+                        <i class="ri-user-add-line"></i>
+                        <div id="req-dot" class="red-dot"></div>
+                    </div>
+                    <div class="icon-btn" onclick="toggleLoveTheme()">
+                        <i id="theme-icon" class="ri-heart-line" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <div class="icon-btn" onclick="togglePrivacyMode()">
+                        <i id="privacy-eye" class="ri-eye-off-line"></i>
+                    </div>
+                    <img id="my-pic" src="" class="avatar" style="width:35px; height:35px;" onclick="alert('Profile Settings: \nComing soon!')">
+                </div>
+            </div>
+
+            <div class="flex" style="padding:10px; gap:10px; border-bottom:1px solid var(--border);">
+                <input id="search-inp" class="inp" style="margin:0; padding:10px;" placeholder="Search friends..." onkeyup="filterChats(this.value)">
+            </div>
+
+            <div id="view-chats" class="list-area"></div>
+            <div id="view-reqs" class="list-area hidden"></div>
+        </div>
+    </div>
+
+    <div id="chat-ui" class="chat-view">
+        <div class="chat-header">
+            <button class="btn" onclick="closeChat()"><i class="ri-arrow-left-s-line" style="font-size:1.8rem;"></i></button>
+            <img id="head-dp" class="avatar" style="width:40px; height:40px;">
+            <div style="flex:1; cursor: pointer;" onclick="showUserDetails()">
+                <h4 id="head-name" style="font-weight:700; line-height: 1.2;">User</h4>
+                <small id="head-status" style="color:var(--success); font-size:0.75rem;">Online</small>
+            </div>
+            <div class="flex" style="gap:5px;">
+                <button class="btn" onclick="startCall('voice')"><i class="ri-phone-fill"></i></button>
+                <button class="btn" onclick="startCall('video')"><i class="ri-vidicon-fill" style="color: gold;"></i></button> <button class="btn" onclick="toggleMenu()" style="font-weight: bold; font-size: 1.2rem; letter-spacing: -2px;">::::</button>
+                
+                <div id="chat-menu" class="menu-dropdown">
+                    <div class="menu-item" onclick="showUserDetails()"><i class="ri-user-line"></i> View Contact</div>
+                    <div class="menu-item" onclick="alert('Muted Notifications')"><i class="ri-notification-off-line"></i> Mute Notif</div>
+                    <div class="menu-item" onclick="hideCurrentChat()"><i class="ri-eye-off-fill" style="color:var(--primary)"></i> Hide Chat ❤️</div>
+                    <div class="menu-item" onclick="toggleDisappear()"><i class="ri-timer-flash-line"></i> Disappear Msg</div>
+                    <div class="menu-item danger" onclick="alert('User Blocked')"><i class="ri-forbid-2-line"></i> Block</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="msg-box" class="messages"></div>
+
+        <div id="reply-box" class="hidden reply-preview">
+            <div>
+                <b style="color:var(--primary); font-size:0.75rem;">Replying to...</b>
+                <div id="reply-txt" style="opacity:0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">Text</div>
+            </div>
+            <button class="btn" onclick="cancelReply()"><i class="ri-close-line"></i></button>
+        </div>
+
+        <div class="flex" style="padding:10px; background:var(--surface); gap:8px;">
+            <div onclick="toggleSeenDelete()" style="display:flex; flex-direction:column; align-items:center; cursor:pointer;">
+                <i id="sd-icon" class="ri-eye-close-line" style="color:var(--text-sec)"></i>
+                <span style="font-size:0.6rem; color:var(--text-sec)">SeenDel</span>
+            </div>
+
+            <input id="msg-input" class="inp" style="margin:0; border-radius:30px; padding:12px 15px;" placeholder="Type message..." onkeypress="if(event.key==='Enter') sendMsg()">
+            <button class="btn-main" style="width:45px; height:45px; border-radius:50%; padding:0; display:flex; align-items:center; justify-content:center;" onclick="sendMsg()"><i class="ri-send-plane-fill"></i></button>
+        </div>
+    </div>
+
+    <div id="call-ui" class="hidden" style="position:fixed; inset:0; background:black; z-index:2000;">
+        <video id="remote-vid" autoplay playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+        <video id="local-vid" autoplay playsinline muted style="position:absolute; top:20px; right:20px; width:100px; height:140px; border-radius:10px; border:2px solid white; object-fit:cover; z-index:2100;"></video>
+        
+        <div style="position:absolute; top:50px; left:20px; z-index:2200;">
+            <h2 id="call-name" style="color:white; text-shadow:0 2px 4px rgba(0,0,0,0.8);">User</h2>
+            <p id="call-status" style="color:gold; font-weight:bold;">Star Video Call...</p>
+        </div>
+
+        <div class="call-controls">
+            <div id="inc-btns" class="hidden flex" style="gap:40px;">
+                <div class="c-btn bg-red" onclick="rejectCall()"><i class="ri-phone-line" style="transform:rotate(135deg)"></i></div>
+                <div class="c-btn bg-green" onclick="answerCall()"><i class="ri-phone-fill"></i></div>
+            </div>
+            <div id="act-btns" class="hidden flex" style="gap:20px;">
+                <div class="c-btn" onclick="toggleMic()"><i class="ri-mic-line"></i></div>
+                <div class="c-btn bg-red" onclick="endCall()"><i class="ri-phone-line" style="transform:rotate(135deg)"></i></div>
+                <div class="c-btn" onclick="alert('Camera Switch')"><i class="ri-camera-switch-line"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="pass-modal" class="modal">
+        <div class="auth-box">
+            <i class="ri-lock-2-fill" style="font-size:2rem; color:var(--primary);"></i>
+            <h3 id="modal-title" style="margin:10px 0;">Enter Privacy Password</h3>
+            <input id="modal-pass" type="password" class="inp" style="text-align:center; font-size:1.5rem; letter-spacing:5px;" maxlength="4" placeholder="****">
+            <button onclick="submitPass()" class="btn-main">Unlock</button>
+            <button onclick="document.getElementById('pass-modal').style.display='none'" class="btn" style="margin-top:10px;">Cancel</button>
+        </div>
+    </div>
+
+    <script type="module">
+        // 1. FIREBASE CONFIG (Updated from Image 66096.jpg)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, where, onSnapshot, serverTimestamp, updateDoc, doc, setDoc, getDoc, orderBy, arrayUnion, arrayRemove, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
         const firebaseConfig = {
             apiKey: "AIzaSyCAsCm1YcsAjHwyvIzxyMrBmZPLw2hlo18",
             authDomain: "truechats-8dac9.firebaseapp.com",
             projectId: "truechats-8dac9",
-            storageBucket: "truechats-8dac9.appspot.com",
+            storageBucket: "truechats-8dac9.firebasestorage.app",
             messagingSenderId: "685374771914",
             appId: "1:685374771914:web:81bf491264c1bb09061a33"
         };
+
+        // Note: MongoDB Connection String (Reference only - cannot be used in client-side JS safely)
+        // const mongoURI = "mongodb+srv://nani1248:nani1248@cluster0.jljbrjd.mongodb.net/?appName=Cluster0";
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const { useState, useEffect, useRef } = React;
+        // STATE VARIABLES
+        let currentUser = null;
+        let currentChatUser = null;
+        let chatId = null;
+        let isLoveTheme = false;
+        let isPrivateMode = false;
+        let peer = null, localStream = null, activeCall = null;
+        let replyToMsg = null;
+        let editMsgId = null;
+        let seenDeleteActive = false;
+        let modalAction = null;
 
-        // --- DUMMY DATA (Simulating Database for Demo) ---
-        const MOCK_FRIENDS = [
-            { id: '101', name: 'Nani', username: '@nani1248', avatar: null, status: 'online', type: 'general' },
-            { id: '102', name: 'My Love', username: '@sweety', avatar: null, status: 'offline', type: 'private' }, 
-            { id: '103', name: 'Raju Bhai', username: '@raju', avatar: null, status: 'online', type: 'general' }
-        ];
-
-        const FRIEND_REQUESTS = [
-            { id: 201, name: 'Varun', mutual: 3 },
-            { id: 202, name: 'Priya', mutual: 1 }
-        ];
-
-        // --- MAIN APP COMPONENT ---
-        function App() {
-            const [user, setUser] = useState(null);
-            
-            // UI State
-            const [isLoveTheme, setIsLoveTheme] = useState(false);
-            const [currentChat, setCurrentChat] = useState(null);
-            const [showRequests, setShowRequests] = useState(false);
-            
-            // Privacy State
-            const [isPrivateMode, setIsPrivateMode] = useState(false);
-            const [showPasswordModal, setShowPasswordModal] = useState(false);
-            const [passwordInput, setPasswordInput] = useState("");
-            const [privatePassword] = useState("1234"); // Default Password
-            
-            // Chat State
-            const [messages, setMessages] = useState([]);
-            const [inputText, setInputText] = useState("");
-            const [replyTo, setReplyTo] = useState(null);
-            const [editingMsgId, setEditingMsgId] = useState(null);
-            const [seenAfterDelete, setSeenAfterDelete] = useState(false);
-            const [disappearTimer, setDisappearTimer] = useState(null);
-
-            // Video Call State
-            const [isVideoCall, setIsVideoCall] = useState(false);
-            const [isMicDenied, setIsMicDenied] = useState(false);
-
-            // Auth Listener
-            useEffect(() => {
-                const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
-                return () => unsubscribe();
-            }, []);
-
-            // Login
-            const handleLogin = async () => {
-                try { await signInWithPopup(auth, new GoogleAuthProvider()); } 
-                catch (error) { console.error("Login failed", error); }
-            };
-
-            // Toggle Private Mode
-            const togglePrivateMode = () => {
-                if (isPrivateMode) {
-                    setIsPrivateMode(false);
-                    setCurrentChat(null);
-                } else {
-                    setShowPasswordModal(true);
-                }
-            };
-
-            const verifyPassword = () => {
-                if (passwordInput === privatePassword) {
-                    setIsPrivateMode(true);
-                    setShowPasswordModal(false);
-                    setPasswordInput("");
-                } else {
-                    alert("Wrong Password!");
-                }
-            };
-
-            // Send Message
-            const sendMessage = () => {
-                if (!inputText.trim()) return;
-
-                if (editingMsgId) {
-                    setMessages(prev => prev.map(m => m.id === editingMsgId ? { ...m, text: inputText, isEdited: true } : m));
-                    setEditingMsgId(null);
-                    setInputText("");
-                    return;
-                }
-
-                const newMsg = {
-                    id: Date.now(),
-                    text: inputText,
-                    sender: user.uid,
-                    timestamp: Date.now(),
-                    seen: false,
-                    isEdited: false,
-                    replyTo: replyTo,
-                    seenAfterDelete: seenAfterDelete
-                };
-
-                setMessages(prev => [newMsg, ...prev]);
-                setInputText("");
-                setReplyTo(null);
-
-                // Auto Reply Simulation
-                setTimeout(() => {
-                    setMessages(prev => [{
-                        id: Date.now() + 1, text: "Got it! ❤️", sender: 'other', timestamp: Date.now(), seen: false
-                    }, ...prev]);
-                }, 1500);
-            };
-
-            // Message Actions
-            const deleteMessage = (msgId, timestamp) => {
-                const diffMins = (Date.now() - timestamp) / 60000;
-                if (diffMins > 24 * 60) {
-                    setMessages(prev => prev.filter(m => m.id !== msgId)); // Delete for me
-                } else {
-                    if(confirm("Delete for Everyone?")) setMessages(prev => prev.filter(m => m.id !== msgId));
-                }
-            };
-
-            const handleEdit = (msg) => {
-                const diffMins = (Date.now() - msg.timestamp) / 60000;
-                if (diffMins > 20) alert("Edit time expired!");
-                else {
-                    setInputText(msg.text);
-                    setEditingMsgId(msg.id);
-                }
-            };
-
-            // --- COMPONENTS ---
-
-            const Header = () => (
-                <div className={`h-16 flex items-center justify-between px-4 shadow-md z-20 transition-all ${isLoveTheme ? 'bg-pink-600 text-white' : 'bg-white text-gray-800'}`}>
-                    <h1 className="text-xl font-bold font-serif">True Chats</h1>
-                    <div className="flex items-center gap-4">
-                        <div className="relative cursor-pointer" onClick={() => setShowRequests(!showRequests)}>
-                            <i className="fas fa-user-friends text-lg"></i>
-                            {FRIEND_REQUESTS.length > 0 && <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">2</span>}
-                        </div>
-                        <div onClick={() => setIsLoveTheme(!isLoveTheme)} className="cursor-pointer hover:scale-110 transition">
-                            {isLoveTheme ? <i className="fas fa-heart text-red-200 text-lg heart-beat"></i> : <i className="far fa-heart text-lg"></i>}
-                        </div>
-                        <div onClick={togglePrivateMode} className="cursor-pointer">
-                            {isPrivateMode ? <i className="fas fa-eye text-red-500 text-lg"></i> : <i className="fas fa-eye-slash text-gray-400 text-lg"></i>}
-                        </div>
-                        <div className="relative group">
-                             <i className="fas fa-clock text-lg cursor-pointer"></i>
-                             <div className="absolute right-0 top-8 bg-white shadow-lg rounded p-2 hidden group-hover:block w-32 text-gray-800 text-xs">
-                                <div className="hover:bg-gray-100 p-2 cursor-pointer" onClick={() => setDisappearTimer(24)}>Min 24 hrs</div>
-                                <div className="hover:bg-gray-100 p-2 cursor-pointer" onClick={() => setDisappearTimer(48)}>Max 48 hrs</div>
-                             </div>
-                        </div>
-                        <div className="relative group cursor-pointer">
-                            {user?.photoURL ? <img src={user.photoURL} className="w-8 h-8 rounded-full border-2 border-white" /> : <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center font-bold">U</div>}
-                            <div className="absolute right-0 top-10 w-48 bg-white shadow-xl rounded-lg p-3 hidden group-hover:block z-50 text-gray-800 text-sm">
-                                <p className="font-bold border-b pb-1">{user?.displayName}</p>
-                                <p className="text-xs text-gray-500 mt-1">Friends: 15</p>
-                                <button onClick={() => auth.signOut()} className="w-full text-left mt-2 text-red-500 font-bold">Logout</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            const Sidebar = () => (
-                <div className={`w-full md:w-1/3 border-r flex flex-col ${isLoveTheme ? 'bg-white/80' : 'bg-white'} ${currentChat ? 'hidden md:flex' : 'flex'}`}>
-                    <div className="p-3 border-b">
-                        <div className="bg-gray-100 rounded-full px-4 py-2 flex items-center">
-                            <i className="fas fa-search text-gray-400"></i>
-                            <input type="text" placeholder="Search..." className="bg-transparent ml-2 outline-none w-full text-sm"/>
-                        </div>
-                    </div>
-                    <div className="flex-1 overflow-y-auto">
-                        {MOCK_FRIENDS.map(f => {
-                            if (f.type === 'private' && !isPrivateMode) return null;
-                            return (
-                                <div key={f.id} onClick={() => setCurrentChat(f)} className="flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
-                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg ${isLoveTheme ? 'bg-pink-500' : 'bg-gray-400'}`}>{f.name.charAt(0)}</div>
-                                    <div className="ml-3 flex-1">
-                                        <div className="flex justify-between"><h3 className="font-bold text-sm">{f.name} {f.type === 'private' && '❤️'}</h3><span className="text-xs text-gray-400">10:00</span></div>
-                                        <p className="text-xs text-gray-500">Tap to chat...</p>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-            );
-
-            const ChatWindow = () => {
-                if (!currentChat) return <div className="hidden md:flex flex-1 items-center justify-center text-gray-400 bg-gray-50">Select a chat</div>;
-                const [showMenu, setShowMenu] = useState(false);
+        // --- AUTHENTICATION ---
+        onAuthStateChanged(auth, async(u) => {
+            if (u) {
+                currentUser = u;
+                document.getElementById('auth-ui').classList.add('hidden');
+                document.getElementById('app-ui').classList.remove('hidden');
                 
-                return (
-                    <div className={`flex-1 flex flex-col h-full relative ${isLoveTheme ? 'bg-pink-50' : 'bg-gray-100'}`}>
-                        <div className={`h-16 flex items-center justify-between px-4 shadow-sm ${isLoveTheme ? 'bg-pink-100' : 'bg-white'}`}>
-                            <div className="flex items-center cursor-pointer">
-                                <i className="fas fa-arrow-left md:hidden mr-3" onClick={() => setCurrentChat(null)}></i>
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${isLoveTheme ? 'bg-pink-500' : 'bg-gray-500'}`}>{currentChat.name.charAt(0)}</div>
-                                <div className="ml-3"><h3 className="font-bold text-sm">{currentChat.name}</h3><p className="text-xs text-green-500">Online</p></div>
-                            </div>
-                            <div className="flex items-center gap-4 text-gray-600">
-                                <i className="fas fa-video cursor-pointer" onClick={() => setIsVideoCall(true)}></i>
-                                <div className="relative">
-                                    <button onClick={() => setShowMenu(!showMenu)} className="font-bold tracking-widest">::::</button>
-                                    {showMenu && (
-                                        <div className="absolute right-0 top-8 w-48 bg-white shadow-xl rounded z-50 py-1 text-sm animate-pulse-fast">
-                                            <div className="px-4 py-2 hover:bg-gray-100">Details</div>
-                                            <div className="px-4 py-2 hover:bg-gray-100 text-pink-600 font-bold" onClick={() => alert("Moved to Private!")}>Hide Chat ❤️</div>
-                                            <div className="px-4 py-2 hover:bg-gray-100 text-red-500">Block</div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
+                // Set DP (Initials if empty)
+                const dp = u.photoURL || `https://ui-avatars.com/api/?name=${u.displayName}&background=random`;
+                document.getElementById('my-pic').src = dp;
 
-                        <div className="flex-1 overflow-y-auto p-4 flex flex-col-reverse space-y-2 space-y-reverse scrollbar-hide">
-                            {messages.map((msg) => (
-                                <div key={msg.id} className={`flex flex-col max-w-[75%] ${msg.sender === user.uid ? 'self-end items-end' : 'self-start items-start'}`} onDoubleClick={() => setReplyTo(msg)}>
-                                    <div className={`px-4 py-2 rounded-lg shadow-sm ${msg.sender === user.uid ? (isLoveTheme ? 'bg-pink-500 text-white' : 'bg-blue-600 text-white') : 'bg-white text-gray-800'}`}>
-                                        {msg.replyTo && <div className="text-xs opacity-75 border-l-2 pl-1 mb-1">Reply to: {msg.replyTo.text}</div>}
-                                        <p>{msg.text} {msg.isEdited && <span className="text-[9px] opacity-60">(edited)</span>}</p>
-                                        <div className="flex justify-end gap-1 mt-1 text-[9px] opacity-70">
-                                            <span>10:05</span>
-                                            {msg.sender === user.uid && <i className="fas fa-check-double"></i>}
-                                        </div>
-                                    </div>
-                                    {msg.sender === user.uid && (
-                                        <div className="flex gap-2 text-[9px] text-gray-400 mt-1">
-                                            <button onClick={() => handleEdit(msg)}>Edit</button>
-                                            <button onClick={() => deleteMessage(msg.id, msg.timestamp)}>Delete</button>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
+                // Update Firestore Status
+                await setDoc(doc(db,"users",u.uid), {
+                    uid: u.uid, email: u.email, displayName: u.displayName, 
+                    photoURL: dp, lastSeen: serverTimestamp(), online: true
+                }, { merge: true });
 
-                        <div className={`p-3 flex items-center gap-2 border-t ${isLoveTheme ? 'bg-pink-100' : 'bg-white'}`}>
-                            {(isLoveTheme || isPrivateMode) && (
-                                <div className="cursor-pointer text-xs text-gray-500" onClick={() => setSeenAfterDelete(!seenAfterDelete)}>
-                                    <div className={`w-8 h-4 rounded-full p-0.5 ${seenAfterDelete ? 'bg-pink-500' : 'bg-gray-300'}`}><div className={`w-3 h-3 bg-white rounded-full transition ${seenAfterDelete ? 'translate-x-4' : ''}`}></div></div>
-                                </div>
-                            )}
-                            {replyTo && <div className="text-xs text-blue-500 border-l-2 border-blue-500 pl-2">Replying... <button onClick={() => setReplyTo(null)}>x</button></div>}
-                            <input type="text" value={inputText} onChange={(e) => setInputText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && sendMessage()} placeholder="Type..." className="flex-1 px-4 py-2 rounded-full border outline-none bg-gray-50 text-sm"/>
-                            <button onClick={sendMessage} className="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center"><i className="fas fa-paper-plane"></i></button>
-                        </div>
-                    </div>
-                );
-            };
+                initApp();
+            } else {
+                document.getElementById('auth-ui').classList.remove('hidden');
+            }
+        });
 
-            const VideoCall = () => (
-                <div className="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center text-white">
-                    <div className="absolute top-8 left-8"><h2 className="text-2xl font-bold">{currentChat?.name}</h2><p className="animate-pulse">00:23</p></div>
-                    <div className="text-center animate-pulse"><img src={currentChat?.avatar || "https://via.placeholder.com/150"} className="w-32 h-32 rounded-full mb-4 mx-auto border-4 border-green-500"/>Calling...</div>
-                    <div className="absolute top-8 right-8 w-24 h-36 bg-gray-800 rounded border border-gray-600 flex items-center justify-center text-xs">You</div>
-                    <div className="absolute bottom-10 flex gap-6">
-                        <button onClick={() => setIsMicDenied(!isMicDenied)} className={`p-4 rounded-full ${isMicDenied ? 'bg-white text-black' : 'bg-gray-700'}`}><i className="fas fa-microphone-slash"></i></button>
-                        <button onClick={() => setIsVideoCall(false)} className="p-5 bg-red-600 rounded-full"><i className="fas fa-phone-slash"></i></button>
-                    </div>
-                    {isMicDenied && <div className="absolute top-1/2 bg-red-500 px-4 py-2 rounded">Mic Denied!</div>}
-                </div>
-            );
-
-            // --- RENDER LOGIC ---
-            if (!user) return (
-                <div className="h-screen w-screen flex flex-col items-center justify-center bg-gray-900 text-white">
-                    <h1 className="text-5xl font-serif mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-pink-600">True Chats</h1>
-                    <button onClick={handleLogin} className="bg-white text-gray-900 px-8 py-3 rounded-full font-bold shadow-lg hover:bg-gray-200 transition"><i className="fab fa-google mr-2"></i> Sign in with Google</button>
-                </div>
-            );
-
-            return (
-                <div className={`h-screen w-screen flex flex-col overflow-hidden ${isLoveTheme ? 'love-theme-bg' : 'premium-theme-bg'}`}>
-                    {isVideoCall && <VideoCall />}
-                    {showPasswordModal && (
-                        <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center">
-                            <div className="bg-white p-6 rounded-lg shadow-xl w-72 text-center">
-                                <h2 className="text-lg font-bold mb-4">Enter Password ❤️</h2>
-                                <input type="password" value={passwordInput} onChange={(e) => setPasswordInput(e.target.value)} className="w-full border p-2 mb-4 text-center tracking-widest rounded" placeholder="****"/>
-                                <button onClick={verifyPassword} className="bg-pink-500 text-white px-4 py-2 rounded w-full">Unlock</button>
-                                <button onClick={() => setShowPasswordModal(false)} className="mt-2 text-gray-500 text-xs">Cancel</button>
-                            </div>
-                        </div>
-                    )}
-                    <Header />
-                    {showRequests && <div className="absolute top-16 right-16 w-64 bg-white shadow-xl rounded p-2 z-50 border">{FRIEND_REQUESTS.map(r => <div key={r.id} className="flex justify-between p-2 border-b"><span>{r.name}</span><button className="text-blue-500 text-xs">Accept</button></div>)}</div>}
-                    <div className="flex flex-1 overflow-hidden">
-                        <Sidebar />
-                        <ChatWindow />
-                    </div>
-                </div>
-            );
+        window.doAuth = async (type) => {
+            const e = document.getElementById('u-email').value;
+            const p = document.getElementById('u-pass').value;
+            const n = document.getElementById('reg-name').value;
+            try {
+                if(type === 'reg'){
+                    const res = await createUserWithEmailAndPassword(auth, e, p);
+                    await updateProfile(res.user, { displayName: n });
+                    location.reload();
+                } else {
+                    await signInWithEmailAndPassword(auth, e, p);
+                }
+            } catch(err) { alert(err.message); }
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        // --- THEME & UI ---
+        window.toggleLoveTheme = () => {
+            isLoveTheme = !isLoveTheme;
+            document.body.classList.toggle('love-theme');
+            const icon = document.getElementById('theme-icon');
+            if(isLoveTheme){
+                icon.className = "ri-heart-fill heart-beat";
+                icon.style.color = "white"; // White heart on red bg
+            } else {
+                icon.className = "ri-heart-line";
+                icon.style.color = "var(--text-sec)";
+            }
+        };
+
+        window.toggleMenu = () => {
+            const m = document.getElementById('chat-menu');
+            m.style.display = m.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // --- PRIVACY MODE ---
+        window.togglePrivacyMode = () => {
+            // Check if Password is set (Mock check)
+            modalAction = 'toggle_mode';
+            document.getElementById('pass-modal').style.display = 'flex';
+        };
+
+        window.submitPass = async () => {
+            const pass = document.getElementById('modal-pass').value;
+            // Demo Password is '1234'
+            if(pass === '1234') {
+                const pass = document.getElementById('modal-pass').value;
+            // Demo Password is '1234'
+            if(pass === '1234') {
+                document.getElementById('pass-modal').style.display = 'none';
+                document.getElementById('modal-pass').value = '';
+                
+                if(modalAction === 'toggle_mode') {
+                    isPrivateMode = !isPrivateMode;
+                    const icon = document.getElementById('privacy-eye');
+                    icon.className = isPrivateMode ? "ri-eye-fill" : "ri-eye-off-line";
+                    icon.style.color = isPrivateMode ? "var(--danger)" : "var(--text-sec)";
+                    loadChats(); // Reload list based on mode
+                } else if(modalAction === 'hide_chat') {
+                    // Logic to add user to hidden array in Firestore
+                    await updateDoc(doc(db,"users",currentUser.uid), {
+                        hidden: arrayUnion(currentChatUser.uid)
+                    });
+                    alert("Chat Hidden! Enable Private Mode to view.");
+                    closeChat();
+                }
+            } else {
+                alert("Wrong Password!");
+            }
+        };
+
+        window.hideCurrentChat = () => {
+            modalAction = 'hide_chat';
+            document.getElementById('pass-modal').style.display = 'flex';
+        };
+
+        // --- CHAT LIST ---
+        function initApp() {
+            loadChats();
+            initPeer();
+            // Listen for Requests
+            onSnapshot(doc(db,"users",currentUser.uid), (doc) => {
+                const reqs = doc.data()?.requests || [];
+                document.getElementById('req-dot').style.display = reqs.length > 0 ? 'block' : 'none';
+                if(reqs.length > 0) loadReqs(reqs);
+            });
+        }
+
+        function loadChats() {
+            onSnapshot(doc(db, "users", currentUser.uid), async (snap) => {
+                const data = snap.data();
+                const friendIds = data?.friends || [];
+                const hiddenIds = data?.hidden || [];
+                
+                const list = document.getElementById('view-chats');
+                list.innerHTML = "";
+
+                for (const fid of friendIds) {
+                    // Privacy Filter
+                    if (isPrivateMode) {
+                        if (!hiddenIds.includes(fid)) continue; // Show only hidden
+                    } else {
+                        if (hiddenIds.includes(fid)) continue; // Show only normal
+                    }
+
+                    const fDoc = await getDoc(doc(db, "users", fid));
+                    if (fDoc.exists()) {
+                        const f = fDoc.data();
+                        const div = document.createElement('div');
+                        div.className = 'item';
+                        div.onclick = () => openChat(f);
+                        div.innerHTML = `
+                            <img src="${f.photoURL}" class="avatar">
+                            <div style="flex:1; margin-left:10px;">
+                                <div class="flex" style="justify-content:space-between">
+                                    <b>${f.displayName} ${hiddenIds.includes(fid) ? '❤️' : ''}</b>
+                                    <small style="opacity:0.6">10:00 AM</small>
+                                </div>
+                                <small style="opacity:0.7">Tap to chat...</small>
+                            </div>
+                        `;
+                        list.appendChild(div);
+                    }
+                }
+            });
+        }
+
+        // --- CHAT MESSAGING ---
+        window.openChat = (user) => {
+            currentChatUser = user;
+            chatId = [currentUser.uid, user.uid].sort().join("_");
+            document.getElementById('chat-ui').classList.add('active');
+            
+            document.getElementById('head-name').innerText = user.displayName;
+            document.getElementById('head-dp').src = user.photoURL;
+            document.getElementById('head-status').innerText = user.online ? 'Online' : 'Offline';
+
+            // Load Messages
+            onSnapshot(query(collection(db, "messages"), where("chatId", "==", chatId), orderBy("ts", "asc")), (snap) => {
+                const box = document.getElementById('msg-box');
+                box.innerHTML = "";
+                snap.forEach(doc => {
+                    const m = doc.data();
+                    renderMessage(m, doc.id, box);
+                });
+                box.scrollTop = box.scrollHeight;
+            });
+        };
+
+        function renderMessage(m, id, box) {
+            const isMe = m.from === currentUser.uid;
+            const div = document.createElement('div');
+            div.className = `bubble ${isMe ? 'sent' : 'recv'}`;
+            
+            // Double Click to Reply
+            div.ondblclick = () => {
+                replyToMsg = { id, txt: m.txt };
+                document.getElementById('reply-box').classList.remove('hidden');
+                document.getElementById('reply-txt').innerText = m.txt;
+            };
+
+            // Seen -> Delete Logic
+            if(m.seenDelete && m.to === currentUser.uid && !m.seen){
+               // Mark seen then delete (simulated)
+               updateDoc(doc(db, "messages", id), { seen: true });
+               setTimeout(() => deleteDoc(doc(db, "messages", id)), 2000); 
+            }
+
+            let content = "";
+            if(m.replyTo) content += `<div style="font-size:0.7rem; opacity:0.7; border-left:2px solid white; padding-left:5px; margin-bottom:5px;">Replying: ${m.replyTo.txt}</div>`;
+            content += `${m.txt} ${m.edited ? '<small>(edited)</small>' : ''}`;
+            content += `<div class="msg-info">${new Date(m.ts?.toDate()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} 
+                        ${isMe ? (m.seen ? '<i class="ri-check-double-line" style="color:#93c5fd"></i>' : '<i class="ri-check-line"></i>') : ''}</div>`;
+            
+            div.innerHTML = content;
+            box.appendChild(div);
+        }
+
+        window.sendMsg = async () => {
+            const txt = document.getElementById('msg-input').value;
+            if(!txt) return;
+
+            if(editMsgId) {
+                // Update Message (Edit)
+                await updateDoc(doc(db, "messages", editMsgId), { txt: txt, edited: true });
+                editMsgId = null;
+            } else {
+                // New Message
+                await addDoc(collection(db, "messages"), {
+                    chatId, from: currentUser.uid, to: currentChatUser.uid,
+                    txt, ts: serverTimestamp(), seen: false,
+                    replyTo: replyToMsg, seenDelete: seenDeleteActive
+                });
+            }
+            
+            document.getElementById('msg-input').value = "";
+            cancelReply();
+        };
+
+        window.cancelReply = () => {
+            replyToMsg = null;
+            document.getElementById('reply-box').classList.add('hidden');
+        };
+
+        window.toggleSeenDelete = () => {
+            seenDeleteActive = !seenDeleteActive;
+            const icon = document.getElementById('sd-icon');
+            icon.className = seenDeleteActive ? "ri-eye-line" : "ri-eye-close-line";
+            icon.style.color = seenDeleteActive ? "var(--primary)" : "var(--text-sec)";
+        };
+
+        // --- VIDEO CALL (PeerJS) ---
+        function initPeer() {
+            peer = new Peer(currentUser.uid);
+            peer.on('call', (call) => {
+                activeCall = call;
+                document.getElementById('call-ui').classList.remove('hidden');
+                document.getElementById('inc-btns').classList.remove('hidden');
+                document.getElementById('act-btns').classList.add('hidden');
+                document.getElementById('call-status').innerText = "Incoming Call...";
+                document.getElementById('ring-in').play();
+                
+                window.answerCall = async () => {
+                    document.getElementById('ring-in').pause();
+                    document.getElementById('inc-btns').classList.add('hidden');
+                    document.getElementById('act-btns').classList.remove('hidden');
+                    
+                    try {
+                        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                        document.getElementById('local-vid').srcObject = localStream;
+                        call.answer(localStream);
+                        call.on('stream', (rs) => { document.getElementById('remote-vid').srcObject = rs; });
+                    } catch(e) { alert("Mic/Camera Denied! Check Permissions."); endCall(); }
+                };
+            });
+        }
+
+        window.startCall = async (type) => {
+            document.getElementById('call-ui').classList.remove('hidden');
+            document.getElementById('inc-btns').classList.add('hidden');
+            document.getElementById('act-btns').classList.remove('hidden');
+            document.getElementById('call-name').innerText = currentChatUser.displayName;
+            document.getElementById('ring-out').play();
+
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: type==='video', audio: true });
+                if(type === 'video') document.getElementById('local-vid').srcObject = localStream;
+                
+                const call = peer.call(currentChatUser.uid, localStream);
+                activeCall = call;
+                call.on('stream', (rs) => { 
+                    document.getElementById('ring-out').pause();
+                    document.getElementById('remote-vid').srcObject = rs; 
+                    document.getElementById('call-status').innerText = "Connected";
+                });
+            } catch(e) { alert("Permission Error: " + e.message); endCall(); }
+        };
+
+        window.endCall = () => {
+            if(activeCall) activeCall.close();
+            if(localStream) localStream.getTracks().forEach(t => t.stop());
+            document.getElementById('call-ui').classList.add('hidden');
+            document.getElementById('ring-in').pause();
+            document.getElementById('ring-out').pause();
+            location.reload(); // Quick reset
+        };
+
+        // --- UTILS ---
+        window.closeChat = () => document.getElementById('chat-ui').classList.remove('active');
+        window.loadReqs = async (reqIds) => {
+            const list = document.getElementById('view-reqs');
+            list.innerHTML = "";
+            for(const id of reqIds){
+                const u = (await getDoc(doc(db,"users",id))).data();
+                list.innerHTML += `<div class="item">
+                    <b>${u.displayName}</b>
+                    <button class="btn-main" style="width:auto; padding:5px 15px; margin-left:auto;" onclick="acceptReq('${u.uid}')">Accept</button>
+                </div>`;
+            }
+        };
+        window.acceptReq = async(id) => {
+            await updateDoc(doc(db,"users",currentUser.uid), { friends: arrayUnion(id), requests: arrayRemove(id) });
+            await updateDoc(doc(db,"users",id), { friends: arrayUnion(currentUser.uid) });
+            alert("Friend Added!");
+            location.reload();
+        };
+        window.switchTab = (tab) => {
+            if(tab === 'reqs') {
+                document.getElementById('view-chats').classList.add('hidden');
+                document.getElementById('view-reqs').classList.remove('hidden');
+            }
+        };
+
     </script>
 </body>
 </html>
