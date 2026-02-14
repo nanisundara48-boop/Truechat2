@@ -3,98 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>True Chats Pro Max</title>
+    <title>TrueChats Ultimate</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 
     <style>
-        :root { --primary: #6366f1; --bg: #0f172a; --surface: #1e293b; --text: #f8fafc; }
-        body.love-theme { --primary: #ec4899; --bg: #4a044e; --surface: #831843; }
-        body { background-color: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .msg-sent { background: var(--primary); border-radius: 18px 18px 0 18px; }
-        .msg-recv { background: #334155; border-radius: 18px 18px 18px 0; }
-        @keyframes beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
-        .heart-beat { animation: beat 1s infinite; color: #ff4d94 !important; }
+        :root {
+            --primary: #6366f1; --bg: #0f172a; --surface: #1e293b; 
+            --text: #f8fafc; --sent: #4f46e5; --recv: #334155;
+        }
+        body.love-theme {
+            --primary: #ec4899; --bg: #500724; --surface: #831843; 
+            --sent: #db2777; --recv: #9d174d;
+        }
+        * { font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); color: var(--text); overflow: hidden; transition: background 0.5s; }
+        
+        /* Utils */
+        .hidden { display: none !important; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .center { display: flex; justify-content: center; align-items: center; }
+        .scroll-hide::-webkit-scrollbar { display: none; }
+        
+        /* Message Bubbles */
+        .msg-sent { background: var(--sent); border-radius: 18px 18px 0 18px; margin-left: auto; }
+        .msg-recv { background: var(--recv); border-radius: 18px 18px 18px 0; margin-right: auto; }
+        
+        /* Animations */
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        .animate-ring { animation: pulse-red 1.5s infinite; }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950">
-        <div class="glass p-8 rounded-2xl w-full max-w-sm text-center">
-            <h1 class="text-3xl font-bold text-indigo-400 mb-6">True Chats</h1>
-            <input id="u-email" type="email" placeholder="Email" class="w-full p-3 mb-3 rounded-lg bg-slate-800 border border-slate-700 outline-none">
-            <input id="u-pass" type="password" placeholder="Password" class="w-full p-3 mb-4 rounded-lg bg-slate-800 border border-slate-700 outline-none">
-            <div id="signup-fields" class="hidden">
-                <input id="u-name" type="text" placeholder="Display Name" class="w-full p-3 mb-4 rounded-lg bg-slate-800 border border-slate-700 outline-none">
+    <audio id="ring-out" src="https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3" loop></audio>
+    <audio id="ring-in" src="https://assets.mixkit.co/active_storage/sfx/2346/2346-preview.mp3" loop></audio>
+
+    <div id="auth-screen" class="fixed inset-0 z-50 center bg-slate-950 bg-[url('https://source.unsplash.com/random/1920x1080/?abstract')] bg-cover bg-blend-overlay">
+        <div class="glass p-8 rounded-2xl w-full max-w-sm text-center shadow-2xl">
+            <h1 class="text-4xl font-bold text-indigo-400 mb-2">TrueChats</h1>
+            <p class="text-slate-400 mb-6 text-sm">Secure. Private. Yours.</p>
+            
+            <div id="login-form">
+                <input id="l-email" type="email" placeholder="Email" class="w-full p-3 mb-3 bg-slate-800/50 rounded-lg outline-none border border-slate-700 focus:border-indigo-500 text-white">
+                <input id="l-pass" type="password" placeholder="Password" class="w-full p-3 mb-4 bg-slate-800/50 rounded-lg outline-none border border-slate-700 focus:border-indigo-500 text-white">
+                <button onclick="handleAuth('login')" class="w-full bg-indigo-600 hover:bg-indigo-700 py-3 rounded-lg font-bold transition">Login</button>
+                <p class="mt-4 text-sm cursor-pointer hover:text-indigo-400" onclick="toggleForms()">New User? Create Account</p>
             </div>
-            <button onclick="handleAuth('login')" id="btn-main" class="w-full bg-indigo-600 py-3 rounded-lg font-bold mb-3">Login</button>
-            <button onclick="toggleAuthMode()" id="btn-toggle" class="text-indigo-400 text-sm">Create Account</button>
+
+            <div id="reg-form" class="hidden">
+                <input id="r-name" type="text" placeholder="Display Name" class="w-full p-3 mb-3 bg-slate-800/50 rounded-lg outline-none border border-slate-700 text-white">
+                <input id="r-email" type="email" placeholder="Email" class="w-full p-3 mb-3 bg-slate-800/50 rounded-lg outline-none border border-slate-700 text-white">
+                <input id="r-pass" type="password" placeholder="Password" class="w-full p-3 mb-4 bg-slate-800/50 rounded-lg outline-none border border-slate-700 text-white">
+                <button onclick="handleAuth('reg')" class="w-full bg-indigo-600 hover:bg-indigo-700 py-3 rounded-lg font-bold transition">Sign Up</button>
+                <p class="mt-4 text-sm cursor-pointer hover:text-indigo-400" onclick="toggleForms()">Back to Login</p>
+            </div>
         </div>
     </div>
 
-    <div id="app-screen" class="hidden h-screen flex flex-col">
-        <div class="h-16 border-b border-slate-800 flex items-center justify-between px-4 bg-slate-900">
-            <h2 class="text-xl font-bold">Chats</h2>
-            <div class="flex gap-4 text-xl">
-                <i class="ri-user-search-line cursor-pointer" onclick="showSearch()"></i>
-                <i id="theme-icon" class="ri-heart-line cursor-pointer" onclick="toggleTheme()"></i>
-                <i class="ri-eye-off-line cursor-pointer" onclick="togglePrivacy()"></i>
-            </div>
-        </div>
-        <div id="chat-list" class="flex-1 overflow-y-auto p-2 space-y-2"></div>
-    </div>
-
-    <div id="chat-view" class="fixed inset-0 bg-slate-950 z-40 hidden flex flex-col">
-        <div class="h-16 border-b border-slate-800 flex items-center justify-between px-4 bg-slate-900">
-            <div class="flex items-center gap-3">
-                <i class="ri-arrow-left-line text-2xl" onclick="closeChat()"></i>
-                <div class="leading-tight">
-                    <h3 id="chat-header-name" class="font-bold">User</h3>
-                    <span id="chat-header-status" class="text-xs text-slate-400">offline</span>
+    <div id="app-screen" class="hidden h-screen w-full flex flex-col md:flex-row">
+        
+        <div class="w-full md:w-1/3 lg:w-1/4 h-full flex flex-col border-r border-slate-800 bg-slate-900 z-10">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="editProfile()">
+                    <img id="my-dp" src="" class="w-10 h-10 rounded-full border border-slate-600 object-cover">
+                    <div>
+                        <h3 id="my-name" class="font-bold text-sm">User</h3>
+                        <p class="text-[10px] text-green-400">● Online</p>
+                    </div>
+                </div>
+                <div class="flex gap-4 text-lg text-slate-400">
+                    <i class="ri-user-add-line hover:text-white cursor-pointer" onclick="showSearch()"></i>
+                    <i id="theme-btn" class="ri-heart-line hover:text-pink-500 cursor-pointer" onclick="toggleTheme()"></i>
+                    <i id="privacy-btn" class="ri-eye-off-line hover:text-white cursor-pointer" onclick="togglePrivacy()"></i>
+                    <i class="ri-logout-box-r-line hover:text-red-500 cursor-pointer" onclick="logout()"></i>
                 </div>
             </div>
-            <div class="flex gap-4 text-2xl text-indigo-400">
-                <i class="ri-phone-fill" onclick="initiateCall('audio')"></i>
-                <i class="ri-vidicon-fill" onclick="initiateCall('video')"></i>
-                <div class="relative group">
-                    <button onclick="toggleChatMenu()" class="font-bold">::::</button>
-                    <div id="chat-menu" class="hidden absolute right-0 top-8 w-40 glass rounded-lg text-sm text-white">
-                        <div class="p-3 border-b border-slate-700" onclick="hideChat()">Hide Chat ❤️</div>
-                        <div class="p-3 text-red-400" onclick="blockUser()">Block</div>
+
+            <div class="flex p-2 gap-2 bg-slate-900">
+                <button onclick="switchTab('chats')" class="flex-1 py-2 text-xs font-bold bg-slate-800 rounded hover:bg-indigo-600 transition">CHATS</button>
+                <button onclick="switchTab('reqs')" class="flex-1 py-2 text-xs font-bold bg-slate-800 rounded hover:bg-indigo-600 transition">REQUESTS</button>
+            </div>
+
+            <div id="list-container" class="flex-1 overflow-y-auto p-2 space-y-2 scroll-hide">
+                </div>
+        </div>
+
+        <div id="chat-screen" class="fixed inset-0 md:static flex-1 bg-slate-950 flex flex-col transform translate-x-full md:translate-x-0 transition-transform duration-300 z-20">
+            <div class="h-16 border-b border-slate-800 flex items-center justify-between px-4 bg-slate-900/80 backdrop-blur">
+                <div class="flex items-center gap-3">
+                    <i class="ri-arrow-left-line text-2xl md:hidden cursor-pointer" onclick="closeChat()"></i>
+                    <img id="chat-dp" src="" class="w-10 h-10 rounded-full border border-slate-600 object-cover">
+                    <div onclick="showUserInfo()" class="cursor-pointer">
+                        <h3 id="chat-name" class="font-bold">User</h3>
+                        <p id="chat-status" class="text-xs text-slate-400">Offline</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-5 text-xl text-indigo-400">
+                    <i class="ri-phone-fill cursor-pointer hover:text-white" onclick="startCall('audio')"></i>
+                    <i class="ri-vidicon-fill cursor-pointer hover:text-white" onclick="startCall('video')"></i>
+                    <div class="relative">
+                        <i class="ri-more-2-fill cursor-pointer hover:text-white" onclick="document.getElementById('chat-menu').classList.toggle('hidden')"></i>
+                        <div id="chat-menu" class="hidden absolute right-0 top-8 w-48 bg-slate-800 border border-slate-700 rounded-lg shadow-xl text-sm text-slate-200 overflow-hidden z-50">
+                            <div class="p-3 hover:bg-slate-700 cursor-pointer flex gap-2" onclick="hideChat()"><i class="ri-eye-off-fill"></i> Hide Chat ❤️</div>
+                            <div class="p-3 hover:bg-slate-700 cursor-pointer flex gap-2" onclick="clearChat()"><i class="ri-delete-bin-line"></i> Clear Chat</div>
+                            <div class="p-3 hover:bg-slate-700 cursor-pointer flex gap-2 text-red-400" onclick="blockUser()"><i class="ri-prohibited-line"></i> Block User</div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div id="msg-box" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
-        <div class="p-3 bg-slate-900 flex items-center gap-2">
-            <input id="msg-input" type="text" placeholder="Type message..." class="flex-1 bg-slate-800 p-3 rounded-full outline-none border border-slate-700">
-            <button onclick="sendMsg()" class="bg-indigo-600 p-3 rounded-full"><i class="ri-send-plane-fill"></i></button>
+
+            <div id="msg-container" class="flex-1 overflow-y-auto p-4 space-y-2 bg-[url('https://i.pinimg.com/originals/97/c0/07/97c00759d90d786d9b6096d274ad3e07.png')] bg-opacity-5 bg-fixed"></div>
+
+            <div class="p-3 bg-slate-900 border-t border-slate-800 flex items-center gap-2">
+                <input id="msg-input" type="text" placeholder="Type message..." class="flex-1 bg-slate-800 text-white rounded-full px-4 py-3 outline-none border border-slate-700 focus:border-indigo-500 transition" onkeypress="if(event.key==='Enter') sendMsg()">
+                <div onclick="toggleSeenDel()" class="cursor-pointer p-2 rounded-full hover:bg-slate-800">
+                    <i id="sd-icon" class="ri-eye-off-line text-slate-500 text-xl"></i>
+                </div>
+                <button onclick="sendMsg()" class="bg-indigo-600 p-3 rounded-full text-white shadow-lg hover:scale-105 transition"><i class="ri-send-plane-fill"></i></button>
+            </div>
         </div>
     </div>
 
-    <div id="call-overlay" class="fixed inset-0 bg-black z-[100] hidden flex flex-col items-center justify-center">
-        <div class="text-center mb-10">
-            <h2 id="call-user-name" class="text-3xl font-bold mb-2">User</h2>
-            <p id="call-status" class="text-indigo-400 animate-pulse">Calling...</p>
+    <div id="call-ui" class="fixed inset-0 z-50 bg-black hidden flex-col items-center justify-center">
+        <div class="absolute top-10 text-center z-10">
+            <h2 id="call-u-name" class="text-3xl font-bold mb-2">User</h2>
+            <p id="call-status" class="text-indigo-400 animate-pulse">Connecting...</p>
         </div>
-        <video id="remote-video" autoplay class="w-full h-1/2 object-cover bg-slate-900 mb-4"></video>
-        <video id="local-video" autoplay muted class="absolute top-4 right-4 w-24 h-32 rounded-lg border border-white object-cover"></video>
-        <div class="flex gap-10">
-            <button onclick="acceptCall()" id="accept-btn" class="hidden bg-green-500 p-5 rounded-full text-3xl"><i class="ri-phone-fill"></i></button>
-            <button onclick="endCall()" class="bg-red-500 p-5 rounded-full text-3xl"><i class="ri-phone-fill rotate-[135deg]"></i></button>
+        
+        <video id="remote-vid" autoplay class="w-full h-full object-cover absolute inset-0"></video>
+        <video id="local-vid" autoplay muted class="w-32 h-48 bg-slate-800 border-2 border-white rounded-xl absolute top-5 right-5 object-cover z-20"></video>
+
+        <div class="absolute bottom-10 flex gap-10 z-30">
+            <div id="inc-btns" class="hidden gap-8">
+                <button onclick="rejectCall()" class="w-16 h-16 bg-red-600 rounded-full text-2xl flex items-center justify-center animate-bounce"><i class="ri-phone-fill rotate-[135deg]"></i></button>
+                <button onclick="answerCall()" class="w-16 h-16 bg-green-500 rounded-full text-2xl flex items-center justify-center animate-ring"><i class="ri-phone-fill"></i></button>
+            </div>
+            <div id="act-btns" class="hidden gap-6">
+                <button onclick="toggleMute()" class="w-14 h-14 bg-slate-700 rounded-full text-xl"><i class="ri-mic-fill"></i></button>
+                <button onclick="endCall()" class="w-16 h-16 bg-red-600 rounded-full text-2xl"><i class="ri-phone-fill rotate-[135deg]"></i></button>
+                <button onclick="toggleCam()" class="w-14 h-14 bg-slate-700 rounded-full text-xl"><i class="ri-camera-fill"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="search-modal" class="fixed inset-0 bg-black/80 z-40 hidden center backdrop-blur-sm">
+        <div class="bg-slate-900 p-6 rounded-xl w-80 border border-slate-700">
+            <h3 class="text-xl font-bold mb-4">Add Friend</h3>
+            <input id="search-email" placeholder="Enter user email..." class="w-full p-2 mb-4 bg-slate-800 rounded outline-none border border-slate-700">
+            <div class="flex gap-2">
+                <button onclick="document.getElementById('search-modal').classList.add('hidden')" class="flex-1 py-2 bg-slate-800 rounded">Cancel</button>
+                <button onclick="sendRequest()" class="flex-1 py-2 bg-indigo-600 rounded font-bold">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="pass-modal" class="fixed inset-0 bg-black/90 z-50 hidden center">
+        <div class="bg-slate-900 p-8 rounded-2xl border border-pink-500 text-center w-80">
+            <i class="ri-lock-2-fill text-4xl text-pink-500 mb-2"></i>
+            <h3 class="text-xl font-bold mb-4">Privacy Lock</h3>
+            <input id="pass-inp" type="password" maxlength="4" placeholder="PIN" class="w-full text-center text-3xl tracking-[10px] bg-slate-800 p-3 rounded-lg mb-4 outline-none">
+            <button onclick="checkPass()" class="w-full bg-pink-600 py-3 rounded-lg font-bold">Unlock</button>
+            <button onclick="document.getElementById('pass-modal').classList.add('hidden')" class="mt-4 text-sm text-slate-400">Cancel</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, onSnapshot, serverTimestamp, doc, setDoc, getDoc, orderBy, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, where, onSnapshot, serverTimestamp, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // --- FIREBASE CONFIG (Updated from screenshot 66663.jpg) ---
+        // FIREBASE CONFIG (From 66663.jpg)
         const firebaseConfig = {
             apiKey: "AIzaSyCAsCm1YcsAjHwyvIzxyMrBmZPLw2hlo18",
             authDomain: "truechats-8dac9.firebaseapp.com",
@@ -109,60 +191,161 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let currentUser = null, currentChat = null, peer = null, localStream = null, activeCall = null;
+        // STATE
+        let me = null, chatUser = null, peer = null, localStream = null, activeCall = null;
+        let isPrivate = false, isLove = false, seenDel = false;
 
-        // AUTH
-        window.handleAuth = async (mode) => {
-            const email = document.getElementById('u-email').value, pass = document.getElementById('u-pass').value;
-            try {
-                if (mode === 'reg') {
-                    const res = await createUserWithEmailAndPassword(auth, email, pass);
-                    await setDoc(doc(db, "users", res.user.uid), { 
-                        uid: res.user.uid, email, displayName: document.getElementById('u-name').value, friends: [], hidden: [] 
-                    });
-                } else { await signInWithEmailAndPassword(auth, email, pass); }
-            } catch (err) { alert(err.message); }
+        // --- AUTH ---
+        window.toggleForms = () => {
+            document.getElementById('login-form').classList.toggle('hidden');
+            document.getElementById('reg-form').classList.toggle('hidden');
         };
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
+        window.handleAuth = async (type) => {
+            try {
+                if(type === 'reg'){
+                    const n = document.getElementById('r-name').value;
+                    const e = document.getElementById('r-email').value;
+                    const p = document.getElementById('r-pass').value;
+                    const res = await createUserWithEmailAndPassword(auth, e, p);
+                    const dp = `https://ui-avatars.com/api/?name=${n}&background=random`;
+                    await updateProfile(res.user, { displayName: n, photoURL: dp });
+                    await setDoc(doc(db, "users", res.user.uid), {
+                        uid: res.user.uid, email: e.toLowerCase(), displayName: n, photoURL: dp,
+                        friends: [], requests: [], hidden: [], pin: '1234'
+                    });
+                } else {
+                    const e = document.getElementById('l-email').value;
+                    const p = document.getElementById('l-pass').value;
+                    await signInWithEmailAndPassword(auth, e, p);
+                }
+            } catch(e) { alert(e.message); }
+        };
+
+        onAuthStateChanged(auth, (u) => {
+            if(u){
+                me = u;
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('app-screen').classList.remove('hidden');
+                document.getElementById('my-dp').src = u.photoURL;
+                document.getElementById('my-name').innerText = u.displayName;
                 initApp();
+            } else {
+                document.getElementById('auth-screen').classList.remove('hidden');
+                document.getElementById('app-screen').classList.add('hidden');
             }
         });
 
-        function initApp() {
-            onSnapshot(doc(db, "users", currentUser.uid), async (snap) => {
-                const data = snap.data();
-                const list = document.getElementById('chat-list'); list.innerHTML = "";
-                for (const id of data.friends || []) {
-                    const f = (await getDoc(doc(db, "users", id))).data();
-                    const div = document.createElement('div');
-                    div.className = "p-4 glass rounded-xl flex justify-between items-center cursor-pointer";
-                    div.onclick = () => openChat(f);
-                    div.innerHTML = `<div><h4 class="font-bold">${f.displayName}</h4><p class="text-xs text-slate-400">Online</p></div><i class="ri-arrow-right-s-line"></i>`;
-                    list.appendChild(div);
-                }
-            });
+        window.logout = () => signOut(auth);
+
+        // --- APP LOGIC ---
+        function initApp(){
             initPeer();
+            loadChats();
         }
 
-        // CHAT
-        window.openChat = (user) => {
-            currentChat = user;
-            document.getElementById('chat-view').classList.remove('hidden');
-            document.getElementById('chat-header-name').innerText = user.displayName;
-            const chatId = [currentUser.uid, user.uid].sort().join("_");
+        // TABS & LISTS
+        window.switchTab = (tab) => {
+            const list = document.getElementById('list-container');
+            list.innerHTML = "";
+            
+            if(tab === 'chats'){
+                onSnapshot(doc(db, "users", me.uid), async (s) => {
+                    const d = s.data();
+                    const friends = d.friends || [];
+                    const hidden = d.hidden || [];
+                    
+                    list.innerHTML = "";
+                    for(const id of friends){
+                        if(isPrivate && !hidden.includes(id)) continue;
+                        if(!isPrivate && hidden.includes(id)) continue;
+
+                        const u = (await getDoc(doc(db, "users", id))).data();
+                        const div = document.createElement('div');
+                        div.className = "flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 cursor-pointer";
+                        div.onclick = () => openChat(u);
+                        div.innerHTML = `
+                            <img src="${u.photoURL}" class="w-12 h-12 rounded-full object-cover">
+                            <div><h4 class="font-bold">${u.displayName} ${hidden.includes(id)?'❤️':''}</h4><p class="text-xs text-slate-400">Tap to chat</p></div>
+                        `;
+                        list.appendChild(div);
+                    }
+                });
+            } else {
+                onSnapshot(doc(db, "users", me.uid), async (s) => {
+                    const reqs = s.data().requests || [];
+                    list.innerHTML = "";
+                    for(const id of reqs){
+                        const u = (await getDoc(doc(db, "users", id))).data();
+                        const div = document.createElement('div');
+                        div.className = "flex justify-between items-center p-3 bg-slate-800 rounded-xl mb-2";
+                        div.innerHTML = `
+                            <span class="font-bold">${u.displayName}</span>
+                            <button onclick="acceptReq('${u.uid}')" class="bg-green-500 px-3 py-1 rounded text-xs font-bold">Accept</button>
+                        `;
+                        list.appendChild(div);
+                    }
+                });
+            }
+        }
+
+        window.loadChats = () => window.switchTab('chats');
+
+        // REQUESTS
+        window.showSearch = () => document.getElementById('search-modal').classList.remove('hidden');
+        window.sendRequest = async () => {
+            const email = document.getElementById('search-email').value.toLowerCase();
+            const q = query(collection(db, "users"), where("email", "==", email));
+            const snap = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js").then(m=>m.getDocs(q)); // Dynamic import for getDocs
+            
+            if(!snap.empty){
+                const uid = snap.docs[0].id;
+                await updateDoc(doc(db, "users", uid), { requests: arrayUnion(me.uid) });
+                alert("Request Sent!");
+                document.getElementById('search-modal').classList.add('hidden');
+            } else { alert("User not found!"); }
+        };
+
+        window.acceptReq = async (id) => {
+            await updateDoc(doc(db, "users", me.uid), { friends: arrayUnion(id), requests: arrayRemove(id) });
+            await updateDoc(doc(db, "users", id), { friends: arrayUnion(me.uid) });
+            alert("Friend Added!");
+            loadChats();
+        };
+
+        // --- CHAT ---
+        window.openChat = (u) => {
+            chatUser = u;
+            document.getElementById('chat-screen').classList.remove('translate-x-full');
+            document.getElementById('chat-name').innerText = u.displayName;
+            document.getElementById('chat-dp').src = u.photoURL;
+            
+            const chatId = [me.uid, u.uid].sort().join("_");
             const q = query(collection(db, "messages"), where("chatId", "==", chatId), orderBy("ts", "asc"));
+            
             onSnapshot(q, (snap) => {
-                const box = document.getElementById('msg-box'); box.innerHTML = "";
+                const box = document.getElementById('msg-container');
+                box.innerHTML = "";
                 snap.forEach(d => {
-                    const m = d.data(), isMe = m.from === currentUser.uid;
+                    const m = d.data();
+                    const isMe = m.from === me.uid;
+                    
+                    // Seen Delete Logic
+                    if(m.seenDel && !isMe && !m.seen){
+                        updateDoc(doc(db, "messages", d.id), { seen: true });
+                        setTimeout(() => deleteDoc(doc(db, "messages", d.id)), 2000);
+                    }
+
                     const div = document.createElement('div');
-                    div.className = `flex ${isMe ? 'justify-end' : 'justify-start'}`;
-                    div.innerHTML = `<div class="p-3 max-w-[80%] ${isMe ? 'msg-sent' : 'msg-recv'}">${m.txt}</div>`;
+                    div.className = `p-3 max-w-[75%] text-white shadow-sm ${isMe ? 'msg-sent' : 'msg-recv'}`;
+                    div.innerHTML = `<p>${m.txt}</p><small class="opacity-50 text-[10px] block text-right mt-1">${m.ts?.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})||'...'}</small>`;
+                    
+                    // Edit/Delete (Simple Prompt)
+                    if(isMe) {
+                        div.ondblclick = () => {
+                            if(confirm("Delete this message?")) deleteDoc(doc(db, "messages", d.id));
+                        }
+                    }
                     box.appendChild(div);
                 });
                 box.scrollTop = box.scrollHeight;
@@ -171,86 +354,118 @@
 
         window.sendMsg = async () => {
             const txt = document.getElementById('msg-input').value;
-            if (!txt) return;
-            const chatId = [currentUser.uid, currentChat.uid].sort().join("_");
-            await addDoc(collection(db, "messages"), { chatId, from: currentUser.uid, txt, ts: serverTimestamp() });
+            if(!txt) return;
+            const chatId = [me.uid, chatUser.uid].sort().join("_");
+            await addDoc(collection(db, "messages"), {
+                chatId, from: me.uid, to: chatUser.uid, txt, ts: serverTimestamp(), seenDel: seenDel, seen: false
+            });
             document.getElementById('msg-input').value = "";
         };
 
-        // CALL LOGIC (DIRECT CALL FIX)
-        function initPeer() {
-            peer = new Peer(currentUser.uid);
+        window.closeChat = () => document.getElementById('chat-screen').classList.add('translate-x-full');
+        window.toggleSeenDel = () => {
+            seenDel = !seenDel;
+            document.getElementById('sd-icon').className = seenDel ? "ri-eye-line text-indigo-500 text-xl" : "ri-eye-off-line text-slate-500 text-xl";
+        };
+
+        // --- CALLS (PeerJS) ---
+        function initPeer(){
+            peer = new Peer(me.uid);
             peer.on('call', (call) => {
                 activeCall = call;
-                document.getElementById('call-overlay').classList.remove('hidden');
-                document.getElementById('accept-btn').classList.remove('hidden');
+                document.getElementById('call-ui').classList.remove('hidden');
+                document.getElementById('inc-btns').classList.remove('hidden');
+                document.getElementById('act-btns').classList.add('hidden');
                 document.getElementById('call-status').innerText = "Incoming Call...";
+                document.getElementById('ring-in').play();
+                
+                // Fetch caller name
                 getDoc(doc(db, "users", call.peer)).then(s => {
-                    document.getElementById('call-user-name').innerText = s.data().displayName;
+                    document.getElementById('call-u-name').innerText = s.data().displayName;
                 });
             });
         }
 
-        window.initiateCall = async (type) => {
-            document.getElementById('call-overlay').classList.remove('hidden');
-            document.getElementById('call-user-name').innerText = currentChat.displayName;
+        window.startCall = async (type) => {
+            document.getElementById('call-ui').classList.remove('hidden');
+            document.getElementById('inc-btns').classList.add('hidden');
+            document.getElementById('act-btns').classList.remove('hidden');
+            document.getElementById('call-u-name').innerText = chatUser.displayName;
             document.getElementById('call-status').innerText = "Calling...";
+            document.getElementById('ring-out').play();
+
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: type==='video', audio: true });
+                if(type === 'video') document.getElementById('local-vid').srcObject = localStream;
+                
+                const call = peer.call(chatUser.uid, localStream);
+                activeCall = call;
+                
+                call.on('stream', (remStream) => {
+                    document.getElementById('ring-out').pause();
+                    document.getElementById('call-status').innerText = "Connected";
+                    document.getElementById('remote-vid').srcObject = remStream;
+                });
+            } catch(e) { alert("Mic Permission Error!"); endCall(); }
+        };
+
+        window.answerCall = async () => {
+            document.getElementById('ring-in').pause();
+            document.getElementById('inc-btns').classList.add('hidden');
+            document.getElementById('act-btns').classList.remove('hidden');
             
-            localStream = await navigator.mediaDevices.getUserMedia({ video: type === 'video', audio: true });
-            document.getElementById('local-video').srcObject = localStream;
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            document.getElementById('local-vid').srcObject = localStream;
             
-            const call = peer.call(currentChat.uid, localStream);
-            activeCall = call;
-            call.on('stream', (rs) => {
+            activeCall.answer(localStream);
+            activeCall.on('stream', (remStream) => {
                 document.getElementById('call-status').innerText = "Connected";
-                document.getElementById('remote-video').srcObject = rs;
+                document.getElementById('remote-vid').srcObject = remStream;
             });
         };
 
-        window.acceptCall = async () => {
-            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            document.getElementById('local-video').srcObject = localStream;
-            activeCall.answer(localStream);
-            document.getElementById('accept-btn').classList.add('hidden');
-            activeCall.on('stream', (rs) => {
-                document.getElementById('call-status').innerText = "Connected";
-                document.getElementById('remote-video').srcObject = rs;
-            });
+        window.rejectCall = () => {
+            document.getElementById('ring-in').pause();
+            if(activeCall) activeCall.close();
+            document.getElementById('call-ui').classList.add('hidden');
         };
 
         window.endCall = () => {
-            if (activeCall) activeCall.close();
-            if (localStream) localStream.getTracks().forEach(t => t.stop());
-            document.getElementById('call-overlay').classList.add('hidden');
+            if(activeCall) activeCall.close();
+            if(localStream) localStream.getTracks().forEach(t => t.stop());
+            document.getElementById('ring-out').pause();
+            document.getElementById('call-ui').classList.add('hidden');
+            location.reload();
         };
 
-        // UI HELPERS
+        // --- PRIVACY & THEMES ---
         window.toggleTheme = () => {
-            const body = document.body;
-            body.classList.toggle('love-theme');
-            const icon = document.getElementById('theme-icon');
-            icon.className = body.classList.contains('love-theme') ? "ri-heart-fill heart-beat" : "ri-heart-line";
+            isLove = !isLove;
+            document.body.classList.toggle('love-theme');
+            document.getElementById('theme-btn').className = isLove ? "ri-heart-fill text-white animate-pulse" : "ri-heart-line hover:text-pink-500";
         };
-        window.closeChat = () => document.getElementById('chat-view').classList.add('hidden');
-        window.toggleAuthMode = () => {
-            const fields = document.getElementById('signup-fields');
-            const btn = document.getElementById('btn-main'), toggle = document.getElementById('btn-toggle');
-            if (fields.classList.contains('hidden')) {
-                fields.classList.remove('hidden');
-                btn.innerText = "Create Account"; toggle.innerText = "Back to Login";
-                window.authMode = 'reg';
-            } else {
-                fields.classList.add('hidden');
-                btn.innerText = "Login"; toggle.innerText = "Create Account";
-                window.authMode = 'login';
-            }
+
+        window.togglePrivacy = () => document.getElementById('pass-modal').classList.remove('hidden');
+        
+        window.checkPass = () => {
+            const p = document.getElementById('pass-inp').value;
+            if(p === '1234') { // Default PIN
+                isPrivate = !isPrivate;
+                document.getElementById('privacy-btn').className = isPrivate ? "ri-eye-fill text-pink-500" : "ri-eye-off-line";
+                document.getElementById('pass-modal').classList.add('hidden');
+                document.getElementById('pass-inp').value = "";
+                loadChats();
+            } else { alert("Wrong PIN!"); }
         };
-        window.handleAuth = (mode) => {
-            const finalMode = window.authMode || mode;
-            window.handleAuthMain(finalMode);
+
+        window.hideChat = async () => {
+            await updateDoc(doc(db, "users", me.uid), { hidden: arrayUnion(chatUser.uid) });
+            alert("Chat Hidden! Enable Private Mode to view.");
+            closeChat();
+            loadChats();
         };
-        window.handleAuthMain = window.handleAuth;
-        window.toggleChatMenu = () => document.getElementById('chat-menu').classList.toggle('hidden');
+
     </script>
 </body>
 </html>
+                
