@@ -93,6 +93,60 @@
             overflow: hidden;
             border: 2px solid var(--accent);
         }
+        <head>
+    <meta charset="UTF-8">
+    <title>True Chats</title>
+    
+    <style>
+        /* ... Ikkada nee patha CSS code untundi (Glass effect, Body colors etc) ... */
+        
+        .glass { ... }
+        .hidden { ... }
+
+        /* 👇👇👇 KOTHA CSS CODE IKKADA PASTE CHEY 👇👇👇 */
+
+        /* --- TYPING BUBBLE STYLES --- */
+        .typing-box {
+            display: none;
+            align-items: center;
+            padding: 10px 15px;
+            margin-left: 10px;
+            margin-bottom: 5px;
+            border-radius: 20px;
+            width: fit-content;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .typing-public {
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+        }
+
+        .typing-love {
+            background: rgba(255, 0, 85, 0.1);
+            color: #ff0055;
+            border: 1px solid rgba(255, 0, 85, 0.4);
+            box-shadow: 0 0 10px rgba(255, 0, 85, 0.2);
+        }
+
+        .typing-dot {
+            width: 6px; height: 6px;
+            background: currentColor;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typeBounce 1.4s infinite ease-in-out both;
+        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typeBounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
     </style>
 </head>
 <body class="theme-light h-screen w-screen flex flex-col transition-colors duration-500">
@@ -368,56 +422,54 @@
 
         // --- CHAT LIST (With Unseen Indicator) ---
         window.loadChats = function() {
-            const list = document.getElementById('chatList');
-            const q = query(collection(db, "chats"), where("participants", "array-contains", currentUser.uid));
+    const list = document.getElementById('chatList');
+    const q = query(collection(db, "chats"), where("participants", "array-contains", currentUser.uid));
+    
+    onSnapshot(q, (snapshot) => {
+        // IDHI PATHA DATA NI CLEAR CHESTHUNDI (Duplicates Fix)
+        list.innerHTML = ""; 
+        
+        if (snapshot.empty) {
+            list.innerHTML = '<div class="text-center mt-10 opacity-60">No chats yet.</div>';
+            return;
+        }
+
+        snapshot.forEach(async (d) => {
+            const chat = d.data();
+            const otherUid = chat.participants.find(id => id !== currentUser.uid);
+            const uSnap = await getDoc(doc(db, "users", otherUid));
+            const uData = uSnap.data() || {username: "Unknown", photoURL: ""};
             
-            onSnapshot(q, (snapshot) => {
-                list.innerHTML = "";
-                if(snapshot.empty) {
-                    list.innerHTML = '<div class="text-center mt-10 opacity-60">No chats yet.<br>Use search to find friends.</div>';
-                    return;
-                }
+            const isUnseen = chat.lastSender !== currentUser.uid && chat.isSeen === false;
 
-                let chats = [];
-                snapshot.forEach(d => chats.push({id: d.id, ...d.data()}));
-                chats.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
-
-                chats.forEach(async chat => {
-                    if(chat.isHidden && !isLoveMode) return;
-                    
-                    const otherUid = chat.participants.find(id => id !== currentUser.uid);
-                    const uSnap = await getDoc(doc(db, "users", otherUid));
-                    const uData = uSnap.data() || {username: "Unknown", photoURL: ""};
-
-                    const isUnseen = chat.lastSender !== currentUser.uid && chat.isSeen === false;
-
-                    const div = document.createElement('div');
-                    div.className = "glass p-3 rounded-xl flex items-center gap-3 cursor-pointer mb-2 transform transition hover:scale-[1.02]";
-                    div.innerHTML = `
-                        <div class="relative">
-                            <img src="${uData.photoURL}" class="w-12 h-12 rounded-full bg-white border border-gray-200">
-                            ${isUnseen ? '<div class="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>' : ''}
-                        </div>
-                        <div class="flex-1 overflow-hidden">
-                            <div class="flex justify-between items-center">
-                                <h4 class="font-bold truncate" style="color: var(--text-main);">${uData.username}</h4>
-                                <span class="text-[10px] ${isUnseen ? 'text-green-600 font-bold' : 'opacity-60'} font-mono" style="color: var(--text-main);">
-                                    ${new Date((chat.timestamp?.seconds || 0) * 1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
-                                </span>
-                            </div>
-                            <div class="flex justify-between items-center mt-1">
-                                <p class="text-sm truncate ${isUnseen ? 'font-bold text-gray-900' : 'opacity-80'}" style="color: var(--text-main);">
-                                    ${chat.lastMessage || 'New Chat'}
-                                </p>
-                                ${isUnseen ? '<span class="bg-green-500 text-white text-[9px] px-2 py-0.5 rounded-full shadow-sm">New</span>' : ''}
-                            </div>
-                        </div>
-                        ${chat.isHidden ? '<i class="fa-solid fa-heart text-pink-500 text-xs animate-pulse ml-2"></i>' : ''}
-                    `;
-                    div.onclick = () => openChat(chat.id, uData);
-                    list.appendChild(div);
-                });
-            });
+            const div = document.createElement('div');
+            div.className = "glass p-3 rounded-xl flex items-center gap-3 cursor-pointer mb-2 transform transition hover:scale-[1.02]";
+            div.innerHTML = `
+                <div class="relative">
+                    <img src="${uData.photoURL}" class="w-12 h-12 rounded-full bg-white border border-gray-200">
+                    ${isUnseen ? '<div class="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>' : ''}
+                </div>
+                <div class="flex-1 overflow-hidden">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-bold truncate" style="color: var(--text-main);">${uData.username}</h4>
+                        <span class="text-[10px] ${isUnseen ? 'text-green-600 font-bold' : 'opacity-60'} font-mono">
+                            ${new Date((chat.timestamp?.seconds || 0) * 1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <p class="text-sm truncate ${isUnseen ? 'font-bold text-gray-900' : 'opacity-80'}" style="color: var(--text-main);">
+                            ${chat.lastMessage || 'New Chat'}
+                        </p>
+                        ${isUnseen ? '<span class="bg-green-500 text-white text-[9px] px-2 py-0.5 rounded-full shadow-sm">New</span>' : ''}
+                    </div>
+                </div>
+            `;
+            div.onclick = () => openChat(d.id, uData);
+            list.appendChild(div);
+        });
+    });
+};
+        ;
         };
 
         // --- OPEN CHAT (With Ticks & Delete) ---
@@ -781,4 +833,5 @@
         };
     </script>
 </body>
+
 </html>
