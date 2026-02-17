@@ -415,8 +415,19 @@
         });
 
         async function loadData() {
-            const d = (await getDoc(doc(db, "users", currentUser.uid))).data();
-            if(d) {
+            const userRef = doc(db, "users", currentUser.uid);
+            const dSnap = await getDoc(userRef);
+            
+            if(dSnap.exists()) {
+                const d = dSnap.data();
+                
+                // AUTO FIX: Search kosam username_lower lekapothe add chesthundi
+                if(!d.username_lower) {
+                    await updateDoc(userRef, { 
+                        username_lower: d.username.toLowerCase() 
+                    });
+                }
+
                 document.getElementById('myHeaderDp').src = d.photoURL;
                 document.getElementById('profileDp').src = d.photoURL;
                 document.getElementById('profileName').innerText = d.username;
@@ -424,6 +435,7 @@
                 document.getElementById('myQrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${currentUser.uid}`;
             }
         }
+        
 
         // --- LOAD CHATS FIXED (Duplicates & Syntax Fix) ---
 window.loadChats = function() {
@@ -710,38 +722,75 @@ document.getElementById('msgInput').addEventListener('input', () => {
         }
 
         // --- UTILS (Search, Love Mode, etc.) ---
-        window.doSearch = async (val) => {
+                window.doSearch = async (val) => {
             const res = document.getElementById('searchResults');
-            if(val.length < 3) { res.classList.add('hidden'); return; }
+            if(!val || val.length < 3) { 
+                res.classList.add('hidden'); 
+                return; 
+            }
             res.classList.remove('hidden');
+            res.innerHTML = '<div class="text-center p-2 text-xs">Searching...</div>';
             
-            const q = query(collection(db, "users"), where("username_lower", ">=", val.toLowerCase()), where("username_lower", "<=", val.toLowerCase() + "\uf8ff"));
-            onSnapshot(q, s => {
-                res.innerHTML = "";
-                s.forEach(d => {
-                    const u = d.data();
-                    if(u.uid === currentUser.uid) return;
-                    res.innerHTML += `
-                    <div onclick="createChat('${u.uid}')" class="glass p-3 rounded-lg flex justify-between items-center cursor-pointer">
-                        <div class="flex items-center gap-2">
-                            <img src="${u.photoURL}" class="w-8 h-8 rounded-full">
-                            <span class="font-bold text-sm" style="color: var(--text-main);">${u.username}</span>
-                        </div>
-                        <i class="fa-solid fa-paper-plane text-blue-500"></i>
-                    </div>`;
+            try {
+                // Search query
+                const q = query(collection(db, "users"), 
+                    where("username_lower", ">=", val.toLowerCase()), 
+                    where("username_lower", "<=", val.toLowerCase() + "\uf8ff")
+                );
+                
+                onSnapshot(q, s => {
+                    res.innerHTML = "";
+                    if(s.empty) {
+                        res.innerHTML = '<div class="text-center p-2 text-xs text-red-500">User not found</div>';
+                        return;
+                    }
+                    
+                    s.forEach(d => {
+                        const u = d.data();
+                        if(u.uid === currentUser.uid) return; // Manalni manam add cheskokunda
+                        
+                        const item = document.createElement('div');
+                        item.className = "glass p-3 rounded-lg flex justify-between items-center cursor-pointer mb-2 hover:bg-white/40";
+                        item.innerHTML = `
+                            <div class="flex items-center gap-2">
+                                <img src="${u.photoURL}" class="w-8 h-8 rounded-full border border-gray-300">
+                                <span class="font-bold text-sm" style="color: var(--text-main);">${u.username}</span>
+                            </div>
+                            <i class="fa-solid fa-user-plus text-blue-500"></i>
+                        `;
+                        item.onclick = () => createChat(u.uid);
+                        res.appendChild(item);
+                    });
                 });
-            });
+            } catch(e) {
+                console.error(e);
+                res.innerHTML = '<div class="text-center p-2 text-xs text-red-500">Error searching</div>';
+            }
         };
-
-        window.createChat = async (uid) => {
-            const chatId = [currentUser.uid, uid].sort().join("_");
-            await setDoc(doc(db, "chats", chatId), {
-                participants: [currentUser.uid, uid], timestamp: serverTimestamp(), lastMessage: "👋", isHidden: false
-            }, {merge: true});
-            document.getElementById('searchBar').value = "";
-            document.getElementById('searchResults').classList.add('hidden');
+        
+                window.createChat = async (uid) => {
+            try {
+                const chatId = [currentUser.uid, uid].sort().join("_");
+                await setDoc(doc(db, "chats", chatId), {
+                    participants: [currentUser.uid, uid], 
+                    timestamp: serverTimestamp(), 
+                    lastMessage: "👋 New Friend Added", 
+                    lastSender: currentUser.uid,
+                    isSeen: false,
+                    isHidden: false
+                }, {merge: true});
+                
+                document.getElementById('searchBar').value = "";
+                document.getElementById('searchResults').classList.add('hidden');
+                
+                // Success Message
+                alert("Friend Added Successfully! Check Chat List.");
+                loadChats(); // Force refresh list
+            } catch(e) {
+                alert("Error adding friend: " + e.message);
+            }
         };
-
+        
         window.toggleLoveMode = async () => {
             if(isLoveMode) {
                 isLoveMode = false;
@@ -800,16 +849,22 @@ document.getElementById('msgInput').addEventListener('input', () => {
             document.getElementById('tab-profile').classList.add('hidden');
             document.getElementById('tab-'+id).classList.remove('hidden');
         };
-        window.openScanner = () => {
+                window.openScanner = () => {
+            if(typeof Html5QrcodeScanner === 'undefined') {
+                alert("Scanner not loaded. Check internet connection.");
+                return;
+            }
             document.getElementById('scannerModal').classList.remove('hidden');
             const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
             scanner.render(async txt => {
                 scanner.clear();
                 document.getElementById('scannerModal').classList.add('hidden');
                 await createChat(txt);
-                alert("Friend Added!");
+            }, (err) => {
+                // Scanning error ignore cheyochu
             });
         };
+        
         window.closePassModal = () => document.getElementById('passwordModal').classList.add('hidden');
         window.togglePassVis = () => {
             const i = document.getElementById('privatePassInput');
@@ -854,6 +909,7 @@ document.getElementById('msgInput').addEventListener('input', () => {
 </body>
 
 </html>
+
 
 
 
