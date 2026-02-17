@@ -578,16 +578,6 @@
                 });
             });
         };
-
-// --- TYPING TRIGGER (Script tag close ayye mundu pettu) ---
-let typeTimer;
-document.getElementById('msgInput').addEventListener('input', () => {
-    if(currentChatId) {
-        updateDoc(doc(db, "chats", currentChatId), { typing: currentUser.uid });
-        clearTimeout(typeTimer);
-        typeTimer = setTimeout(() => updateDoc(doc(db, "chats", currentChatId), { typing: null }), 2000);
-    }
-});
         
         // --- OPEN CHAT (With Ticks & Delete) ---
         window.openChat = async (cid, u) => {
@@ -1046,6 +1036,7 @@ document.getElementById('msgInput').addEventListener('input', () => {
 </body>
 
 </html>
+
 
 
 
