@@ -277,9 +277,11 @@
             </button>
         </div>
     </div>
-
-                <audio id="remoteAudio" autoplay></audio>
-    <audio id="ringtonePlayer" loop src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3"></audio>
+    
+        <audio id="remoteAudio" autoplay></audio>
+    <audio id="ringtonePlayer" loop src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3"></audio> 
+    <audio id="endCallPlayer" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
+    
 
     <div id="callScreen" class="fixed inset-0 z-50 bg-gray-900 hidden flex flex-col items-center justify-center transition-opacity duration-300">
         <img id="callBg" src="" class="absolute inset-0 w-full h-full object-cover opacity-30 blur-xl">
@@ -625,28 +627,47 @@ document.getElementById('msgInput').addEventListener('input', () => {
                 };
             });
         }
-
+                // --- 1. MAKE CALL (Updated with Ringing & Status) ---
         window.makeCall = async (type) => {
             isVideoCall = (type === 'video');
             const friendUid = currentChatId.replace(currentUser.uid, "").replace("_", "");
+            
+            // UI Setup
             const fSnap = await getDoc(doc(db, "users", friendUid));
             const fData = fSnap.data();
             setupCallUI(isVideoCall, fData);
+            
+            // Status Update
             document.getElementById('callStatus').innerText = "CONNECTING...";
-            document.getElementById('ringtonePlayer').play();
+            document.getElementById('callStatus').className = "text-sm font-bold tracking-widest text-yellow-400 mb-2 animate-pulse";
 
             try {
+                // Get Local Stream (Camera/Mic)
                 localStream = await navigator.mediaDevices.getUserMedia({
                     video: isVideoCall ? { facingMode: "user" } : false,
                     audio: true
                 });
+
                 if(isVideoCall) {
                     const lVid = document.getElementById('localVideo');
                     lVid.srcObject = localStream;
                     lVid.muted = true;
                 }
+
+                // Start Ringing Sound
+                const rPlayer = document.getElementById('ringtonePlayer');
+                rPlayer.currentTime = 0;
+                rPlayer.play().catch(e => console.log("Audio play error:", e));
+
+                // Change Status to Ringing
+                setTimeout(() => {
+                    document.getElementById('callStatus').innerText = "RINGING...";
+                }, 1000);
+
+                // Connect to Peer
                 const conn = peer.connect(friendUid);
                 conn.on('open', () => { currentConn = conn; });
+                
                 const call = peer.call(friendUid, localStream, {
                     metadata: { 
                         name: document.getElementById('profileName').innerText,
@@ -655,16 +676,36 @@ document.getElementById('msgInput').addEventListener('input', () => {
                         type: type
                     }
                 });
+                
+                handleStream(call);
+
+            } catch(e) { 
+                alert("Permission Denied or Error: " + e.message); 
+                endGlobalCall(true); 
+            }
+        };
+        
+
                 handleStream(call);
             } catch(e) { alert("Permission Denied"); endGlobalCall(true); }
         };
 
+                // --- 2. HANDLE STREAM (Stop Ringing & Show Video) ---
         function handleStream(call) {
             currentCall = call;
             call.on('stream', (remoteStream) => {
-                document.getElementById('callStatus').innerText = "CONNECTED";
+                // Stop Ringing
                 document.getElementById('ringtonePlayer').pause();
+                
+                // Update Status
+                const status = document.getElementById('callStatus');
+                status.innerText = "CONNECTED";
+                status.className = "text-sm font-bold tracking-widest text-green-400 mb-2";
+                
+                // Start Timer
                 startTimer();
+                
+                // Show Stream
                 if(isVideoCall) {
                     const rVideo = document.getElementById('remoteVideo');
                     rVideo.srcObject = remoteStream;
@@ -677,7 +718,7 @@ document.getElementById('msgInput').addEventListener('input', () => {
             });
             call.on('close', () => endGlobalCall(false));
         }
-
+        
         function setupCallUI(isVideo, userData) {
             document.getElementById('chatRoom').classList.add('hidden');
             document.getElementById('callScreen').classList.remove('hidden'); 
@@ -697,14 +738,25 @@ document.getElementById('msgInput').addEventListener('input', () => {
                 document.getElementById('btnVidToggle').innerHTML = '<i class="fa-solid fa-phone"></i>';
             }
         }
-
+                // --- 3. END CALL (With Sound Effect) ---
         window.endGlobalCall = (sendSignal = true) => {
+            // Play End Sound
+            const endSound = document.getElementById('endCallPlayer');
+            if(endSound) endSound.play().catch(e => console.log(e));
+
+            // Stop Ringing if still playing
+            document.getElementById('ringtonePlayer').pause();
+
             if(sendSignal && currentConn && currentConn.open) { currentConn.send('END_CALL'); }
             if(currentCall) currentCall.close();
             if(localStream) localStream.getTracks().forEach(t => t.stop());
-            document.getElementById('callScreen').classList.add('hidden');
-            document.getElementById('ringtonePlayer').pause();
-            document.getElementById('callTimer').classList.add('hidden');
+            
+            // Hide UI
+            setTimeout(() => {
+                document.getElementById('callScreen').classList.add('hidden');
+                document.getElementById('callTimer').classList.add('hidden');
+            }, 500); // 0.5s delay to hear end sound
+
             clearInterval(callTimerInt);
             currentCall = null; currentConn = null; localStream = null;
         };
@@ -909,6 +961,7 @@ document.getElementById('msgInput').addEventListener('input', () => {
 </body>
 
 </html>
+
 
 
 
