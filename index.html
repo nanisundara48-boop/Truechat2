@@ -400,30 +400,29 @@
     });
         }
         
-        
+                        // --- AUTH (LOGIN FIX) ---
+        window.handleAuth = async (type) => {
+            const e = document.getElementById('emailIn').value;
+            const p = document.getElementById('passIn').value;
+            const msg = document.getElementById('authMsg');
+            
+            if(!e || !p) { msg.innerText = "Please enter Email & Password"; return; }
 
-        // --- AUTH (LOGIN FIX) ---
-                onAuthStateChanged(auth, u => {
-            if(u) {
-                currentUser = u;
-                document.getElementById('authScreen').classList.add('hidden');
-                document.getElementById('mainApp').classList.remove('hidden');
-                
-                // 🔥 IDI ADD CHEYALI: Presence start avthundhi
-                setupPresence(u.uid); 
-                
-                loadData();
-                loadChats();
-                initPeer();
-             } else {
-                // Logout ayinappudu offline ki marchali
-                if(currentUser) {
-                    updateDoc(doc(db, "users", currentUser.uid), { isOnline: false });
-                }
-                document.getElementById('authScreen').classList.remove('hidden');
-                document.getElementById('mainApp').classList.add('hidden');
-            }
-        });
+            try {
+                if(type === 'login') {
+                    await signInWithEmailAndPassword(auth, e, p);
+                } else {
+                    const res = await createUserWithEmailAndPassword(auth, e, p);
+                    // Default lowercase username add chesthunnam search kosam
+                    await setDoc(doc(db, "users", res.user.uid), {
+                        uid: res.user.uid, 
+                        username: e.split('@')[0], 
+                        username_lower: e.split('@')[0].toLowerCase(),
+                        email: e, 
+                        photoURL: `https://ui-avatars.com/api/?name=${e}&background=random`, 
+                        privatePassword: null,
+                        isOnline: true
+                    });
                 }
             } catch(err) { 
                 console.error(err);
@@ -431,6 +430,25 @@
             }
         };
 
+        onAuthStateChanged(auth, u => {
+            if(u) {
+                currentUser = u;
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                
+                setupPresence(u.uid); 
+                loadData();
+                loadChats();
+                initPeer();
+             } else {
+                if(currentUser) {
+                    updateDoc(doc(db, "users", currentUser.uid), { isOnline: false });
+                }
+                document.getElementById('authScreen').classList.remove('hidden');
+                document.getElementById('mainApp').classList.add('hidden');
+            }
+        });
+        
         window.doLogout = () => signOut(auth);
         
         onAuthStateChanged(auth, u => {
@@ -1011,6 +1029,7 @@ document.getElementById('msgInput').addEventListener('input', () => {
 </body>
 
 </html>
+
 
 
 
