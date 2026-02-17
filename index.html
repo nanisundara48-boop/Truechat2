@@ -463,26 +463,7 @@
             }
         };
 
-        onAuthStateChanged(auth, u => {
-            if(u) {
-                currentUser = u;
-                document.getElementById('authScreen').classList.add('hidden');
-                document.getElementById('mainApp').classList.remove('hidden');
-                
-                setupPresence(u.uid); 
-                loadData();
-                loadChats();
-                initPeer();
-             } else {
-                if(currentUser) {
-                    updateDoc(doc(db, "users", currentUser.uid), { isOnline: false });
-                }
-                document.getElementById('authScreen').classList.remove('hidden');
-                document.getElementById('mainApp').classList.add('hidden');
-            }
-        });
-
-        async function loadData() {
+                async function loadData() {
             const userRef = doc(db, "users", currentUser.uid);
             const dSnap = await getDoc(userRef);
             
@@ -1036,6 +1017,7 @@
 </body>
 
 </html>
+
 
 
 
