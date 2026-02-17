@@ -849,19 +849,12 @@ document.getElementById('msgInput').addEventListener('input', () => {
             const sender = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
             if(sender) sender.replaceTrack(newStream.getVideoTracks()[0]);
         };
-                let typeTimer;
-        document.getElementById('msgInput').addEventListener('input', () => {
-            if(currentChatId) {
-                updateDoc(doc(db, "chats", currentChatId), { typing: currentUser.uid });
-                clearTimeout(typeTimer);
-                typeTimer = setTimeout(() => updateDoc(doc(db, "chats", currentChatId), { typing: null }), 2000);
-            }
-        });
-                 
+            
     </script>
 </body>
 
 </html>
+
 
 
 
