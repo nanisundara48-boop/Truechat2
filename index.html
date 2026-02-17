@@ -349,8 +349,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, getDoc, setDoc, updateDoc, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, where, onSnapshot, serverTimestamp, orderBy, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
         import { getDatabase, ref, onDisconnect, set, onValue, serverTimestamp as rtdbTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+        
         
 
         const firebaseConfig = {
@@ -380,25 +381,25 @@
         let isFrontCam = true;
                 // --- PRESENCE SYSTEM (Online/Offline Fix) ---
         function setupPresence(uid) {
-            const rtdbRef = ref(rtdb, 'status/' + uid);
-            const connectedRef = ref(rtdb, '.info/connected');
+    const rtdbRef = ref(rtdb, 'status/' + uid);
+    const connectedRef = ref(rtdb, '.info/connected');
 
-            onValue(connectedRef, (snap) => {
-                if (snap.val() === true) {
-                    onDisconnect(rtdbRef).set({
-                        state: 'offline',
-                        last_changed: rtdbTimestamp()
-                    }).then(() => {
-                        set(rtdbRef, {
-                            state: 'online',
-                            last_changed: rtdbTimestamp()
-                        });
-                        // Firestore lo kuda online ani update chesthunnam
-                        updateDoc(doc(db, "users", uid), { isOnline: true });
-                    });
-                }
+    onValue(connectedRef, (snap) => {
+        if (snap.val() === true) {
+            onDisconnect(rtdbRef).set({
+                state: 'offline',
+                last_changed: rtdbTimestamp() 
+            }).then(() => {
+                set(rtdbRef, {
+                    state: 'online',
+                    last_changed: rtdbTimestamp()
+                });
+                updateDoc(doc(db, "users", uid), { isOnline: true });
             });
         }
+    });
+        }
+        
         
 
         // --- AUTH (LOGIN FIX) ---
@@ -1010,6 +1011,7 @@ document.getElementById('msgInput').addEventListener('input', () => {
 </body>
 
 </html>
+
 
 
 
