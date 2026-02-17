@@ -431,62 +431,7 @@
                 document.getElementById('mainApp').classList.add('hidden');
             }
         });
-        
-        
-                        // --- AUTH (LOGIN FIX) ---
-        window.handleAuth = async (type) => {
-            const e = document.getElementById('emailIn').value;
-            const p = document.getElementById('passIn').value;
-            const msg = document.getElementById('authMsg');
-            
-            if(!e || !p) { msg.innerText = "Please enter Email & Password"; return; }
-
-            try {
-                if(type === 'login') {
-                    await signInWithEmailAndPassword(auth, e, p);
-                } else {
-                    const res = await createUserWithEmailAndPassword(auth, e, p);
-                    // Default lowercase username add chesthunnam search kosam
-                    await setDoc(doc(db, "users", res.user.uid), {
-                        uid: res.user.uid, 
-                        username: e.split('@')[0], 
-                        username_lower: e.split('@')[0].toLowerCase(),
-                        email: e, 
-                        photoURL: `https://ui-avatars.com/api/?name=${e}&background=random`, 
-                        privatePassword: null,
-                        isOnline: true
-                    });
-                }
-            } catch(err) { 
-                console.error(err);
-                msg.innerText = err.message; 
-            }
-        };
-
-                async function loadData() {
-            const userRef = doc(db, "users", currentUser.uid);
-            const dSnap = await getDoc(userRef);
-            
-            if(dSnap.exists()) {
-                const d = dSnap.data();
-                
-                // AUTO FIX: Search kosam username_lower lekapothe add chesthundi
-                if(!d.username_lower) {
-                    await updateDoc(userRef, { 
-                        username_lower: d.username.toLowerCase() 
-                    });
-                }
-
-                document.getElementById('myHeaderDp').src = d.photoURL;
-                document.getElementById('profileDp').src = d.photoURL;
-                document.getElementById('profileName').innerText = d.username;
-                document.getElementById('profileEmail').innerText = d.email;
-                document.getElementById('myQrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${currentUser.uid}`;
-            }
-        }
-        
-
-        // --- LOAD CHATS FIXED (Duplicates & Syntax Fix) ---
+    
                 // --- LOAD CHATS (Strict Switch Logic) ---
         window.loadChats = function() {
             const list = document.getElementById('chatList');
@@ -1017,6 +962,7 @@
 </body>
 
 </html>
+
 
 
 
