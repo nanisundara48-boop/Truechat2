@@ -35,19 +35,8 @@
             --chat-theirs: #31001a;
         }
 
-        body {
-            margin: 0; font-family: 'Poppins', sans-serif;
-            background: var(--bg-base); color: var(--text-main);
-            display: flex; justify-content: center; height: 100vh; overflow: hidden;
-            transition: background 0.6s ease;
-        }
-
-        .app-container {
-            width: 100%; max-width: 480px; height: 100%;
-            background: var(--panel-bg); display: flex; flex-direction: column;
-            position: relative; box-shadow: 0 0 40px rgba(0,0,0,0.9);
-            transition: background 0.6s ease;
-        }
+        body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg-base); color: var(--text-main); display: flex; justify-content: center; height: 100vh; overflow: hidden; transition: background 0.6s ease; }
+        .app-container { width: 100%; max-width: 480px; height: 100%; background: var(--panel-bg); display: flex; flex-direction: column; position: relative; box-shadow: 0 0 40px rgba(0,0,0,0.9); transition: background 0.6s ease; }
 
         /* --- AUTH SCREEN --- */
         #auth-screen { padding: 40px; display: flex; flex-direction: column; justify-content: center; height: 100%; text-align: center; }
@@ -64,7 +53,7 @@
 
         /* --- DASHBOARD HEADER --- */
         .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--glass-bg); z-index: 10; backdrop-filter: blur(10px); }
-        .profile-area { display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; }
+        .profile-area { display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
         .dp-emoji { width: 45px; height: 45px; border-radius: 50%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; font-size: 1.5rem; border: 2px solid var(--primary); box-shadow: 0 0 10px rgba(0,0,0,0.5); }
         .header-actions { display: flex; gap: 15px; align-items: center; }
         .icon-btn { background: none; border: none; color: var(--text-main); font-size: 1.3rem; cursor: pointer; transition: 0.2s; position: relative; }
@@ -82,7 +71,7 @@
         /* --- CHAT INTERFACE --- */
         #chat-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-base); display: none; flex-direction: column; z-index: 50; }
         .chat-header { padding: 15px; display: flex; align-items: center; justify-content: space-between; background: var(--glass-bg); border-bottom: 1px solid var(--border); backdrop-filter: blur(10px); }
-        .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth;}
         .msg-bubble { max-width: 75%; padding: 12px 16px; border-radius: 18px; position: relative; word-wrap: break-word; user-select: none; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .msg-bubble.mine { align-self: flex-end; background: var(--chat-mine); border-bottom-right-radius: 4px; }
         .msg-bubble.theirs { align-self: flex-start; background: var(--chat-theirs); border-bottom-left-radius: 4px; border: 1px solid var(--border); }
@@ -126,17 +115,13 @@
         .emoji-item { font-size: 2.2rem; cursor: pointer; text-align: center; padding: 10px; border-radius: 12px; background: var(--glass-bg); transition: 0.2s; border: 2px solid transparent;}
         .emoji-item.selected { border-color: var(--primary); background: rgba(0, 229, 255, 0.1); }
 
-        /* --- GLITCH & DANGER ANIMATION (FIXED SKULL & BUTTON) --- */
+        /* --- GLITCH & DANGER ANIMATION --- */
         #danger-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 0, 0, 0.98); z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; }
-        
         .glitch-wrapper { text-align: center; margin-bottom: 40px; }
-        
-        /* Native Emoji Skull to prevent missing icons */
         .glitch-emoji { font-size: 7rem; position: relative; display: inline-block; animation: glitch-skew 1s infinite linear alternate-reverse; }
         .glitch-emoji::before, .glitch-emoji::after { content: '☠️'; position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.8;}
         .glitch-emoji::before { left: 4px; text-shadow: -2px 0 #00ffff; animation: glitch-anim 2s infinite linear alternate-reverse; clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%); }
         .glitch-emoji::after { left: -4px; text-shadow: -2px 0 #ff00ff; animation: glitch-anim2 3s infinite linear alternate-reverse; clip-path: polygon(0 66%, 100% 66%, 100% 100%, 0 100%); }
-        
         .glitch-text { color: #ff0000; font-size: 1.8rem; font-weight: 900; letter-spacing: 6px; position: relative; animation: glitch-skew 1.5s infinite linear alternate-reverse; margin-top: 10px; }
         .glitch-text::before, .glitch-text::after { content: 'RESTRICTED AREA'; position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         .glitch-text::before { left: 3px; text-shadow: -2px 0 #00ffff; animation: glitch-anim 2s infinite linear alternate-reverse; clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%); }
@@ -153,7 +138,7 @@
         .bottom-password input:focus { box-shadow: 0 0 20px rgba(255,0,0,0.6); background: rgba(255,0,0,0.1); }
         .btn-enter-pass { background: #ff0000; color: #fff; border: none; padding: 0 25px; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; box-shadow: 0 0 15px rgba(255,0,0,0.5); }
         .btn-enter-pass:active { transform: scale(0.95); }
-        .close-glitch { position: absolute; top: 20px; right: 20px; color: #ff0000; font-size: 2.5rem; cursor: pointer; text-shadow: 0 0 10px red; }
+        .close-glitch { position: absolute; top: 20px; right: 20px; color: #ff0000; font-size: 2.5rem; cursor: pointer; text-shadow: 0 0 10px red; z-index: 10000;}
 
         /* --- ROMANTIC HEARTS ANIMATION --- */
         .heart { position: absolute; font-size: 1.5rem; color: #ff1493; animation: floatUp 4s linear infinite; opacity: 0; pointer-events: none; z-index: 1; filter: drop-shadow(0 0 5px #ff1493);}
@@ -238,7 +223,7 @@
                 <input type="text" id="msg-input" placeholder="Type a message...">
                 <button class="icon-btn" id="btn-mic" onmousedown="startVoiceRecord()" onmouseup="stopVoiceRecord()" ontouchstart="startVoiceRecord()" ontouchend="stopVoiceRecord()"><i class="fa-solid fa-microphone"></i></button>
                 <button class="icon-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
-     </div>
+            </div>
         </div>
 
         <div id="call-screen">
@@ -276,7 +261,7 @@
         <div id="danger-overlay">
             <i class="fa-solid fa-xmark close-glitch" onclick="cancelPrivateEntry()"></i>
             <div class="glitch-wrapper">
-                <div class="glitch-emoji">☠️</div>
+                <div class="glitch-emoji"></div>
                 <div class="glitch-text">RESTRICTED AREA</div>
             </div>
             <div class="bottom-password">
@@ -291,7 +276,8 @@
         <div class="modal" id="search-modal">
             <div class="modal-content" style="height: 85%; display: flex; flex-direction: column;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:20px;"><h3 style="margin:0; font-size:1.4rem;">Find Friends</h3><i class="fa-solid fa-xmark icon-btn" onclick="closeModal('search-modal')"></i></div>
-                <div class="search-input-box" style="margin-bottom:15px;"><i class="fa-solid fa-search"></i><input type="text" id="search-input" placeholder="Search username..." onkeyup="liveSearch()"></div>
+                <div class="search-input-box" style="margin-bottom:15px;"><i class="fa-solid fa-search"></i>
+                <input type="text" id="search-input" placeholder="Search by Email or Username..." onkeyup="liveSearch()"></div>
                 <div class="list-container" id="search-results-list" style="padding:0;"></div>
             </div>
         </div>
@@ -334,7 +320,7 @@
     const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
 
     // --- GLOBAL STATE ---
-    let currentUser = null; let userData = { username: "", avatar: "👻", privateCode: null };
+    let currentUser = null; let userData = { username: "", email: "", avatar: "👻", privateCode: null };
     let isLoginMode = true; let isPrivateMode = false; let selectedEmoji = "👻";
     let currentChatId = null; let currentPartnerId = null; let currentPartnerName = ""; let currentPartnerAvatar = "";
     
@@ -344,22 +330,45 @@
 
     // --- AUTHENTICATION ---
     window.toggleAuth = () => { isLoginMode = !isLoginMode; document.getElementById('auth-user-group').style.display = isLoginMode ? 'none' : 'block'; document.getElementById('btn-login').style.display = isLoginMode ? 'block' : 'none'; document.getElementById('btn-signup').style.display = isLoginMode ? 'none' : 'block'; document.getElementById('toggle-text').innerText = isLoginMode ? "New here? Sign Up" : "Already have an account? Login"; };
-    window.login = async () => { const e = document.getElementById('auth-email').value; const p = document.getElementById('auth-pass').value; if(!e||!p) return; try { await signInWithEmailAndPassword(auth, e, p); } catch (err) { alert(err.message); } };
-    window.signup = async () => { const e = document.getElementById('auth-email').value; const p = document.getElementById('auth-pass').value; const u = document.getElementById('auth-user').value.toLowerCase().trim(); if(!u||!e||!p) return; try { const cred = await createUserWithEmailAndPassword(auth, e, p); await setDoc(doc(db, "users", cred.user.uid), { email: e, username: u, avatar: "👻", privateCode: null }); } catch (err) { alert(err.message); } };
+    
+    window.login = async () => { 
+        const e = document.getElementById('auth-email').value; const p = document.getElementById('auth-pass').value; 
+        if(!e||!p) return alert("Enter credentials"); 
+        try { await signInWithEmailAndPassword(auth, e, p); } 
+        catch (err) { alert(err.message); } 
+    };
+    
+    window.signup = async () => { 
+        const e = document.getElementById('auth-email').value.toLowerCase().trim(); 
+        const p = document.getElementById('auth-pass').value; 
+        const u = document.getElementById('auth-user').value.trim(); 
+        if(!u||!e||!p) return alert("Fill all details"); 
+        try { 
+            const cred = await createUserWithEmailAndPassword(auth, e, p); 
+            await setDoc(doc(db, "users", cred.user.uid), { email: e, username: u, avatar: "👻", privateCode: null }); 
+        } 
+        catch (err) { alert(err.message); } 
+    };
+    
     window.forgotPassword = async () => { const e = document.getElementById('auth-email').value; if(!e) return alert("Enter email first."); try { await sendPasswordResetEmail(auth, e); alert("Reset link sent!"); } catch (err) { alert(err.message); } };
     window.logout = () => { signOut(auth); };
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUser = user; document.getElementById('auth-screen').style.display = 'none'; document.getElementById('dashboard').style.display = 'flex';
-            const docSnap = await getDoc(doc(db, "users", user.uid));
-            if(docSnap.exists()){ 
-                userData = docSnap.data(); 
-                // Fallback for old data without avatar/username
-                if(!userData.avatar) userData.avatar = "👻"; 
-                if(!userData.username) userData.username = "User";
-                updateProfileUI(); 
-            }
+            try {
+                const docSnap = await getDoc(doc(db, "users", user.uid));
+                if(docSnap.exists()){ 
+                    userData = docSnap.data(); 
+                    if(!userData.avatar) userData.avatar = "👻"; 
+                    if(!userData.username) userData.username = "User";
+                    if(!userData.email) userData.email = user.email; // Ensure email exists for search
+                    updateProfileUI(); 
+                } else {
+                    // Fallback create doc if missing
+                    await setDoc(doc(db, "users", user.uid), { email: user.email, username: "User", avatar: "👻", privateCode: null });
+                }
+            } catch (e) { console.error("DB Load Error", e); }
             listenForRequests(); loadChats(); listenForCalls();
         } else {
             currentUser = null; document.getElementById('auth-screen').style.display = 'flex'; document.getElementById('dashboard').style.display = 'none';
@@ -369,28 +378,47 @@
 
     function updateProfileUI() { document.getElementById('my-username').innerText = userData.username; document.getElementById('my-dp').innerText = userData.avatar; document.getElementById('new-username').value = userData.username; selectEmoji(userData.avatar); }
     window.switchTab = (tab) => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); event.currentTarget.classList.add('active'); document.getElementById('chats-list').style.display = tab === 'chats' ? 'block' : 'none'; document.getElementById('calls-list').style.display = tab === 'calls' ? 'block' : 'none'; if(tab==='calls') loadCallHistory(); };
-    window.openSearchModal = () => { document.getElementById('search-modal').style.display = 'flex'; }; window.openRequestsModal = () => { document.getElementById('requests-modal').style.display = 'flex'; }; window.openSettings = () => { document.getElementById('settings-modal').style.display = 'flex'; }; window.closeModal = (id) => { document.getElementById(id).style.display = 'none'; };
+    window.openSearchModal = () => { document.getElementById('search-modal').style.display = 'flex'; document.getElementById('search-input').value = ''; document.getElementById('search-results-list').innerHTML='';}; 
+    window.openRequestsModal = () => { document.getElementById('requests-modal').style.display = 'flex'; }; 
+    window.openSettings = () => { document.getElementById('settings-modal').style.display = 'flex'; }; 
+    window.closeModal = (id) => { document.getElementById(id).style.display = 'none'; };
     
     // Settings Save
     window.selectEmoji = (emoji) => { selectedEmoji = emoji; document.querySelectorAll('.emoji-item').forEach(el => el.classList.remove('selected')); event.currentTarget.classList.add('selected'); };
-    window.saveSettings = async () => { const nu = document.getElementById('new-username').value.toLowerCase().trim(); if(!nu) return; await updateDoc(doc(db, "users", currentUser.uid), { username: nu, avatar: selectedEmoji }); userData.username = nu; userData.avatar = selectedEmoji; updateProfileUI(); closeModal('settings-modal'); };
+    window.saveSettings = async () => { const nu = document.getElementById('new-username').value.trim(); if(!nu) return; await updateDoc(doc(db, "users", currentUser.uid), { username: nu, avatar: selectedEmoji }); userData.username = nu; userData.avatar = selectedEmoji; updateProfileUI(); closeModal('settings-modal'); };
 
-    // --- INSTAGRAM SEARCH & REQUESTS ---
+    // --- UNIVERSAL SEARCH (EMAIL OR USERNAME) - FIXED ---
     window.liveSearch = async () => {
-        const val = document.getElementById('search-input').value.toLowerCase().trim(); const resBox = document.getElementById('search-results-list');
+        const val = document.getElementById('search-input').value.toLowerCase().trim(); 
+        const resBox = document.getElementById('search-results-list');
         if(val.length < 1) { resBox.innerHTML = ''; return; }
-        const q = query(collection(db, "users"), where("username", ">=", val), where("username", "<=", val + '\uf8ff'));
-        const snap = await getDocs(q); let html = '';
-        snap.forEach(doc => {
-            if(doc.id !== currentUser.uid) { 
-                const p = doc.data(); 
-                // Fallbacks for older DB items
-                const dName = p.username || 'Unknown';
-                const dAvat = p.avatar || '👻';
-                html += `<div class="list-item" style="justify-content:space-between;"><div style="display:flex; align-items:center; gap:12px;"><div class="dp-emoji" style="width:45px; height:45px; font-size:1.3rem;">${dAvat}</div><div style="font-weight:bold; font-size:1.1rem;">${dName}</div></div><button class="btn-follow" id="btn-add-${doc.id}" onclick="sendFriendRequest('${doc.id}', '${dName}')">Add</button></div>`; 
-            }
-        });
-        resBox.innerHTML = html || '<div style="text-align:center; padding:20px; color:var(--text-muted);">No users found</div>';
+        
+        try {
+            // Fetch all users and filter locally to support BOTH Email and Username searching effortlessly
+            const snap = await getDocs(collection(db, "users"));
+            let html = '';
+            let count = 0;
+
+            snap.forEach(doc => {
+                if(doc.id !== currentUser.uid) { 
+                    const p = doc.data(); 
+                    const dName = (p.username || 'Unknown').toLowerCase();
+                    const dEmail = (p.email || '').toLowerCase();
+                    
+                    // Match if input is in username OR email
+                    if(dName.includes(val) || dEmail.includes(val)) {
+                        count++;
+                        const displayAvatar = p.avatar || '👻';
+                        const displayName = p.username || 'Unknown';
+                        html += `<div class="list-item" style="justify-content:space-between;"><div style="display:flex; align-items:center; gap:12px;"><div class="dp-emoji" style="width:45px; height:45px; font-size:1.3rem;">${displayAvatar}</div><div><div style="font-weight:bold; font-size:1.1rem;">${displayName}</div><div style="font-size:0.7rem; color:var(--text-muted);">${dEmail}</div></div></div><button class="btn-follow" id="btn-add-${doc.id}" onclick="sendFriendRequest('${doc.id}', '${displayName}')">Add</button></div>`; 
+                    }
+                }
+            });
+            resBox.innerHTML = html || '<div style="text-align:center; padding:20px; color:var(--text-muted);">No users found for this email/username.</div>';
+        } catch (error) {
+            console.error("Search Error:", error);
+            resBox.innerHTML = '<div style="color:var(--danger); text-align:center;">Error searching. Check DB Rules.</div>';
+        }
     };
 
     window.sendFriendRequest = async (tId, tName) => {
@@ -416,16 +444,29 @@
         await setDoc(doc(db, "chats", combId), { users: [currentUser.uid, fromId], isPrivate: isPriv, timestamp: Date.now() });
     };
 
-    // --- GLITCH PASSWORD SYSTEM (PRIVATE MODE) ---
-    let pressTimer; const profileTrigger = document.getElementById('profile-trigger');
-    profileTrigger.addEventListener('mousedown', () => { pressTimer = setTimeout(triggerDangerUI, 1500); });
-    profileTrigger.addEventListener('touchstart', () => { pressTimer = setTimeout(triggerDangerUI, 1500); });
-    profileTrigger.addEventListener('mouseup', () => clearTimeout(pressTimer));
-    profileTrigger.addEventListener('touchend', () => clearTimeout(pressTimer));
+    // --- BULLETPROOF PRIVATE MODE TRIGGER ---
+    let pressTimer; 
+    const profileTrigger = document.getElementById('profile-trigger');
+    
+    // Prevent mobile popup menus from cancelling our hold
+    profileTrigger.oncontextmenu = (e) => { e.preventDefault(); return false; };
+
+    const startPress = (e) => {
+        e.preventDefault(); // Stop zoom/scroll
+        pressTimer = setTimeout(triggerDangerUI, 1000); // 1 Second hold is perfect
+    };
+    const cancelPress = () => { clearTimeout(pressTimer); };
+
+    profileTrigger.addEventListener('mousedown', startPress);
+    profileTrigger.addEventListener('touchstart', startPress, {passive: false});
+    profileTrigger.addEventListener('mouseup', cancelPress);
+    profileTrigger.addEventListener('mouseleave', cancelPress);
+    profileTrigger.addEventListener('touchend', cancelPress);
+    profileTrigger.addEventListener('touchcancel', cancelPress); // Catches system interruptions
 
     function triggerDangerUI() {
-        if(navigator.vibrate) navigator.vibrate([100, 50, 100]); // Haptic warning
-        if(isPrivateMode) { disablePrivateMode(); return; } // Toggle Off
+        if(navigator.vibrate) navigator.vibrate([100, 50, 100]); 
+        if(isPrivateMode) { disablePrivateMode(); return; } 
         
         document.getElementById('danger-overlay').style.display = 'flex';
         const passIn = document.getElementById('private-pass-input');
@@ -435,17 +476,21 @@
 
     window.cancelPrivateEntry = () => { document.getElementById('danger-overlay').style.display = 'none'; }
 
-    // Fixed: Added separate function for the actual button click
+    // Manual Enter Button logic for mobile keyboards
     window.submitPrivatePass = async () => {
         const val = document.getElementById('private-pass-input').value;
         if(val.length < 4) return alert("Code too short! (Min 4 chars)");
         
-        if(!userData.privateCode) {
-            await updateDoc(doc(db, "users", currentUser.uid), { privateCode: val });
-            userData.privateCode = val; enablePrivateMode();
-        } else {
-            if(val === userData.privateCode) enablePrivateMode();
-            else alert("ACCESS DENIED");
+        try {
+            if(!userData.privateCode) {
+                await updateDoc(doc(db, "users", currentUser.uid), { privateCode: val });
+                userData.privateCode = val; enablePrivateMode();
+            } else {
+                if(val === userData.privateCode) enablePrivateMode();
+                else alert("ACCESS DENIED: Wrong Code");
+            }
+        } catch(e) {
+            console.error(e); alert("Database Error. Check your connection or Firebase rules.");
         }
     };
 
@@ -506,7 +551,6 @@
                 let ticks = isMe ? `<i class="fa-solid fa-check-double tick ${msg.status==='read'?'read':''}"></i>` : '';
                 if(!isMe && msg.status !== 'read') updateDoc(doc(db, `chats/${cId}/messages`, d.id), { status: 'read' });
                 
-                // Add event listeners correctly for hold to delete
                 html += `<div class="msg-bubble ${isMe ? 'mine' : 'theirs'}" id="msg-${d.id}" data-id="${d.id}" data-isme="${isMe}">${content}<div class="msg-time">${time} ${ticks}</div></div>`;
             });
             const box = document.getElementById('chat-messages'); box.innerHTML = html; box.scrollTop = box.scrollHeight;
@@ -526,9 +570,9 @@
     let msgTimer; let selMsgId = null;
     function attachHoldListeners() {
         document.querySelectorAll('.msg-bubble').forEach(el => {
-            el.onmousedown = () => { msgTimer = setTimeout(() => showContext(el, event), 800); };
+            el.onmousedown = (e) => { msgTimer = setTimeout(() => showContext(el, e), 800); };
             el.ontouchstart = (e) => { msgTimer = setTimeout(() => showContext(el, e.touches[0]), 800); };
-            el.onmouseup = () => clearTimeout(msgTimer); el.ontouchend = () => clearTimeout(msgTimer);
+            el.onmouseup = () => clearTimeout(msgTimer); el.ontouchend = () => clearTimeout(msgTimer); el.oncontextmenu = (e)=>{e.preventDefault(); return false;}
         });
     }
     function showContext(el, ev) {
@@ -549,7 +593,7 @@
 
     // VOICE MESSAGES
     window.startVoiceRecord = async () => {
-        try { const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); mediaRecorder = new MediaRecorder(stream); document.getElementById('btn-mic').classList.add('recording'); mediaRecorder.start(); audioChunks = []; mediaRecorder.addEventListener("dataavailable", e => audioChunks.push(e.data)); } catch(e) { console.log(e); }
+        try { const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); mediaRecorder = new MediaRecorder(stream); document.getElementById('btn-mic').classList.add('recording'); mediaRecorder.start(); audioChunks = []; mediaRecorder.addEventListener("dataavailable", e => audioChunks.push(e.data)); } catch(e) { console.log("Mic Denied"); }
     };
     window.stopVoiceRecord = () => {
         if(!mediaRecorder) return; document.getElementById('btn-mic').classList.remove('recording'); mediaRecorder.stop();
@@ -579,7 +623,7 @@
             snap.docChanges().forEach(change => {
                 const data = change.doc.data();
                 if(change.type === "added" && data.status === 'ringing') {
-                    if(data.isPrivate !== isPrivateMode) return; // Strict mode separation
+                    if(data.isPrivate !== isPrivateMode) return; 
                     incomingCallId = change.doc.id; incomingCallData = data;
                     document.getElementById('inc-name').innerText = data.callerName; document.getElementById('inc-dp').innerText = data.callerAvatar; document.getElementById('inc-type').innerText = data.type === 'video' ? 'Incoming Video Call' : 'Incoming Voice Call';
                     document.getElementById('incoming-popup').classList.add('show'); currentRingtone.play();
