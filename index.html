@@ -3,42 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ghost Chat - Nexus Theme</title>
+    <title>Dark Chat</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* --- GLOBAL VARIABLES & NEW THEMES --- */
+        /* --- GLOBAL VARIABLES & THEMES --- */
         :root {
-            /* Public Theme (Cosmic Glassmorphism) */
-            --bg-public-1: #0f0c29;
-            --bg-public-2: #302b63;
-            --bg-public-3: #24243e;
-            --panel-bg: rgba(20, 20, 40, 0.6);
-            --primary: #00ffcc; /* Neon Cyan */
+            /* Clean Dark Theme */
+            --bg-public-1: #121212;
+            --bg-public-2: #1e1e24;
+            --bg-public-3: #121212;
+            --panel-bg: rgba(25, 25, 30, 0.9);
+            --primary: #00e5ff; 
             --text-main: #ffffff; 
-            --text-muted: #a0a0b8;
-            --danger: #ff3366;
-            --success: #00ff66;
-            --chat-bubble: rgba(255, 255, 255, 0.1);
-            --chat-mine: rgba(0, 255, 204, 0.2);
-            --border-color: rgba(0, 255, 204, 0.3);
+            --text-muted: #94a3b8;
+            --danger: #ff4b2b;
+            --success: #00e676;
+            --chat-bubble: #2a2a35;
+            --chat-mine: #005f73;
+            --border-color: rgba(255, 255, 255, 0.1);
         }
 
         body.private-mode {
-            /* Private Theme (Stealth Crimson) */
+            /* Stealth Crimson Theme */
             --bg-public-1: #1a0000;
             --bg-public-2: #330000;
             --bg-public-3: #000000;
-            --panel-bg: rgba(30, 0, 0, 0.8);
-            --primary: #ff0055; /* Neon Pink/Red */
+            --panel-bg: rgba(30, 0, 0, 0.85);
+            --primary: #ff0055; 
             --text-main: #ffcccc; 
             --text-muted: #cc7777;
             --danger: #ff0000;
             --success: #ff3399;
             --chat-bubble: rgba(255, 0, 0, 0.15);
             --chat-mine: rgba(255, 0, 85, 0.3);
-            --border-color: rgba(255, 0, 85, 0.4);
+            --border-color: rgba(255, 0, 85, 0.3);
         }
 
         html, body { margin: 0; padding: 0; height: 100dvh; width: 100%; box-sizing: border-box; }
@@ -48,23 +48,18 @@
             font-family: 'Poppins', sans-serif;
             color: var(--text-main);
             display: flex; justify-content: center; height: 100dvh; overflow: hidden;
-            transition: background 0.8s ease;
+            transition: background 0.5s ease;
             background: linear-gradient(135deg, var(--bg-public-1), var(--bg-public-2), var(--bg-public-3));
             background-size: 400% 400%;
-            animation: bgMove 15s ease infinite, thunderFlash 12s infinite;
+            animation: bgMove 15s ease infinite;
         }
 
-        body.private-mode { animation: bgMove 10s ease infinite; }
-
         @keyframes bgMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        @keyframes thunderFlash { 0%, 95%, 98%, 100% { filter: brightness(1); } 96% { filter: brightness(2.5) contrast(1.2); } 97% { filter: brightness(1.5); } 99% { filter: brightness(3); } }
 
         .app-container {
             width: 100%; max-width: 500px; height: 100dvh;
             background: var(--panel-bg); display: flex; flex-direction: column;
-            position: relative; box-shadow: 0 0 30px rgba(0,0,0,0.8);
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color);
+            position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.8);
         }
 
         /* --- GLITCH SYMBOL --- */
@@ -73,106 +68,121 @@
         @keyframes glitchAnim { 0% { transform: translate(-50%, -50%) skew(0deg); text-shadow: 3px 0 red, -3px 0 blue; } 10% { transform: translate(-52%, -50%) skew(-10deg); text-shadow: -3px 0 red, 3px 0 blue; } 20% { transform: translate(-50%, -48%) skew(10deg); text-shadow: 3px 0 red, -3px 0 blue; } 30% { transform: translate(-48%, -50%) skew(-5deg); text-shadow: -3px 0 red, 3px 0 blue; } 40% { transform: translate(-50%, -52%) skew(5deg); text-shadow: 3px 0 red, -3px 0 blue; } 50%, 100% { transform: translate(-50%, -50%) skew(0deg); text-shadow: none; } }
 
         /* --- UI ELEMENTS --- */
-        .auth-input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); color: var(--text-main); outline: none; font-family: inherit; font-size: 1rem; backdrop-filter: blur(5px); }
-        .btn-main { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--primary); color: #000; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--border-color); }
+        .auth-input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 8px; background: rgba(0,0,0,0.5); border: 1px solid var(--border-color); color: var(--text-main); outline: none; font-family: inherit; font-size: 1rem; }
+        .auth-input:focus { border-color: var(--primary); }
+        .btn-main { width: 100%; padding: 15px; border-radius: 8px; border: none; background: var(--primary); color: #000; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 15px; transition: 0.3s; }
+        .btn-main:hover { opacity: 0.9; }
+        .btn-small { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; border: none; cursor: pointer; color: #fff; font-weight: bold;}
         .icon-btn { background: none; border: none; color: var(--primary); font-size: 1.3rem; cursor: pointer; padding: 5px; transition: 0.2s;}
-        .icon-btn:hover { color: var(--text-main); transform: scale(1.1); }
-
-        /* --- DASHBOARD --- */
-        .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); background: rgba(0,0,0,0.3); z-index: 10; }
-        .profile-area { display: flex; align-items: center; gap: 10px; }
-        .dp-circle { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(45deg, var(--primary), #555); display: flex; justify-content: center; align-items: center; overflow: hidden; cursor: pointer; color: #000; position: relative;}
         
-        /* Online Status Dot */
+        /* --- DASHBOARD --- */
+        .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); background: rgba(0,0,0,0.4); z-index: 10; }
+        .profile-area { display: flex; align-items: center; gap: 10px; }
+        .dp-circle { width: 45px; height: 45px; border-radius: 50%; background: #444; display: flex; justify-content: center; align-items: center; overflow: hidden; cursor: pointer; color: #fff; position: relative;}
         .online-dot { position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; background: var(--success); border-radius: 50%; border: 2px solid var(--panel-bg); display: none; }
         .dp-circle.online .online-dot { display: block; }
-
+        
         .tabs { display: flex; border-bottom: 1px solid var(--border-color); z-index: 2; position: relative; background: rgba(0,0,0,0.2);}
-        .tab { flex: 1; text-align: center; padding: 15px; cursor: pointer; transition: 0.3s; color: var(--text-muted); }
+        .tab { flex: 1; text-align: center; padding: 15px; cursor: pointer; transition: 0.3s; color: var(--text-muted); font-size: 0.95rem; }
         .tab.active { border-bottom: 3px solid var(--primary); font-weight: bold; color: var(--primary); }
 
         .list-container { flex: 1; overflow-y: auto; padding: 10px; z-index: 2; position: relative; }
-        .list-item { display: flex; align-items: center; padding: 15px; border-radius: 15px; margin-bottom: 10px; background: rgba(255,255,255,0.05); cursor: pointer; transition: 0.3s; border: 1px solid transparent; position: relative; }
-        .list-item:hover { background: rgba(255,255,255,0.1); border: 1px solid var(--border-color); }
-
-        /* Unread Badge */
+        .list-item { display: flex; align-items: center; padding: 15px; border-radius: 12px; margin-bottom: 10px; background: rgba(255,255,255,0.03); cursor: pointer; transition: 0.2s; position: relative; }
+        .list-item:hover { background: rgba(255,255,255,0.08); }
         .unread-badge { background: var(--success); color: #000; font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 12px; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); }
 
         /* --- CHAT INTERFACE --- */
-        #chat-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--panel-bg); display: none; flex-direction: column; z-index: 50; backdrop-filter: blur(20px); }
-        .chat-header { padding: 15px; display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.4); border-bottom: 1px solid var(--border-color); z-index: 10; }
-        .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; z-index: 2; position: relative;}
+        #chat-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--panel-bg); display: none; flex-direction: column; z-index: 50; }
+        .chat-header { padding: 15px; display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.6); border-bottom: 1px solid var(--border-color); z-index: 10; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; z-index: 2; position: relative;}
         
-        .msg-bubble { max-width: 80%; padding: 12px 18px; border-radius: 20px; position: relative; word-wrap: break-word; user-select: none; transition: 0.2s; font-size: 0.95rem; line-height: 1.4; border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(5px);}
-        .msg-bubble.mine { align-self: flex-end; background: var(--chat-mine); border-bottom-right-radius: 4px; border-color: var(--border-color);}
+        .msg-bubble { max-width: 80%; padding: 10px 15px; border-radius: 15px; position: relative; word-wrap: break-word; user-select: none; transition: 0.2s; font-size: 0.95rem; line-height: 1.4; border: 1px solid rgba(255,255,255,0.05);}
+        .msg-bubble.mine { align-self: flex-end; background: var(--chat-mine); border-bottom-right-radius: 4px; }
         .msg-bubble.theirs { align-self: flex-start; background: var(--chat-bubble); border-bottom-left-radius: 4px; }
-        .msg-time { font-size: 0.7rem; color: rgba(255,255,255,0.5); text-align: right; margin-top: 5px; }
-        .msg-image { max-width: 100%; border-radius: 12px; margin-bottom: 5px; }
-        
-        .tick { color: rgba(255,255,255,0.3); margin-left: 5px; font-size: 0.8rem;}
+        .msg-time { font-size: 0.7rem; color: rgba(255,255,255,0.6); text-align: right; margin-top: 5px; }
+        .msg-image { max-width: 100%; border-radius: 10px; margin-bottom: 5px; cursor: pointer; }
+        .tick { color: rgba(255,255,255,0.4); margin-left: 5px; font-size: 0.8rem;}
         .tick.read { color: var(--primary); } 
 
-        .chat-input-area { display: flex; padding: 15px; background: rgba(0,0,0,0.5); align-items: center; gap: 10px; z-index: 10; border-top: 1px solid var(--border-color); }
-        .chat-input-area input { flex: 1; padding: 14px 20px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); outline: none; background: rgba(0,0,0,0.3); color: var(--text-main); font-size: 0.95rem; transition: 0.3s;}
-        .chat-input-area input:focus { border-color: var(--primary); background: rgba(0,0,0,0.5);}
+        .chat-input-area { display: flex; padding: 12px; background: rgba(0,0,0,0.6); align-items: center; gap: 10px; z-index: 10; border-top: 1px solid var(--border-color); }
+        .chat-input-area input[type="text"] { flex: 1; padding: 12px 18px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); outline: none; background: rgba(0,0,0,0.4); color: var(--text-main); font-size: 0.95rem; }
+        .chat-input-area input[type="text"]:focus { border-color: var(--primary); }
+        
+        .twice-toggle { display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; border-radius: 50%; background: rgba(255,255,255,0.1); cursor: pointer; color: #fff;}
+        .twice-toggle.active { background: var(--primary); color: #000; }
 
-        /* --- BIG VOICE RECORDING ANIMATION --- */
-        #recording-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; pointer-events: none;}
-        .record-pulse { width: 100px; height: 100px; background: rgba(255, 50, 50, 0.2); border-radius: 50%; display: flex; justify-content: center; align-items: center; animation: radarPulse 1s infinite; border: 2px solid var(--danger); box-shadow: 0 0 30px var(--danger);}
-        .record-pulse i { font-size: 3rem; color: var(--danger); animation: iconPulse 1s infinite alternate; }
-        @keyframes radarPulse { 0% { transform: scale(0.8); opacity: 1; } 100% { transform: scale(1.8); opacity: 0; } }
-        @keyframes iconPulse { 0% { transform: scale(0.9); } 100% { transform: scale(1.1); } }
+        /* Recording Anim */
+        #recording-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100;}
+        .record-pulse { width: 80px; height: 80px; background: rgba(255, 50, 50, 0.2); border-radius: 50%; display: flex; justify-content: center; align-items: center; animation: radarPulse 1s infinite; border: 2px solid var(--danger);}
+        .record-pulse i { font-size: 2.5rem; color: var(--danger); }
+        @keyframes radarPulse { 0% { transform: scale(0.8); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
 
-        /* --- MODALS & CONTEXT MENUS --- */
-        #context-menu { position: absolute; background: rgba(10,10,20,0.95); border: 1px solid var(--border-color); border-radius: 12px; padding: 10px; display: none; flex-direction: column; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.8); backdrop-filter: blur(10px);}
-        #context-menu button { background: none; border: none; color: white; padding: 12px; text-align: left; cursor: pointer; font-family: inherit; font-size: 0.95rem; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.2s;}
+        /* Context Menu */
+        #context-menu { position: absolute; background: #1a1a1a; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px; display: none; flex-direction: column; z-index: 100; box-shadow: 0 5px 15px rgba(0,0,0,0.8);}
+        #context-menu button { background: none; border: none; color: white; padding: 10px 15px; text-align: left; cursor: pointer; font-family: inherit; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
         #context-menu button:last-child { border-bottom: none; }
-        #context-menu button:hover { color: var(--primary); background: rgba(255,255,255,0.05); padding-left: 15px;}
+        #context-menu button:hover { color: var(--primary); }
 
-        .modal { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 300; backdrop-filter: blur(5px); }
-        .modal-content { background: var(--panel-bg); padding: 30px; border-radius: 20px; width: 85%; max-width: 350px; text-align: center; border: 1px solid var(--border-color); box-shadow: 0 10px 40px rgba(0,0,0,0.8);}
+        /* Modals */
+        .modal { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 300; }
+        .modal-content { background: var(--panel-bg); padding: 25px; border-radius: 12px; width: 85%; max-width: 350px; text-align: center; border: 1px solid var(--border-color); box-shadow: 0 10px 25px rgba(0,0,0,0.9);}
 
-        /* WEBRTC UI (Unchanged from prev) */
+        /* WebRTC Caller */
         #call-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; flex-direction: column; z-index: 200; }
-        .remote-video { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 198; background: #050505; }
-        .local-video-pip { position: absolute; bottom: 120px; right: 20px; width: 100px; height: 140px; object-fit: cover; border-radius: 12px; z-index: 199; border: 2px solid var(--primary); box-shadow: 0 5px 15px rgba(0,0,0,0.8); transform: scaleX(-1); }
-        .caller-overlay { position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding: 60px 20px 40px 20px; box-sizing: border-box; z-index: 201; background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.9) 100%); pointer-events: none;}
-        .call-controls { display: flex; justify-content: space-around; background: rgba(255,255,255,0.1); padding: 20px; border-radius: 30px; backdrop-filter: blur(15px); pointer-events: auto;}
-        .ctrl-btn { width: 55px; height: 55px; border-radius: 50%; border: none; cursor: pointer; font-size: 1.3rem; color: white; background: rgba(255,255,255,0.2); transition: 0.3s; display: flex; justify-content: center; align-items: center;}
+        .remote-video { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 198; background: #111; }
+        .local-video-pip { position: absolute; bottom: 120px; right: 20px; width: 100px; height: 140px; object-fit: cover; border-radius: 12px; z-index: 199; border: 2px solid var(--primary); transform: scaleX(-1); }
+        .caller-overlay { position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding: 50px 20px; box-sizing: border-box; z-index: 201; background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.9) 100%); pointer-events: none;}
+        .call-controls { display: flex; justify-content: space-around; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 25px; backdrop-filter: blur(10px); pointer-events: auto;}
+        .ctrl-btn { width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer; font-size: 1.2rem; color: white; background: rgba(255,255,255,0.2); transition: 0.2s;}
         .ctrl-btn.active { background: var(--primary); color: #000; }
         .ctrl-btn.hangup { background: var(--danger); transform: scale(1.1); }
         .ctrl-btn.answer { background: var(--success); transform: scale(1.1); display: none; }
         
         #danger-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; animation: flashDanger 0.8s infinite alternate; }
         @keyframes flashDanger { 0% { background: rgba(30,0,0,0.95); } 100% { background: rgba(120,0,0,0.98); } }
+        
+        /* Auth layout clean up */
+        .auth-container { text-align: left; margin-top: 20px; }
+        .auth-label { font-size: 0.85rem; color: var(--text-muted); margin-left: 5px; }
     </style>
 </head>
 <body>
-
-    <div id="hearts-container"></div>
-
     <div class="app-container">
         <i class="fa-solid fa-skull glitch-bg-icon"></i>
 
-        <div id="auth-screen">
-            <h1 style="color:var(--primary); font-size: 2.8rem; text-shadow: 0 0 20px var(--primary); margin-bottom: 5px;"><i class="fa-brands fa-neos"></i> Nexus</h1>
-            <p style="color:var(--text-muted); margin-bottom: 30px; font-weight: 300;">Encrypted Media & Chat</p>
-            <input type="email" id="auth-email" class="auth-input" placeholder="Email Address">
-            <input type="password" id="auth-pass" class="auth-input" placeholder="Password">
-            <input type="text" id="auth-user" class="auth-input" placeholder="Username (Signup Only)" style="display:none;">
-            <button class="btn-main" id="btn-login" onclick="login()">Access System</button>
-            <button class="btn-main" id="btn-signup" onclick="signup()" style="display:none;">Initialize Account</button>
-            <div class="auth-links" onclick="toggleAuth()">New Node? Initialize Here</div>
+        <div id="auth-screen" style="padding: 40px;">
+            <div style="text-align: center;">
+                <h1 style="color:var(--primary); font-size: 2.5rem; margin-bottom: 5px;"><i class="fa-solid fa-comment-slash"></i> Dark Chat</h1>
+                <p style="color:var(--text-muted); font-size: 0.9rem;">Secure & Private Messaging</p>
+            </div>
+            
+            <div class="auth-container">
+                <div id="signup-field" style="display:none;">
+                    <label class="auth-label">Username</label>
+                    <input type="text" id="auth-user" class="auth-input" placeholder="Enter username">
+                </div>
+                <label class="auth-label">Email</label>
+                <input type="email" id="auth-email" class="auth-input" placeholder="Enter your email">
+                <label class="auth-label">Password</label>
+                <input type="password" id="auth-pass" class="auth-input" placeholder="Enter password">
+                
+                <button class="btn-main" id="btn-login" onclick="login()">Login</button>
+                <button class="btn-main" id="btn-signup" onclick="signup()" style="display:none;">Create Account</button>
+                
+                <div style="display:flex; justify-content: space-between; margin-top: 20px; font-size: 0.85rem;">
+                    <span style="color:var(--primary); cursor:pointer;" onclick="toggleAuth()" id="toggle-txt">New user? Register</span>
+                    <span style="color:var(--text-muted); cursor:pointer;" onclick="forgotPassword()">Forgot Password?</span>
+                </div>
+            </div>
         </div>
 
         <div id="dashboard" style="display:none; height:100%; flex-direction:column;">
             <div class="header">
                 <div class="profile-area">
                     <div class="dp-circle online" onclick="openSettings()"><i class="fa-solid fa-user"></i><div class="online-dot"></div></div>
-                    <div class="hidden-trigger" onmousedown="startPrivateTimer()" onmouseup="clearPrivateTimer()" ontouchstart="startPrivateTimer()" ontouchend="clearPrivateTimer()">
-                        <div id="my-username" style="font-weight:bold; font-size:1.1rem; letter-spacing: 0.5px;">Username</div>
-                        <div style="font-size:0.75rem; color:var(--success);"><i class="fa-solid fa-signal" style="font-size: 0.6rem; margin-right: 3px;"></i> Active</div>
+                    <div style="cursor:pointer; user-select:none;" onmousedown="handleUserPress(event)" onmouseup="clearUserPress()" ontouchstart="handleUserPress(event)" ontouchend="clearUserPress()">
+                        <div id="my-username" style="font-weight:bold; font-size:1.1rem;">Username</div>
+                        <div style="font-size:0.75rem; color:var(--success);"><i class="fa-solid fa-signal" style="font-size: 0.6rem;"></i> Active</div>
                     </div>
                 </div>
                 <div style="display:flex; gap:15px;">
@@ -181,27 +191,29 @@
                 </div>
             </div>
             <div class="tabs">
-                <div class="tab active" onclick="switchTab('chats')">Connections</div>
-                <div class="tab" onclick="switchTab('calls')">Logs</div>
+                <div class="tab active" onclick="switchTab('chats')">Chats</div>
+                <div class="tab" onclick="switchTab('requests')">Requests</div>
+                <div class="tab" onclick="switchTab('calls')">Calls</div>
             </div>
-            <div class="list-container" id="chats-list"><i>Scanning network...</i></div>
-            <div class="list-container" id="calls-list" style="display:none;"><i>No logs found.</i></div>
+            <div class="list-container" id="chats-list"><i>Loading chats...</i></div>
+            <div class="list-container" id="requests-list" style="display:none;"><i>No pending requests.</i></div>
+            <div class="list-container" id="calls-list" style="display:none;"><i>No call history.</i></div>
         </div>
 
         <div id="chat-screen">
             <i class="fa-solid fa-skull glitch-bg-icon"></i>
             <div class="chat-header">
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <i class="fa-solid fa-chevron-left icon-btn" onclick="closeChat()"></i>
-                    <div class="dp-circle" style="width:40px; height:40px;" id="chat-partner-dp" onclick="openPartnerProfile()">
+                    <i class="fa-solid fa-arrow-left icon-btn" onclick="closeChat()"></i>
+                    <div class="dp-circle" style="width:38px; height:38px;" id="chat-partner-dp" onclick="openPartnerProfile()">
                         <i class="fa-solid fa-user"></i><div class="online-dot" id="chat-online-dot"></div>
                     </div>
                     <div>
-                        <div id="chat-partner-name" style="font-weight:600; font-size:1.1rem;">Partner</div>
+                        <div id="chat-partner-name" style="font-weight:bold; font-size:1rem;">Partner</div>
                         <div id="chat-typing-indicator" style="font-size:0.7rem; color:var(--primary); display:none;">Typing...</div>
                     </div>
                 </div>
-                <div style="display:flex; gap:20px;">
+                <div style="display:flex; gap:15px;">
                     <i class="fa-solid fa-phone icon-btn" onclick="startCall('voice')"></i>
                     <i class="fa-solid fa-video icon-btn" onclick="startCall('video')"></i>
                 </div>
@@ -211,15 +223,15 @@
             
             <div id="recording-overlay">
                 <div class="record-pulse"><i class="fa-solid fa-microphone"></i></div>
-                <div style="color:var(--danger); font-weight:bold; margin-top:20px; text-shadow:0 0 10px red;">Recording...</div>
+                <div style="color:var(--danger); font-weight:bold; margin-top:15px;">Recording...</div>
             </div>
 
             <div class="chat-input-area">
+                <div class="twice-toggle" id="btn-twice" onclick="toggleTwiceView()"><i class="fa-solid fa-eye"></i></div>
                 <label for="img-upload" class="icon-btn" style="margin-bottom:0;"><i class="fa-solid fa-paperclip"></i></label>
                 <input type="file" id="img-upload" accept="image/*" style="display:none" onchange="sendImage(this)">
                 
-                <input type="text" id="msg-input" placeholder="Transmit message..." oninput="handleTyping()">
-                
+                <input type="text" id="msg-input" placeholder="Message" oninput="handleTyping()">
                 <button class="icon-btn" id="btn-mic" onmousedown="startVoiceRecord(event)" onmouseup="stopVoiceRecord(event)" ontouchstart="startVoiceRecord(event)" ontouchend="stopVoiceRecord(event)"><i class="fa-solid fa-microphone"></i></button>
                 <button class="icon-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
@@ -230,9 +242,9 @@
             <video id="local-video" class="local-video-pip" autoplay muted playsinline style="display:none;"></video>
             <div class="caller-overlay">
                 <div style="text-align:center;">
-                    <h2 id="calling-name" style="font-size: 2rem; margin-bottom: 5px; text-shadow: 0 2px 5px #000;">Partner Name</h2>
-                    <p id="call-status" style="font-size: 1.1rem; color: #ccc; margin-top: 0;">Ringing...</p>
-                    <p id="call-timer" style="display:none; font-size: 1.5rem; font-weight: bold; margin-top: 10px; text-shadow: 0 2px 5px #000;">00:00</p>
+                    <h2 id="calling-name" style="font-size: 1.8rem; margin-bottom: 5px; text-shadow: 0 2px 5px #000;">Partner</h2>
+                    <p id="call-status" style="font-size: 1rem; color: #ccc; margin-top: 0;">Ringing...</p>
+                    <p id="call-timer" style="display:none; font-size: 1.5rem; font-weight: bold; margin-top: 10px;">00:00</p>
                 </div>
                 <div class="call-controls">
                     <button class="ctrl-btn answer" id="btn-answer" onclick="acceptIncomingCall()"><i class="fa-solid fa-phone"></i></button>
@@ -246,7 +258,7 @@
 
         <div id="danger-overlay">
             <i class="fa-solid fa-skull danger-icon"></i>
-            <h2 style="color:red; letter-spacing: 3px; text-shadow: 0 0 15px red; margin-top: 20px;">RESTRICTED AREA</h2>
+            <h2 style="color:red; letter-spacing: 3px; margin-top: 20px;">RESTRICTED AREA</h2>
             <div class="bottom-password">
                 <input type="password" id="private-pass-input" placeholder="ENTER ACCESS CODE" onkeypress="verifyPrivatePass(event)">
                 <p id="private-hint" style="color:#aaa; font-size:0.85rem; text-align:center; display:none; margin-top: 10px;">Create a new code for Private Mode</p>
@@ -255,18 +267,18 @@
 
         <div class="modal" id="search-modal">
             <div class="modal-content">
-                <h3 style="margin-top:0;">Establish Connection</h3>
-                <input type="text" id="search-input" class="auth-input" placeholder="Target Username">
-                <button class="btn-main" onclick="addFriend()"><i class="fa-solid fa-radar"></i> Link</button>
-                <button class="btn-main" style="background:transparent; border: 1px solid var(--text-muted); color: white; margin-top:10px;" onclick="document.getElementById('search-modal').style.display='none'">Abort</button>
+                <h3 style="margin-top:0;">Add Friend</h3>
+                <input type="text" id="search-input" class="auth-input" placeholder="Exact Username">
+                <button class="btn-main" onclick="sendFriendRequest()">Send Request</button>
+                <button class="btn-main" style="background:transparent; border: 1px solid var(--text-muted); color: white; margin-top:10px;" onclick="document.getElementById('search-modal').style.display='none'">Cancel</button>
             </div>
         </div>
 
         <div class="modal" id="settings-modal">
             <div class="modal-content">
-                <h3 style="margin-top:0;">Node Config</h3>
-                <div class="dp-circle" style="width:70px; height:70px; margin: 0 auto 15px auto; font-size: 2rem;"><i class="fa-solid fa-user"></i></div>
-                <input type="text" id="new-username" class="auth-input" placeholder="New Identifier">
+                <h3 style="margin-top:0;">About User</h3>
+                <div class="dp-circle" style="width:60px; height:60px; margin: 0 auto 15px auto; font-size: 1.5rem;"><i class="fa-solid fa-user"></i></div>
+                <input type="text" id="new-username" class="auth-input" placeholder="Change Username">
                 <button class="btn-main" onclick="updateUsername()">Update</button>
                 <button class="btn-main" style="background:transparent; border: 1px solid var(--text-muted); color: white; margin-top:10px;" onclick="document.getElementById('settings-modal').style.display='none'">Close</button>
             </div>
@@ -274,19 +286,19 @@
 
         <div class="modal" id="partner-profile-modal">
             <div class="modal-content">
-                <div class="dp-circle" style="width:70px; height:70px; margin: 0 auto 15px auto; font-size: 2rem;"><i class="fa-solid fa-user"></i></div>
+                <div class="dp-circle" style="width:60px; height:60px; margin: 0 auto 15px auto; font-size: 1.5rem;"><i class="fa-solid fa-user"></i></div>
                 <h3 id="partner-modal-name" style="margin-top:0; margin-bottom:5px;">Partner Info</h3>
-                <input type="text" id="nickname-input" class="auth-input" placeholder="Set Custom Nickname" style="margin-bottom: 15px; text-align:center;">
-                <button class="btn-main" onclick="setNickname()" style="margin-top:0; background: #fff; color: #000;"><i class="fa-solid fa-tag"></i> Save Nickname</button>
-                <button class="btn-main" id="btn-toggle-mode" onclick="toggleChatMode()"><i class="fa-solid fa-lock"></i> Move to Private Mode</button>
-                <button class="btn-main" style="background:var(--danger);" onclick="removeFriend()"><i class="fa-solid fa-trash-can"></i> Terminate Link</button>
+                <input type="text" id="nickname-input" class="auth-input" placeholder="Set Custom Name" style="margin-bottom: 15px; text-align:center;">
+                <button class="btn-main" onclick="setNickname()" style="margin-top:0; background: #fff; color: #000;">Save Name</button>
+                <button class="btn-main" id="btn-toggle-mode" onclick="toggleChatMode()">Move to Private Mode</button>
+                <button class="btn-main" style="background:var(--danger);" onclick="removeFriend()">Remove Friend</button>
                 <button class="btn-main" style="background:transparent; border: 1px solid var(--text-muted); color: white;" onclick="document.getElementById('partner-profile-modal').style.display='none'">Close</button>
             </div>
         </div>
 
         <div id="context-menu">
-            <button onclick="deleteMsg('me')"><i class="fa-solid fa-eraser"></i> Scrub Locally</button>
-            <button onclick="deleteMsg('everyone')" id="btn-del-everyone"><i class="fa-solid fa-dumpster-fire" style="color:var(--danger);"></i> Obliterate Global</button>
+            <button onclick="deleteMsg('me')">Delete for me</button>
+            <button onclick="deleteMsg('everyone')" id="btn-del-everyone" style="color:var(--danger);">Delete for everyone</button>
             <button onclick="document.getElementById('context-menu').style.display='none'">Cancel</button>
         </div>
 
@@ -313,6 +325,7 @@
     let currentUser = null; let userData = null;
     let isLoginMode = true; let isPrivateMode = false;
     let currentChatId = null; let currentPartnerId = null; let currentPartnerName = ""; let currentPartnerBaseName = "";
+    let isViewTwice = false; let friendsCount = 0;
     
     let localStream = null; let remoteStream = null; let peerConnection = null;
     let activeCallListener = null; let callTimerInt; let isVideoCall = false;
@@ -321,158 +334,177 @@
     const incomingRingtone = new Audio('https://assets.mixkit.co/active_storage/sfx/2870/2870-preview.mp3'); incomingRingtone.loop = true;
     const outgoingRingtone = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'); outgoingRingtone.loop = true;
 
-    // --- AUTH & ONLINE STATUS ---
-    window.toggleAuth = () => { isLoginMode = !isLoginMode; document.getElementById('auth-user').style.display = isLoginMode ? 'none' : 'block'; document.getElementById('btn-login').style.display = isLoginMode ? 'block' : 'none'; document.getElementById('btn-signup').style.display = isLoginMode ? 'none' : 'block'; };
+    // --- AUTH & PERMISSIONS ---
+    window.toggleAuth = () => { isLoginMode = !isLoginMode; document.getElementById('signup-field').style.display = isLoginMode ? 'none' : 'block'; document.getElementById('btn-login').style.display = isLoginMode ? 'block' : 'none'; document.getElementById('btn-signup').style.display = isLoginMode ? 'none' : 'block'; document.getElementById('toggle-txt').innerText = isLoginMode ? "New user? Register" : "Already have an account? Login"; };
     window.login = async () => { try { await signInWithEmailAndPassword(auth, document.getElementById('auth-email').value, document.getElementById('auth-pass').value); } catch (err) { alert(err.message); } };
     window.signup = async () => { const u = document.getElementById('auth-user').value; if(!u) return alert("Username required"); try { const cred = await createUserWithEmailAndPassword(auth, document.getElementById('auth-email').value, document.getElementById('auth-pass').value); await setDoc(doc(db, "users", cred.user.uid), { email: cred.user.email, username: u, privateCode: null, isOnline: true }); } catch (err) { alert(err.message); } };
-    window.forgotPassword = async () => { try { await sendPasswordResetEmail(auth, document.getElementById('auth-email').value); alert("Reset sequence initiated."); } catch (err) { alert(err.message); } };
+    window.forgotPassword = async () => { try { await sendPasswordResetEmail(auth, document.getElementById('auth-email').value); alert("Password reset link sent!"); } catch (err) { alert("Enter email first."); } };
+    window.logout = async () => { if(currentUser) await updateDoc(doc(db, "users", currentUser.uid), { isOnline: false }); signOut(auth); };
+
+    // Request Notification Permissions on load
+    function requestPushPermissions() {
+        if ("Notification" in window && Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+    }
     
-    // Manage Online Status smoothly
-    window.logout = async () => { 
-        if(currentUser) await updateDoc(doc(db, "users", currentUser.uid), { isOnline: false });
-        signOut(auth); 
-    };
-    
-    window.addEventListener('beforeunload', async () => {
-        if(currentUser) await updateDoc(doc(db, "users", currentUser.uid), { isOnline: false });
+    function sendPushNotification(title, body) {
+        if ("Notification" in window && Notification.permission === "granted" && document.hidden) {
+            new Notification(title, { body: body, icon: "https://cdn-icons-png.flaticon.com/512/3114/3114883.png" });
+        }
+    }
+
+    // App Background Event Listener (Pause Media)
+    document.addEventListener("visibilitychange", () => {
+        if(currentUser) {
+            updateDoc(doc(db, "users", currentUser.uid), { isOnline: !document.hidden });
+        }
+        if(localStream) {
+            // Mute video/audio tracks if app is in background
+            localStream.getTracks().forEach(track => {
+                track.enabled = !document.hidden;
+            });
+        }
     });
+    window.addEventListener('beforeunload', async () => { if(currentUser) await updateDoc(doc(db, "users", currentUser.uid), { isOnline: false }); });
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUser = user; 
-            await updateDoc(doc(db, "users", user.uid), { isOnline: true }); // Set online
-            
+            await updateDoc(doc(db, "users", user.uid), { isOnline: true }); 
             document.getElementById('auth-screen').style.display = 'none'; document.getElementById('dashboard').style.display = 'flex';
             const docSnap = await getDoc(doc(db, "users", user.uid)); userData = docSnap.data(); 
             document.getElementById('my-username').innerText = userData.username;
-            loadFriendsList(); listenForCalls();
+            requestPushPermissions();
+            loadFriendsList(); listenForRequests(); listenForCalls();
         } else {
             currentUser = null; document.getElementById('auth-screen').style.display = 'flex'; document.getElementById('dashboard').style.display = 'none'; disablePrivateMode();
         }
     });
 
-    window.switchTab = (tab) => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); event.target.classList.add('active'); document.getElementById('chats-list').style.display = tab === 'chats' ? 'block' : 'none'; document.getElementById('calls-list').style.display = tab === 'calls' ? 'block' : 'none'; if(tab === 'calls') loadCallHistory(); };
+    window.switchTab = (tab) => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); event.target.classList.add('active'); document.getElementById('chats-list').style.display = tab === 'chats' ? 'block' : 'none'; document.getElementById('requests-list').style.display = tab === 'requests' ? 'block' : 'none'; document.getElementById('calls-list').style.display = tab === 'calls' ? 'block' : 'none'; if(tab === 'calls') loadCallHistory(); };
     window.openSettings = () => { document.getElementById('settings-modal').style.display = 'flex'; };
     window.updateUsername = async () => { const nu = document.getElementById('new-username').value; if(!nu) return; await updateDoc(doc(db, "users", currentUser.uid), { username: nu }); document.getElementById('my-username').innerText = nu; userData.username = nu; document.getElementById('settings-modal').style.display = 'none'; };
 
-    // --- PARTNER PROFILE & NICKNAMES ---
-    window.openPartnerProfile = () => { 
-        document.getElementById('partner-modal-name').innerText = currentPartnerName; 
-        document.getElementById('nickname-input').value = currentPartnerName !== currentPartnerBaseName ? currentPartnerName : "";
-        document.getElementById('btn-toggle-mode').innerHTML = isPrivateMode ? '<i class="fa-solid fa-unlock"></i> Move to Public Mode' : '<i class="fa-solid fa-lock"></i> Move to Restrict Mode'; 
-        document.getElementById('partner-profile-modal').style.display = 'flex'; 
+    // USERNAME PRESS LOGIC (Count vs Private Mode)
+    let userPressTimer; let isLongPress = false;
+    window.handleUserPress = (e) => {
+        isLongPress = false;
+        userPressTimer = setTimeout(() => {
+            isLongPress = true;
+            if(isPrivateMode) disablePrivateMode(); 
+            else { document.getElementById('danger-overlay').style.display = 'flex'; document.getElementById('private-pass-input').value = ''; document.getElementById('private-hint').style.display = userData.privateCode ? 'none' : 'block'; }
+        }, 1200);
     };
-    
-    window.setNickname = async () => {
-        const newNick = document.getElementById('nickname-input').value.trim();
-        if(!currentChatId) return;
-        await updateDoc(doc(db, "chats", currentChatId), { [`nicknames.${currentPartnerId}`]: newNick });
-        currentPartnerName = newNick || currentPartnerBaseName;
-        document.getElementById('chat-partner-name').innerText = currentPartnerName;
-        document.getElementById('partner-profile-modal').style.display = 'none';
+    window.clearUserPress = () => {
+        clearTimeout(userPressTimer);
+        if(!isLongPress) { alert(`Total Friends: ${friendsCount}`); } // Short click action
     };
 
+    window.verifyPrivatePass = async (e) => { if(e.key === 'Enter') { const val = document.getElementById('private-pass-input').value; if(!userData.privateCode) { await updateDoc(doc(db, "users", currentUser.uid), { privateCode: val }); userData.privateCode = val; enablePrivateMode(); } else if(val === userData.privateCode) enablePrivateMode(); else alert("ACCESS DENIED"); } };
+    function enablePrivateMode() { document.getElementById('danger-overlay').style.display = 'none'; document.body.classList.add('private-mode'); isPrivateMode = true; loadFriendsList(); }
+    function disablePrivateMode() { document.body.classList.remove('private-mode'); isPrivateMode = false; loadFriendsList(); }
+
+    // --- PARTNER PROFILE & NICKNAMES ---
+    window.openPartnerProfile = () => { document.getElementById('partner-modal-name').innerText = currentPartnerName; document.getElementById('nickname-input').value = currentPartnerName !== currentPartnerBaseName ? currentPartnerName : ""; document.getElementById('btn-toggle-mode').innerHTML = isPrivateMode ? 'Move to Public Mode' : 'Move to Private Mode'; document.getElementById('partner-profile-modal').style.display = 'flex'; };
+    window.setNickname = async () => { const newNick = document.getElementById('nickname-input').value.trim(); if(!currentChatId) return; await updateDoc(doc(db, "chats", currentChatId), { [`nicknames.${currentPartnerId}`]: newNick }); currentPartnerName = newNick || currentPartnerBaseName; document.getElementById('chat-partner-name').innerText = currentPartnerName; document.getElementById('partner-profile-modal').style.display = 'none'; };
     window.toggleChatMode = async () => { if(currentChatId) { await updateDoc(doc(db, "chats", currentChatId), { isPrivate: !isPrivateMode }); document.getElementById('partner-profile-modal').style.display = 'none'; closeChat(); } };
-    window.removeFriend = async () => { if(currentChatId && confirm("Terminate link permanently?")) { await deleteDoc(doc(db, "chats", currentChatId)); document.getElementById('partner-profile-modal').style.display = 'none'; closeChat(); } };
-    window.openSearchModal = () => { document.getElementById('search-modal').style.display = 'flex'; };
+    window.removeFriend = async () => { if(currentChatId && confirm("Remove friend permanently?")) { await deleteDoc(doc(db, "chats", currentChatId)); document.getElementById('partner-profile-modal').style.display = 'none'; closeChat(); } };
     
-    window.addFriend = async () => { 
-        const uname = document.getElementById('search-input').value.trim(); 
-        if(!uname) return;
+    // --- FRIEND REQUESTS SYSTEM ---
+    window.openSearchModal = () => { document.getElementById('search-modal').style.display = 'flex'; };
+    window.sendFriendRequest = async () => { 
+        const uname = document.getElementById('search-input').value.trim(); if(!uname) return;
         const snap = await getDocs(query(collection(db, "users"), where("username", "==", uname))); 
-        if(snap.empty) return alert("Target not found"); 
+        if(snap.empty) return alert("User not found!"); 
         const targetUser = snap.docs[0]; 
-        const combinedId = currentUser.uid > targetUser.id ? currentUser.uid + targetUser.id : targetUser.id + currentUser.uid; 
-        await setDoc(doc(db, "chats", combinedId), { 
-            users: [currentUser.uid, targetUser.id], isPrivate: isPrivateMode, lastMsg: "Connection Established", timestamp: Date.now(),
-            nicknames: {}, unreadCounts: { [currentUser.uid]: 0, [targetUser.id]: 0 }, typing: { [currentUser.uid]: false, [targetUser.id]: false }
-        }); 
-        document.getElementById('search-modal').style.display = 'none'; 
+        await addDoc(collection(db, "friend_requests"), { sender: currentUser.uid, receiver: targetUser.id, senderName: userData.username, timestamp: Date.now() });
+        alert("Request Sent!"); document.getElementById('search-modal').style.display = 'none'; 
     };
+
+    function listenForRequests() {
+        onSnapshot(query(collection(db, "friend_requests"), where("receiver", "==", currentUser.uid)), (snap) => {
+            let html = '';
+            snap.forEach(d => {
+                const req = d.data();
+                html += `<div class="list-item"><div class="dp-circle"><i class="fa-solid fa-user"></i></div><div style="flex:1; padding-left:15px;"><div style="font-weight:bold;">${req.senderName}</div><div style="font-size:0.8rem; color:var(--text-muted);">Wants to connect</div></div><div><button class="btn-small" style="background:var(--success); margin-right:5px;" onclick="acceptRequest('${d.id}', '${req.sender}')">Accept</button><button class="btn-small" style="background:var(--danger);" onclick="declineRequest('${d.id}')">Decline</button></div></div>`;
+            });
+            document.getElementById('requests-list').innerHTML = html || "<div style='text-align:center; padding: 20px; color: #555;'>No pending requests.</div>";
+        });
+    }
+
+    window.acceptRequest = async (reqId, senderId) => {
+        const combinedId = currentUser.uid > senderId ? currentUser.uid + senderId : senderId + currentUser.uid; 
+        await setDoc(doc(db, "chats", combinedId), { users: [currentUser.uid, senderId], isPrivate: false, lastMsg: "Connection Established", timestamp: Date.now(), nicknames: {}, unreadCounts: { [currentUser.uid]: 0, [senderId]: 0 }, typing: { [currentUser.uid]: false, [senderId]: false } }); 
+        await deleteDoc(doc(db, "friend_requests", reqId));
+    };
+    window.declineRequest = async (reqId) => { await deleteDoc(doc(db, "friend_requests", reqId)); };
 
     function loadFriendsList() {
         onSnapshot(query(collection(db, "chats"), where("users", "array-contains", currentUser.uid)), async (snap) => {
-            let html = '';
+            let html = ''; friendsCount = 0;
             for (const d of snap.docs) {
                 const data = d.data(); if(data.isPrivate !== isPrivateMode) continue; 
+                friendsCount++;
                 const partnerId = data.users.find(id => id !== currentUser.uid);
                 const pSnap = await getDoc(doc(db, "users", partnerId));
                 if(pSnap.exists()) {
                     const pData = pSnap.data();
-                    
-                    // Nickname Logic
                     const nickName = data.nicknames && data.nicknames[partnerId] ? data.nicknames[partnerId] : pData.username;
-                    
-                    // Preview Logic
                     let preview = data.lastMsg;
-                    if(preview.includes('data:audio')) preview = '<i class="fa-solid fa-microphone"></i> Audio';
-                    if(preview.includes('data:image')) preview = '<i class="fa-solid fa-image"></i> Photo';
+                    if(preview === 'data:audio') preview = '<i class="fa-solid fa-microphone"></i> Audio';
+                    if(preview === 'data:image') preview = '<i class="fa-solid fa-image"></i> Photo';
                     if(data.typing && data.typing[partnerId]) preview = '<span style="color:var(--primary);">Typing...</span>';
                     
-                    // Unread Count
-                    const unreadObj = data.unreadCounts || {};
-                    const myUnread = unreadObj[currentUser.uid] || 0;
+                    const myUnread = (data.unreadCounts || {})[currentUser.uid] || 0;
                     const badgeHtml = myUnread > 0 ? `<div class="unread-badge">${myUnread}</div>` : '';
-                    
-                    // Online Dot
                     const onlineHtml = pData.isOnline ? '<div class="online-dot" style="display:block;"></div>' : '';
 
-                    html += `<div class="list-item" onclick="openChat('${d.id}', '${partnerId}', '${nickName}', '${pData.username}')">
-                        <div class="dp-circle"><i class="fa-solid fa-user"></i>${onlineHtml}</div>
-                        <div style="flex:1; padding-left:15px; padding-right:30px;">
-                            <div style="font-weight:600; font-size:1.05rem;">${nickName}</div>
-                            <div style="font-size:0.8rem; color:var(--text-muted);">${preview}</div>
-                        </div>
-                        ${badgeHtml}
-                    </div>`;
+                    html += `<div class="list-item" onclick="openChat('${d.id}', '${partnerId}', '${nickName}', '${pData.username}')"><div class="dp-circle"><i class="fa-solid fa-user"></i>${onlineHtml}</div><div style="flex:1; padding-left:15px; padding-right:30px;"><div style="font-weight:bold;">${nickName}</div><div style="font-size:0.85rem; color:var(--text-muted);">${preview}</div></div>${badgeHtml}</div>`;
                 }
             }
-            document.getElementById('chats-list').innerHTML = html || "<div style='text-align:center; padding: 30px; color: #555;'><i class='fa-solid fa-satellite-dish' style='font-size:3rem; margin-bottom:15px; display:block;'></i>Awaiting connections...</div>";
+            document.getElementById('chats-list').innerHTML = html || "<div style='text-align:center; padding: 30px; color: #555;'>Add friends to start chatting.</div>";
         });
     }
 
-    // --- DANGER ANIMATION & PRIVATE MODE ---
-    let pressTimer;
-    window.startPrivateTimer = () => { pressTimer = setTimeout(() => { if(isPrivateMode) disablePrivateMode(); else { document.getElementById('danger-overlay').style.display = 'flex'; document.getElementById('private-pass-input').value = ''; document.getElementById('private-hint').style.display = userData.privateCode ? 'none' : 'block'; } }, 1200); }; 
-    window.clearPrivateTimer = () => { clearTimeout(pressTimer); };
-    window.verifyPrivatePass = async (e) => { if(e.key === 'Enter') { const val = document.getElementById('private-pass-input').value; if(!userData.privateCode) { await updateDoc(doc(db, "users", currentUser.uid), { privateCode: val }); userData.privateCode = val; enablePrivateMode(); } else if(val === userData.privateCode) enablePrivateMode(); else alert("ACCESS DENIED"); } };
-    function enablePrivateMode() { document.getElementById('danger-overlay').style.display = 'none'; document.body.classList.add('private-mode'); isPrivateMode = true; document.getElementById('hearts-container').innerHTML=''; for(let i=0;i<25;i++){ let h = document.createElement('i'); h.className = Math.random()>0.5?'fa-solid fa-heart heart':'fa-brands fa-gratipay heart'; h.style.left = Math.random()*100+'vw'; h.style.animationDuration = (Math.random()*3+2.5)+'s'; document.getElementById('hearts-container').appendChild(h); } loadFriendsList(); }
-    function disablePrivateMode() { document.body.classList.remove('private-mode'); isPrivateMode = false; document.getElementById('hearts-container').innerHTML = ''; loadFriendsList(); }
-
     // --- CHAT SYSTEM ---
-    let chatListenerUnsub = null;
-    let chatDocUnsub = null;
+    let chatListenerUnsub = null; let chatDocUnsub = null;
 
     window.openChat = async (chatId, pId, pName, baseName) => {
         currentChatId = chatId; currentPartnerId = pId; currentPartnerName = pName; currentPartnerBaseName = baseName;
         document.getElementById('chat-partner-name').innerText = pName; 
         document.getElementById('dashboard').style.display = 'none'; document.getElementById('chat-screen').style.display = 'flex';
-        
-        // Reset Unread Count for me
         await updateDoc(doc(db, "chats", currentChatId), { [`unreadCounts.${currentUser.uid}`]: 0 });
 
-        // Listen to Partner's Typing & Online Status
         chatDocUnsub = onSnapshot(doc(db, "chats", currentChatId), async (snap) => {
-            if(!snap.exists()) return;
-            const data = snap.data();
-            const isTyping = data.typing && data.typing[currentPartnerId];
-            document.getElementById('chat-typing-indicator').style.display = isTyping ? 'block' : 'none';
-            
-            // Partner online status check
+            if(!snap.exists()) return; const data = snap.data();
+            document.getElementById('chat-typing-indicator').style.display = (data.typing && data.typing[currentPartnerId]) ? 'block' : 'none';
             const pDoc = await getDoc(doc(db, "users", currentPartnerId));
-            if(pDoc.exists() && pDoc.data().isOnline) document.getElementById('chat-online-dot').style.display = 'block';
-            else document.getElementById('chat-online-dot').style.display = 'none';
+            document.getElementById('chat-online-dot').style.display = (pDoc.exists() && pDoc.data().isOnline) ? 'block' : 'none';
         });
 
         chatListenerUnsub = onSnapshot(query(collection(db, `chats/${chatId}/messages`), orderBy('timestamp')), (snap) => {
-            let html = '';
+            let html = ''; let newMsgs = 0;
+            snap.docChanges().forEach(change => { if(change.type === 'added' && change.doc.data().sender !== currentUser.uid) newMsgs++; });
+            if(newMsgs > 0 && document.hidden) sendPushNotification("New Message from " + pName, "Tap to view");
+
             snap.forEach(d => {
                 const msg = d.data(); if(msg.deletedFor && msg.deletedFor.includes(currentUser.uid)) return;
                 const isMe = msg.sender === currentUser.uid; const time = new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 
                 let content = msg.text;
-                if(msg.type === 'audio') content = `<audio controls src="${msg.text}"></audio>`;
-                if(msg.type === 'image') content = `<img src="${msg.text}" class="msg-image" onclick="window.open('${msg.text}')">`;
+                if(msg.type === 'audio') content = `<audio controls src="${msg.text}" style="height:35px; max-width:200px;"></audio>`;
+                
+                // View Twice Image Logic
+                if(msg.type === 'image') {
+                    if(msg.viewTwice) {
+                        let views = msg.viewsLeft !== undefined ? msg.viewsLeft : 2;
+                        if(views <= 0) content = `<div style="padding:10px; color:#aaa; font-style:italic;"><i class="fa-solid fa-eye-slash"></i> Image Expired</div>`;
+                        else content = `<img src="${msg.text}" class="msg-image" onclick="viewImageTwice('${d.id}', ${views})"> <div style="font-size:0.7rem; color:var(--primary); text-align:center;">Views left: ${views}</div>`;
+                    } else {
+                        content = `<img src="${msg.text}" class="msg-image" onclick="window.open('${msg.text}')">`;
+                    }
+                }
                 
                 let ticks = isMe ? `<i class="fa-solid fa-check-double tick ${msg.status==='read'?'read':''}"></i>` : '';
                 if(!isMe && msg.status !== 'read') updateDoc(doc(db, `chats/${chatId}/messages`, d.id), { status: 'read' });
@@ -483,91 +515,82 @@
         });
     };
     
-    window.closeChat = () => { 
-        if(chatListenerUnsub) chatListenerUnsub(); 
-        if(chatDocUnsub) chatDocUnsub();
-        document.getElementById('chat-screen').style.display = 'none'; document.getElementById('dashboard').style.display = 'flex'; currentChatId = null; 
-    };
+    window.closeChat = () => { if(chatListenerUnsub) chatListenerUnsub(); if(chatDocUnsub) chatDocUnsub(); document.getElementById('chat-screen').style.display = 'none'; document.getElementById('dashboard').style.display = 'flex'; currentChatId = null; };
 
-    // Typing Indicator Logic
+    // Typing
     let typingTimeout = null;
-    window.handleTyping = async () => {
-        if(!currentChatId) return;
-        await updateDoc(doc(db, "chats", currentChatId), { [`typing.${currentUser.uid}`]: true });
-        clearTimeout(typingTimeout);
-        typingTimeout = setTimeout(async () => {
-            if(currentChatId) await updateDoc(doc(db, "chats", currentChatId), { [`typing.${currentUser.uid}`]: false });
-        }, 1500);
-    };
+    window.handleTyping = async () => { if(!currentChatId) return; await updateDoc(doc(db, "chats", currentChatId), { [`typing.${currentUser.uid}`]: true }); clearTimeout(typingTimeout); typingTimeout = setTimeout(async () => { if(currentChatId) await updateDoc(doc(db, "chats", currentChatId), { [`typing.${currentUser.uid}`]: false }); }, 1500); };
+    window.sendMessage = async () => { const i = document.getElementById('msg-input'); const txt = i.value.trim(); if(!txt) return; i.value = ''; await updateDoc(doc(db, "chats", currentChatId), { [`typing.${currentUser.uid}`]: false }); await addDoc(collection(db, `chats/${currentChatId}/messages`), { sender: currentUser.uid, text: txt, type: 'text', timestamp: Date.now(), status: 'sent', deletedFor: [] }); await updateDoc(doc(db, "chats", currentChatId), { lastMsg: txt, [`unreadCounts.${currentPartnerId}`]: increment(1), timestamp: Date.now() }); };
 
-    window.sendMessage = async () => { 
-        const i = document.getElementById('msg-input'); const txt = i.value.trim(); if(!txt) return; 
-        i.value = ''; 
-        await updateDoc(doc(db, "chats", currentChatId), { [`typing.${currentUser.uid}`]: false }); // clear typing immediately
-        await addDoc(collection(db, `chats/${currentChatId}/messages`), { sender: currentUser.uid, text: txt, type: 'text', timestamp: Date.now(), status: 'sent', deletedFor: [] }); 
-        await updateDoc(doc(db, "chats", currentChatId), { lastMsg: txt, [`unreadCounts.${currentPartnerId}`]: increment(1), timestamp: Date.now() }); 
-    };
-
-    // Send Image Feature
-    window.sendImage = (input) => {
-        const file = input.files[0];
-        if(!file) return;
+    // Image & Compression & Twice View
+    window.toggleTwiceView = () => { isViewTwice = !isViewTwice; document.getElementById('btn-twice').classList.toggle('active'); };
+    
+    function compressImage(file, callback) {
         const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onloadend = async () => {
-            const base64Img = reader.result;
-            await addDoc(collection(db, `chats/${currentChatId}/messages`), { sender: currentUser.uid, text: base64Img, type: 'image', timestamp: Date.now(), status: 'sent', deletedFor: [] });
-            await updateDoc(doc(db, "chats", currentChatId), { lastMsg: "data:image", [`unreadCounts.${currentPartnerId}`]: increment(1), timestamp: Date.now() });
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
+                const MAX_WIDTH = 800; const scale = img.width > MAX_WIDTH ? MAX_WIDTH / img.width : 1;
+                canvas.width = img.width * scale; canvas.height = img.height * scale;
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                callback(canvas.toDataURL('image/jpeg', 0.6)); // compressed base64
+            };
+            img.src = e.target.result;
         };
+        reader.readAsDataURL(file);
+    }
+
+    window.sendImage = (input) => {
+        const file = input.files[0]; if(!file) return;
+        compressImage(file, async (base64Img) => {
+            await addDoc(collection(db, `chats/${currentChatId}/messages`), { sender: currentUser.uid, text: base64Img, type: 'image', viewTwice: isViewTwice, viewsLeft: isViewTwice ? 2 : null, timestamp: Date.now(), status: 'sent', deletedFor: [] });
+            await updateDoc(doc(db, "chats", currentChatId), { lastMsg: "data:image", [`unreadCounts.${currentPartnerId}`]: increment(1), timestamp: Date.now() });
+            isViewTwice = false; document.getElementById('btn-twice').classList.remove('active'); // reset
+        });
     };
     
+    window.viewImageTwice = async (msgId, currentViews) => {
+        if(currentViews > 0) {
+            await updateDoc(doc(db, `chats/${currentChatId}/messages`, msgId), { viewsLeft: currentViews - 1 });
+            // Display logic handled in chat listener automatically
+        }
+    };
+
+    // Hold to delete
     let msgHoldTimer; let selectedMsgId = null;
     window.holdMsg = (msgId, isMe) => { msgHoldTimer = setTimeout(() => { selectedMsgId = msgId; let menu = document.getElementById('context-menu'); menu.style.display = 'flex'; menu.style.top = (event.touches ? event.touches[0].clientY : event.clientY) + 'px'; menu.style.left = (event.touches ? event.touches[0].clientX : event.clientX) + 'px'; document.getElementById('btn-del-everyone').style.display = isMe ? 'block' : 'none'; }, 800); };
     window.clearHoldMsg = () => { clearTimeout(msgHoldTimer); };
     window.deleteMsg = async (type) => { const ref = doc(db, `chats/${currentChatId}/messages`, selectedMsgId); if(type === 'me') { let d = (await getDoc(ref)).data().deletedFor || []; d.push(currentUser.uid); await updateDoc(ref, { deletedFor: d }); } else await deleteDoc(ref); document.getElementById('context-menu').style.display = 'none'; };
 
-    // Voice Notes + UI Animation
+    // Voice Notes
     let mediaRecorder; let audioChunks = [];
-    window.startVoiceRecord = async (e) => { 
-        if(e) e.preventDefault(); 
-        try { 
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); 
-            mediaRecorder = new MediaRecorder(stream); 
-            document.getElementById('recording-overlay').style.display = 'flex'; // Show Big Animation
-            mediaRecorder.start(); audioChunks = []; 
-            mediaRecorder.addEventListener("dataavailable", ev => audioChunks.push(ev.data)); 
-        } catch(e) { alert("Mic needed"); } 
-    };
-    
-    window.stopVoiceRecord = (e) => { 
-        if(e) e.preventDefault(); 
-        if(!mediaRecorder || mediaRecorder.state === "inactive") return; 
-        document.getElementById('recording-overlay').style.display = 'none'; // Hide Animation
-        mediaRecorder.stop(); 
-        mediaRecorder.addEventListener("stop", () => { 
-            const r = new FileReader(); r.readAsDataURL(new Blob(audioChunks, {type:'audio/ogg; codecs=opus'})); 
-            r.onloadend = async () => { 
-                await addDoc(collection(db, `chats/${currentChatId}/messages`), { sender: currentUser.uid, text: r.result, type: 'audio', timestamp: Date.now(), status: 'sent', deletedFor: [] }); 
-                await updateDoc(doc(db, "chats", currentChatId), { lastMsg: "data:audio", [`unreadCounts.${currentPartnerId}`]: increment(1), timestamp: Date.now() }); 
-            } 
-        }); 
-    };
+    window.startVoiceRecord = async (e) => { if(e) e.preventDefault(); try { const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); mediaRecorder = new MediaRecorder(stream); document.getElementById('recording-overlay').style.display = 'flex'; mediaRecorder.start(); audioChunks = []; mediaRecorder.addEventListener("dataavailable", ev => audioChunks.push(ev.data)); } catch(e) { alert("Mic permission needed."); } };
+    window.stopVoiceRecord = (e) => { if(e) e.preventDefault(); if(!mediaRecorder || mediaRecorder.state === "inactive") return; document.getElementById('recording-overlay').style.display = 'none'; mediaRecorder.stop(); mediaRecorder.addEventListener("stop", () => { const r = new FileReader(); r.readAsDataURL(new Blob(audioChunks, {type:'audio/ogg; codecs=opus'})); r.onloadend = async () => { await addDoc(collection(db, `chats/${currentChatId}/messages`), { sender: currentUser.uid, text: r.result, type: 'audio', timestamp: Date.now(), status: 'sent', deletedFor: [] }); await updateDoc(doc(db, "chats", currentChatId), { lastMsg: "data:audio", [`unreadCounts.${currentPartnerId}`]: increment(1), timestamp: Date.now() }); } }); };
 
-    // --- REAL WEBRTC CALLING SYSTEM (Untouched functionality) ---
+    // --- REAL WEBRTC CALLING SYSTEM ---
     function stopAllRingtones() { incomingRingtone.pause(); incomingRingtone.currentTime = 0; outgoingRingtone.pause(); outgoingRingtone.currentTime = 0; }
 
     window.startCall = async (type) => {
-        isVideoCall = (type === 'video'); document.getElementById('call-screen').style.display = 'flex'; document.getElementById('calling-name').innerText = currentPartnerName; document.getElementById('call-status').innerText = "Establishing secure link..."; document.getElementById('btn-answer').style.display = 'none'; 
+        isVideoCall = (type === 'video'); document.getElementById('call-screen').style.display = 'flex'; document.getElementById('calling-name').innerText = currentPartnerName; document.getElementById('call-status').innerText = "Calling..."; document.getElementById('btn-answer').style.display = 'none'; 
         localStream = await navigator.mediaDevices.getUserMedia({ video: isVideoCall, audio: true });
         if(isVideoCall) { document.getElementById('local-video').style.display = 'block'; document.getElementById('local-video').srcObject = localStream; document.getElementById('btn-video').style.display = 'flex'; document.getElementById('btn-switch-cam').style.display = 'flex'; } else { document.getElementById('local-video').style.display = 'none'; document.getElementById('btn-video').style.display = 'none'; document.getElementById('btn-switch-cam').style.display = 'none'; }
+        
         peerConnection = new RTCPeerConnection(servers); remoteStream = new MediaStream(); document.getElementById('remote-video').srcObject = remoteStream;
         localStream.getTracks().forEach((track) => { peerConnection.addTrack(track, localStream); });
         peerConnection.ontrack = (event) => { event.streams[0].getTracks().forEach((track) => { remoteStream.addTrack(track); }); };
+        
         const callDocRef = doc(db, "active_calls", currentChatId);
         peerConnection.onicecandidate = (event) => { if (event.candidate) { addDoc(collection(callDocRef, "callerCandidates"), event.candidate.toJSON()); } };
+        
         const offerDescription = await peerConnection.createOffer(); await peerConnection.setLocalDescription(offerDescription);
         await setDoc(callDocRef, { caller: currentUser.uid, receiver: currentPartnerId, type: type, status: 'ringing', isPrivate: isPrivateMode, timestamp: Date.now(), offer: { sdp: offerDescription.sdp, type: offerDescription.type } });
-        activeCallListener = onSnapshot(callDocRef, (docSnap) => { const data = docSnap.data(); if(!data) return; if (!peerConnection.currentRemoteDescription && data.answer) { peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer)); stopAllRingtones(); document.getElementById('call-status').innerText = "Link Active"; startCallTimer(); } if(data.status === 'ended') forceHangupCleanup(); });
+        
+        activeCallListener = onSnapshot(callDocRef, (docSnap) => { 
+            const data = docSnap.data(); if(!data) return; 
+            if (!peerConnection.currentRemoteDescription && data.answer) { peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer)); stopAllRingtones(); document.getElementById('call-status').innerText = "Connected"; startCallTimer(); } 
+            if(data.status === 'ended') forceHangupCleanup(); 
+        });
         onSnapshot(collection(callDocRef, "receiverCandidates"), (snapshot) => { snapshot.docChanges().forEach((change) => { if (change.type === "added") { peerConnection.addIceCandidate(new RTCIceCandidate(change.doc.data())); } }); });
         outgoingRingtone.play();
     };
@@ -580,9 +603,12 @@
                 if(change.type === "added" && data.status === 'ringing') {
                     if(data.isPrivate !== isPrivateMode) return; 
                     currentChatId = change.doc.id; currentPartnerId = data.caller; isVideoCall = (data.type === 'video');
-                    document.getElementById('call-screen').style.display = 'flex'; document.getElementById('calling-name').innerText = "Incoming Signal..."; document.getElementById('call-status').innerText = "Ringing..."; document.getElementById('btn-answer').style.display = 'flex'; document.getElementById('local-video').style.display = 'none';
+                    document.getElementById('call-screen').style.display = 'flex'; document.getElementById('calling-name').innerText = "Incoming Call..."; document.getElementById('call-status').innerText = "Ringing..."; document.getElementById('btn-answer').style.display = 'flex'; document.getElementById('local-video').style.display = 'none';
                     if(!isVideoCall) { document.getElementById('btn-video').style.display = 'none'; document.getElementById('btn-switch-cam').style.display = 'none'; }
+                    
                     incomingRingtone.play();
+                    sendPushNotification("Incoming Call", "Tap to open Dark Chat");
+                    
                     activeCallListener = onSnapshot(doc(db, "active_calls", currentChatId), (docSnap) => { if(docSnap.data()?.status === 'ended') forceHangupCleanup(); });
                 }
             });
@@ -590,19 +616,22 @@
     }
 
     window.acceptIncomingCall = async () => {
-        stopAllRingtones(); document.getElementById('btn-answer').style.display = 'none'; document.getElementById('call-status').innerText = "Synchronizing...";
+        stopAllRingtones(); document.getElementById('btn-answer').style.display = 'none'; document.getElementById('call-status').innerText = "Connecting...";
         const callDocRef = doc(db, "active_calls", currentChatId); const callData = (await getDoc(callDocRef)).data();
         localStream = await navigator.mediaDevices.getUserMedia({ video: isVideoCall, audio: true });
         if(isVideoCall) { document.getElementById('local-video').style.display = 'block'; document.getElementById('local-video').srcObject = localStream; document.getElementById('btn-video').style.display = 'flex'; document.getElementById('btn-switch-cam').style.display = 'flex'; }
+        
         peerConnection = new RTCPeerConnection(servers); remoteStream = new MediaStream(); document.getElementById('remote-video').srcObject = remoteStream;
         localStream.getTracks().forEach((track) => peerConnection.addTrack(track, localStream));
         peerConnection.ontrack = (event) => { event.streams[0].getTracks().forEach((track) => remoteStream.addTrack(track)); };
         peerConnection.onicecandidate = (event) => { if (event.candidate) { addDoc(collection(callDocRef, "receiverCandidates"), event.candidate.toJSON()); } };
+        
         await peerConnection.setRemoteDescription(new RTCSessionDescription(callData.offer));
         const answerDescription = await peerConnection.createAnswer(); await peerConnection.setLocalDescription(answerDescription);
         await updateDoc(callDocRef, { answer: { type: answerDescription.type, sdp: answerDescription.sdp }, status: 'connected' });
+        
         onSnapshot(collection(callDocRef, "callerCandidates"), (snapshot) => { snapshot.docChanges().forEach((change) => { if (change.type === "added") { peerConnection.addIceCandidate(new RTCIceCandidate(change.doc.data())); } }); });
-        document.getElementById('call-status').innerText = "Link Active"; startCallTimer();
+        document.getElementById('call-status').innerText = "Connected"; startCallTimer();
     };
 
     function startCallTimer() { document.getElementById('call-timer').style.display = 'block'; let sec = 0; clearInterval(callTimerInt); callTimerInt = setInterval(() => { sec++; let m = Math.floor(sec/60).toString().padStart(2,'0'); let s = (sec%60).toString().padStart(2,'0'); document.getElementById('call-timer').innerText = `${m}:${s}`; }, 1000); }
@@ -618,14 +647,14 @@
     }
 
     // --- CALL HISTORY ---
-     window.loadCallHistory = async () => {
+    window.loadCallHistory = async () => {
         const snap = await getDocs(query(collection(db, "call_history"), where("uid", "==", currentUser.uid), orderBy("time", "desc"))); let html = '';
         for (const d of snap.docs) {
             const data = d.data(); if(data.isPrivate !== isPrivateMode) continue;
             const pSnap = await getDoc(doc(db, "users", data.partner)); const pName = pSnap.exists() ? pSnap.data().username : "Unknown";
             html += `<div class="list-item"><div class="dp-circle" style="background:${data.type==='incoming'?'var(--success)':'var(--primary)'}; color:#000;"><i class="fa-solid fa-phone"></i></div><div style="flex:1; padding-left:15px;"><div style="font-weight:bold;">${pName}</div><div style="font-size:0.8rem; color:var(--text-muted);">${data.type.toUpperCase()} • ${new Date(data.time).toLocaleString([], {hour:'2-digit', minute:'2-digit', day:'numeric', month:'short'})}</div></div></div>`;
         }
-        document.getElementById('calls-list').innerHTML = html || "<div style='text-align:center; padding: 20px; color: #555;'><i>Logs empty.</i></div>";
+        document.getElementById('calls-list').innerHTML = html || "<div style='text-align:center; padding: 20px; color: #555;'><i>No call history.</i></div>";
     };
 
 </script>
