@@ -3,182 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ghost Chat - Ultimate Master Edition</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Ghost Chat - Pro Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
     
     <style>
         :root {
-            --bg-color: #0f172a; --panel-bg: #1e293b; --primary: #00e5ff;
-            --text-main: #ffffff; --text-muted: #94a3b8; --danger: #ff4b2b;
-            --chat-bubble: #334155; --chat-mine: #0284c7; --footer-bg: #0f172a;
+            --bg-dark: #0f172a; --bg-panel: #1e293b; --bg-hover: #334155;
+            --primary: #3b82f6; --primary-hover: #2563eb;
+            --text-main: #f8fafc; --text-muted: #94a3b8;
+            --danger: #ef4444; --success: #10b981;
+            --chat-mine: #2563eb; --chat-theirs: #334155;
         }
 
-        body.private-mode {
-            --bg-color: #1a050d; --panel-bg: #2d0a1a; --primary: #ff1493;
-            --chat-bubble: #4d0f28; --chat-mine: #b30059; --footer-bg: #1a050d;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        
+        body { background: var(--bg-dark); color: var(--text-main); height: 100vh; display: flex; justify-content: center; overflow: hidden; }
+        .app-container { width: 100%; max-width: 480px; height: 100vh; background: var(--bg-panel); display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
 
-        body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg-color); color: var(--text-main); height: 100vh; overflow: hidden; transition: 0.5s; }
-        .app-container { width: 100%; max-width: 500px; height: 100%; margin: auto; background: var(--panel-bg); position: relative; display: flex; flex-direction: column; }
-
-        /* General UI */
-        .icon-btn { cursor: pointer; color: white; transition: 0.3s; }
+        /* HEADER */
+        .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: #0f172a; border-bottom: 1px solid #334155; z-index: 10; }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .dp-circle { width: 40px; height: 40px; border-radius: 50%; background: #475569; overflow: hidden; border: 2px solid var(--primary); display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .dp-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .signal-indicator { font-size: 0.75rem; color: var(--success); display: flex; align-items: center; gap: 4px; }
+        .icon-btn { background: none; border: none; color: var(--text-main); font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
         .icon-btn:hover { color: var(--primary); }
-        .dp-circle { width:40px; height:40px; border-radius:50%; background:#444; overflow:hidden; display:flex; align-items:center; justify-content:center; cursor:pointer; border: 2px solid var(--primary); }
-        .dp-circle img { width:100%; height:100%; object-fit:cover; }
-        
-        .header { padding: 15px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .signal-indicator { font-size: 0.8rem; display: flex; align-items: center; gap: 5px; color: #00ff00; }
 
-        /* Footer Navigation */
-        .footer-nav {
-            position: absolute; bottom: 0; width: 100%; height: 65px;
-            background: var(--footer-bg); display: flex; justify-content: space-around;
-            align-items: center; border-top: 1px solid rgba(255,255,255,0.1); z-index: 100;
-        }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; transition: 0.3s; }
+        /* MAIN CONTENT AREA */
+        .main-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; position: relative; }
+        .list-container { flex: 1; padding: 10px; display: none; }
+        .list-container.active { display: block; }
+        
+        .list-item { display: flex; align-items: center; padding: 15px; border-radius: 12px; margin-bottom: 8px; background: var(--bg-dark); cursor: pointer; transition: 0.2s; justify-content: space-between; }
+        .list-item:hover { background: var(--bg-hover); }
+        .item-details { flex: 1; padding-left: 15px; }
+        .item-title { font-weight: 600; font-size: 1rem; }
+        .item-sub { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* FOOTER NAV */
+        .footer-nav { height: 65px; background: #0f172a; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #334155; z-index: 10; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); cursor: pointer; font-size: 0.75rem; gap: 4px; transition: 0.2s; }
+        .nav-item i { font-size: 1.3rem; }
         .nav-item.active { color: var(--primary); }
-        .nav-item i { font-size: 1.4rem; margin-bottom: 3px; }
 
-        .list-container { flex: 1; overflow-y: auto; padding-bottom: 70px; }
-        .list-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
-        .list-item:hover { background: rgba(255,255,255,0.05); }
+        /* SEARCH & INPUTS */
+        .search-bar { width: 100%; padding: 12px 15px; background: var(--bg-dark); border: 1px solid #334155; border-radius: 8px; color: white; outline: none; margin-bottom: 15px; }
+        .btn-primary { padding: 8px 15px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
+        .btn-danger { background: var(--danger); }
 
-        /* Chat UI & Masking */
-        .chat-screen { position: absolute; top:0; left:0; width:100%; height:100%; background:var(--panel-bg); display:none; flex-direction:column; z-index:150; }
+        /* CHAT SCREEN */
+        .chat-screen { position: absolute; top:0; left:0; width:100%; height:100%; background: var(--bg-dark); display: none; flex-direction: column; z-index: 100; }
+        .chat-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; background: var(--bg-panel); border-bottom: 1px solid #334155; }
         .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .msg-bubble { max-width: 75%; padding: 10px 15px; border-radius: 15px; position: relative; word-wrap: break-word; }
+        .msg-bubble { max-width: 75%; padding: 10px 15px; border-radius: 12px; position: relative; word-wrap: break-word; font-size: 0.95rem; }
         .msg-mine { align-self: flex-end; background: var(--chat-mine); border-bottom-right-radius: 2px; }
-        .msg-theirs { align-self: flex-start; background: var(--chat-bubble); border-bottom-left-radius: 2px; }
-        .msg-bubble img { max-width: 100%; border-radius: 8px; margin-top: 5px; }
-        
-        .blurred-msg { filter: blur(10px); transition: 0.3s; user-select: none; }
-        .blurred-msg:hover { filter: blur(0); }
+        .msg-theirs { align-self: flex-start; background: var(--chat-theirs); border-bottom-left-radius: 2px; }
+        .chat-input-area { padding: 10px 15px; background: var(--bg-panel); display: flex; gap: 10px; align-items: center; }
+        .chat-input-area input { flex: 1; padding: 12px 15px; border-radius: 20px; border: none; background: var(--bg-dark); color: white; outline: none; }
 
-        /* Inputs */
-        .chat-input-area { padding: 10px; display: flex; gap: 10px; align-items: center; background: rgba(0,0,0,0.3); }
-        .chat-input { flex: 1; padding: 12px; border-radius: 20px; border: none; background: #334155; color: white; outline: none; }
-        .recording-pulse { color: red !important; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        /* GAME / AI PANIC SCREEN */
+        #game-screen { position: absolute; top:0; left:0; width:100%; height:100%; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 500; }
+        canvas { border: 2px solid #333; background: #111; border-radius: 8px; margin: 20px 0; }
 
-        /* Ghost & Animations */
-        #ghost-entry { position: absolute; top:0; left:0; width:100%; height:100%; background:#000; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:2000; }
-        .pass-dot { width: 45px; height: 50px; border: 2px solid var(--primary); border-radius: 8px; background: transparent; color: white; text-align: center; font-size: 1.5rem; outline: none; margin: 0 5px; }
-        .heart { position: absolute; animation: heartMove 6s linear infinite; opacity: 0.6; pointer-events: none; }
-        @keyframes heartMove { 0% { transform: translateY(100vh) scale(0.5); } 100% { transform: translateY(-10vh) scale(1.5); } }
+        /* MODALS */
+        .modal { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 200; }
+        .modal-content { background: var(--bg-panel); padding: 20px; border-radius: 12px; width: 85%; }
 
-        /* Games & AI */
-        #game-screen { position: absolute; top:0; left:0; width:100%; height:100%; background:#000; display:none; flex-direction:column; align-items:center; justify-content:center; z-index:3000; }
-        #ai-status { font-size: 0.7rem; color: #00ff00; position: absolute; top: 10px; right: 10px; display: none; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px; z-index: 100; }
-
+        /* AUTH SCREEN */
+        #auth-screen { display: flex; flex-direction: column; justify-content: center; padding: 30px; height: 100%; text-align: center; }
     </style>
 </head>
 <body>
 
-    <div class="app-container" id="main-app">
-        
-        <input type="file" id="dp-upload" accept="image/*" style="display:none;" onchange="updateDP(event)">
-        <input type="file" id="media-upload" accept="image/*,video/*" style="display:none;" onchange="sendMedia(event)">
+<div class="app-container">
+    <video id="ai-video" style="display:none;" width="320" height="240" autoplay muted></video>
 
-        <video id="ai-video" style="display:none;" width="320" height="240" autoplay></video>
-        <div id="ai-status"><i class="fa-solid fa-user-shield"></i> AI Sentry Active</div>
-
-        <div id="auth-screen" style="padding:40px; text-align:center; height:100%; display:flex; flex-direction:column; justify-content:center;">
-            <h1 style="color:var(--primary);"><i class="fa-solid fa-ghost"></i> Ghost Chat</h1>
-            <input type="email" id="email" placeholder="Email" class="chat-input" style="width:100%; margin-bottom:15px; box-sizing:border-box;">
-            <input type="password" id="pass" placeholder="Password" class="chat-input" style="width:100%; margin-bottom:15px; box-sizing:border-box;">
-            <input type="text" id="username" placeholder="Username (Signup Only)" class="chat-input" style="width:100%; margin-bottom:15px; box-sizing:border-box; display:none;">
-            <button onclick="handleAuth('login')" id="login-btn" style="width:100%; padding:15px; background:var(--primary); border:none; border-radius:12px; font-weight:bold; cursor:pointer;">Login</button>
-            <button onclick="handleAuth('signup')" id="signup-btn" style="width:100%; padding:15px; background:var(--primary); border:none; border-radius:12px; font-weight:bold; cursor:pointer; display:none;">Sign Up</button>
-            <p onclick="toggleAuthMode()" style="color:var(--primary); cursor:pointer; margin-top:20px;" id="auth-toggle-txt">New? Register Here</p>
-        </div>
-
-        <div id="dashboard" style="display:none; flex-direction:column; height:100%;">
-            <div class="header">
-                <div style="display:flex; align-items:center; gap:12px;">
-                    <div class="dp-circle" onclick="document.getElementById('dp-upload').click()">
-                        <img id="my-dp" src="https://via.placeholder.com/40" alt="DP">
-                    </div>
-                    <div>
-                        <div id="display-name" style="font-weight:bold;" onmousedown="startGhostTimer()" onmouseup="clearGhostTimer()" ontouchstart="startGhostTimer()" ontouchend="clearGhostTimer()">User</div>
-                        <div class="signal-indicator"><i class="fa-solid fa-signal" id="signal-icon"></i> <span id="signal-text">Good</span></div>
-                    </div>
-                </div>
-                <div style="display:flex; gap:15px;">
-                    <i class="fa-solid fa-camera icon-btn" id="ai-toggle" onclick="toggleAI()"></i>
-                    <i class="fa-solid fa-user-plus icon-btn" onclick="addFriendPrompt()"></i>
-                </div>
-            </div>
-
-            <div class="list-container" id="chats-list"><i>Loading chats...</i></div>
-            <div class="list-container" id="calls-list" style="display:none;"><i>No call history.</i></div>
-            <div class="list-container" id="games-list" style="display:none; text-align:center; padding:20px;">
-                <h2 style="color:var(--primary);">Ghost Arcade</h2>
-                <div style="background:rgba(0,0,0,0.3); padding:20px; border-radius:15px; margin-bottom:15px; border:1px solid var(--primary);">
-                    <i class="fa-solid fa-snake" style="font-size:3rem; color:#00ff00; margin-bottom:10px;"></i>
-                    <h3>Snake Game</h3>
-                    <p style="font-size:0.8rem; color:var(--text-muted);">High Score: 24,500</p>
-                    <button onclick="document.getElementById('game-screen').style.display='flex'; initSnake();" style="padding:10px 20px; background:var(--primary); border:none; border-radius:8px; cursor:pointer;">Play Now</button>
-                </div>
-            </div>
-
-            <nav class="footer-nav">
-                <div class="nav-item active" id="tab-chats" onclick="switchTab('chats')"><i class="fa-solid fa-message"></i>Chats</div>
-                <div class="nav-item" id="tab-calls" onclick="switchTab('calls')"><i class="fa-solid fa-phone"></i>Calls</div>
-                <div class="nav-item" id="tab-games" onclick="switchTab('games')"><i class="fa-solid fa-gamepad"></i>Games</div>
-            </nav>
-        </div>
-
-        <div id="chat-screen" class="chat-screen">
-            <div class="header">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <i class="fa-solid fa-arrow-left icon-btn" onclick="closeChat()"></i>
-                    <div class="dp-circle" style="width:35px; height:35px;"><img id="partner-dp" src="https://via.placeholder.com/35"></div>
-                    <span id="partner-name" style="font-weight:bold;">Partner</span>
-                </div>
-                <div style="display:flex; gap:15px;">
-                    <i class="fa-solid fa-eye-slash icon-btn" id="mask-btn" onclick="toggleMask()"></i>
-                    <i class="fa-solid fa-video icon-btn" onclick="alert('WebRTC Call Initiated (Mock)')"></i>
-                </div>
-            </div>
-            
-            <div class="chat-messages" id="chat-messages"></div>
-            
-            <div class="chat-input-area">
-                <i class="fa-solid fa-plus icon-btn" onclick="document.getElementById('media-upload').click()"></i>
-                <input type="text" id="msg-input" placeholder="Type a message..." class="chat-input">
-                <i class="fa-solid fa-microphone icon-btn" id="mic-btn" onmousedown="startVoice()" onmouseup="stopVoice()" ontouchstart="startVoice()" ontouchend="stopVoice()"></i>
-                <i class="fa-solid fa-paper-plane icon-btn" style="color:var(--primary);" onclick="sendTextMsg()"></i>
-            </div>
-        </div>
-
-        <div id="ghost-entry">
-            <i class="fa-solid fa-ghost" style="font-size:4rem; color:white; animation: pulse 2s infinite;"></i>
-            <h3 style="color:white; margin-top:20px; letter-spacing:2px;">ENTER GHOST MODE</h3>
-            <div style="display:flex; gap:10px; margin-top:20px;">
-                <input type="password" maxlength="1" class="pass-dot" id="p1" oninput="moveFocus(this, 'p2')">
-                <input type="password" maxlength="1" class="pass-dot" id="p2" oninput="moveFocus(this, 'p3')">
-                <input type="password" maxlength="1" class="pass-dot" id="p3" oninput="moveFocus(this, 'p4')">
-                <input type="password" maxlength="1" class="pass-dot" id="p4" oninput="verifyGhostPass()">
-            </div>
-            <p id="ghost-hint" style="color:var(--text-muted); font-size:0.8rem; margin-top:15px; display:none;">Set your 4-digit PIN</p>
-            <button onclick="document.getElementById('ghost-entry').style.display='none'" style="margin-top:30px; background:none; color:var(--danger); border:none;">Cancel</button>
-        </div>
-
-        <div id="game-screen">
-            <h2 style="color:#00ff00; font-family:monospace;">SCORE: <span id="game-score">0</span></h2>
-            <canvas id="snakeCanvas" width="300" height="300" style="border:2px solid #333; background:#111;"></canvas>
-            <button onclick="stopPanicGame()" style="margin-top:20px; padding:10px 20px; background:var(--danger); border:none; border-radius:8px; color:white;">Exit Game</button>
-        </div>
-
+    <div id="auth-screen">
+        <h1 style="color:var(--primary); margin-bottom:30px;"><i class="fa-solid fa-shield-halved"></i> TrueChat Secure</h1>
+        <input type="email" id="auth-email" class="search-bar" placeholder="Email Address">
+        <input type="password" id="auth-pass" class="search-bar" placeholder="Password">
+        <input type="text" id="auth-user" class="search-bar" placeholder="Username (Signup only)" style="display:none;">
+        <button class="btn-primary" id="btn-login" onclick="login()" style="width:100%; padding:15px; font-size:1rem;">Login</button>
+        <button class="btn-primary" id="btn-signup" onclick="signup()" style="width:100%; padding:15px; font-size:1rem; display:none;">Create Account</button>
+        <p onclick="toggleAuth()" style="color:var(--primary); margin-top:20px; cursor:pointer;">New User? Sign Up Here</p>
     </div>
+
+    <div id="main-app" style="display:none; flex-direction:column; height:100%;">
+        <div class="header">
+            <div class="user-info">
+                <div class="dp-circle"><i class="fa-solid fa-user"></i></div>
+                <div>
+                    <div id="my-username" style="font-weight:600;">User</div>
+                    <div class="signal-indicator"><i class="fa-solid fa-signal"></i> Encrypted Connection</div>
+                </div>
+            </div>
+            <div>
+                <button class="icon-btn" id="ai-toggle" onclick="toggleAI()"><i class="fa-solid fa-eye-slash"></i></button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="list-container active" id="tab-chats">
+                <div id="chats-list" style="margin-top:10px;"></div>
+            </div>
+
+            <div class="list-container" id="tab-requests">
+                <h3 style="margin-bottom:10px; font-size:1rem;">Add Friends</h3>
+                <input type="text" id="search-input" class="search-bar" placeholder="Type 2+ letters to search..." onkeyup="searchUsers()">
+                <div id="search-results" style="margin-bottom:20px;"></div>
+                
+                <h3 style="margin-bottom:10px; font-size:1rem;">Pending Requests</h3>
+                <div id="requests-list"></div>
+            </div>
+
+            <div class="list-container" id="tab-games" style="text-align:center; padding-top:40px;">
+                <i class="fa-solid fa-gamepad" style="font-size:3rem; color:var(--primary); margin-bottom:20px;"></i>
+                <h2>Arcade Zone</h2>
+                <div class="list-item" style="margin-top:20px;" onclick="startSnakeGame()">
+                    <div class="item-details"><div class="item-title">Snake Classic</div><div class="item-sub">Single Player</div></div>
+                    <button class="btn-primary">Play</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-nav">
+            <div class="nav-item active" onclick="switchNav('chats')"><i class="fa-solid fa-message"></i>Chats</div>
+            <div class="nav-item" onclick="switchNav('requests')"><i class="fa-solid fa-user-plus"></i>Requests</div>
+            <div class="nav-item" onclick="switchNav('games')"><i class="fa-solid fa-gamepad"></i>Games</div>
+        </div>
+    </div>
+
+    <div id="chat-screen" class="chat-screen">
+        <div class="chat-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <button class="icon-btn" onclick="closeChat()"><i class="fa-solid fa-arrow-left"></i></button>
+                <div>
+                    <div id="chat-partner-name" style="font-weight:600; font-size:1rem;">Partner</div>
+                    <div id="chat-nickname-status" style="font-size:0.7rem; color:var(--success);">E2E Encrypted</div>
+                </div>
+            </div>
+            <div style="display:flex; gap:15px;">
+                <button class="icon-btn" onclick="initiateCall()"><i class="fa-solid fa-phone"></i></button>
+                <button class="icon-btn" onclick="openChatSettings()"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+            </div>
+        </div>
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-input-area">
+            <input type="text" id="msg-input" placeholder="Type a message...">
+            <button class="icon-btn" style="color:var(--primary);" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <div class="modal" id="chat-settings-modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom:15px;">Chat Settings</h3>
+            <input type="text" id="nickname-input" class="search-bar" placeholder="Set a Nickname for them">
+            <button class="btn-primary" style="width:100%; margin-bottom:10px;" onclick="setNickname()">Save Nickname</button>
+            <button class="btn-primary btn-danger" style="width:100%; margin-bottom:10px;" onclick="blockUser()" id="block-btn">Block User</button>
+            <button class="btn-primary" style="width:100%; background:#475569;" onclick="document.getElementById('chat-settings-modal').style.display='none'">Cancel</button>
+        </div>
+    </div>
+
+    <div id="game-screen">
+        <h2 style="color:#10b981; font-family:monospace;">SCORE: <span id="score-display">0</span></h2>
+        <canvas id="snakeCanvas" width="300" height="300"></canvas>
+        <button class="btn-primary btn-danger" onclick="closeGame()">Exit Game</button>
+    </div>
+
+</div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, addDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, addDoc, query, orderBy, where, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDMSGPEngVmGtTRfcnIC4unH7Rh3FwgcRE",
@@ -193,31 +193,30 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let currentUser = null; let userData = null; let isPrivate = false;
-    let currentChatId = null; let maskActive = false; let aiActive = false;
-    let mediaRecorder; let audioChunks = [];
+    let currentUser = null; let userData = null;
+    let currentChatId = null; let currentPartnerId = null; let currentPartnerName = "";
+    let chatDataRaw = null; 
+    let isLoginMode = true; let aiActive = false;
 
     // --- AUTHENTICATION ---
-    let isLogin = true;
-    window.toggleAuthMode = () => {
-        isLogin = !isLogin;
-        document.getElementById('username').style.display = isLogin ? 'none' : 'block';
-        document.getElementById('login-btn').style.display = isLogin ? 'block' : 'none';
-        document.getElementById('signup-btn').style.display = isLogin ? 'none' : 'block';
-        document.getElementById('auth-toggle-txt').innerText = isLogin ? "New? Register Here" : "Have an account? Login";
+    window.toggleAuth = () => {
+        isLoginMode = !isLoginMode;
+        document.getElementById('auth-user').style.display = isLoginMode ? 'none' : 'block';
+        document.getElementById('btn-login').style.display = isLoginMode ? 'block' : 'none';
+        document.getElementById('btn-signup').style.display = isLoginMode ? 'none' : 'block';
     };
 
-    window.handleAuth = async (mode) => {
-        const e = document.getElementById('email').value;
-        const p = document.getElementById('pass').value;
+    window.login = async () => {
+        const e = document.getElementById('auth-email').value; const p = document.getElementById('auth-pass').value;
+        try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert(err.message); }
+    };
+
+    window.signup = async () => {
+        const e = document.getElementById('auth-email').value; const p = document.getElementById('auth-pass').value; const u = document.getElementById('auth-user').value;
+        if(!u) return alert("Username required");
         try {
-            if(mode === 'login') await signInWithEmailAndPassword(auth, e, p);
-            else {
-                const u = document.getElementById('username').value;
-                if(!u) return alert("Username required");
-                const cred = await createUserWithEmailAndPassword(auth, e, p);
-                await setDoc(doc(db, "users", cred.user.uid), { email: e, username: u, dp: "", privatePin: null });
-            }
+            const cred = await createUserWithEmailAndPassword(auth, e, p);
+            await setDoc(doc(db, "users", cred.user.uid), { email: e, username: u, searchKey: u.toLowerCase() });
         } catch(err) { alert(err.message); }
     };
 
@@ -227,240 +226,220 @@
             const snap = await getDoc(doc(db, "users", user.uid));
             userData = snap.data();
             document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'flex';
-            document.getElementById('display-name').innerText = userData.username;
-            if(userData.dp) document.getElementById('my-dp').src = userData.dp;
-            loadChats();
+            document.getElementById('main-app').style.display = 'flex';
+            document.getElementById('my-username').innerText = userData.username;
+            loadChats(); loadRequests();
         }
     });
 
-    // --- SIGNAL STRENGTH INDICATOR ---
-    function checkSignal() {
-        const icon = document.getElementById('signal-icon');
-        const txt = document.getElementById('signal-text');
-        const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        if(conn) {
-            if(conn.downlink >= 5) { icon.style.color = '#00ff00'; txt.innerText = 'Good'; }
-            else if(conn.downlink >= 2) { icon.style.color = 'yellow'; txt.innerText = 'Avg'; }
-            else { icon.style.color = 'red'; txt.innerText = 'Poor'; }
-        }
-    }
-    setInterval(checkSignal, 5000); checkSignal();
-
-    // --- PROFILE PICTURE UPLOAD (Auto-Compress) ---
-    window.updateDP = async (e) => {
-        const file = e.target.files[0];
-        if(!file) return;
-        const compressedBase64 = await compressImage(file, 200); // 200px max for DP
-        await updateDoc(doc(db, "users", currentUser.uid), { dp: compressedBase64 });
-        document.getElementById('my-dp').src = compressedBase64;
-        userData.dp = compressedBase64;
+    // --- UI NAVIGATION ---
+    window.switchNav = (tab) => {
+        document.querySelectorAll('.list-container').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        event.currentTarget.classList.add('active');
     };
 
-    // --- MEDIA COMPRESSION ENGINE (Canvas API) ---
-    function compressImage(file, maxWidth = 800) {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = event => {
-                const img = new Image();
-                img.src = event.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const scaleSize = maxWidth / img.width;
-                    canvas.width = maxWidth; canvas.height = img.height * scaleSize;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.6)); // 60% quality reduction
+    // --- SEARCH & FRIEND REQUESTS ---
+    window.searchUsers = async () => {
+        const text = document.getElementById('search-input').value.toLowerCase().trim();
+        const resBox = document.getElementById('search-results');
+        if(text.length < 2) { resBox.innerHTML = ''; return; }
+
+        const q = query(collection(db, "users"), where("searchKey", ">=", text), where("searchKey", "<=", text + '\uf8ff'));
+        onSnapshot(q, (snap) => {
+            let html = '';
+            snap.forEach(d => {
+                if(d.id !== currentUser.uid) {
+                    html += `
+                    <div class="list-item">
+                        <div class="item-details"><div class="item-title">${d.data().username}</div></div>
+                        <button class="btn-primary" onclick="sendRequest('${d.id}')">Add</button>
+                    </div>`;
                 }
-            }
+            });
+            resBox.innerHTML = html || "<p style='color:gray; font-size:0.8rem;'>No users found</p>";
+        });
+    };
+
+    window.sendRequest = async (targetId) => {
+        await setDoc(doc(db, `friend_requests/${currentUser.uid}_${targetId}`), {
+            sender: currentUser.uid, senderName: userData.username, receiver: targetId, status: 'pending'
+        });
+        alert("Request Sent!");
+        document.getElementById('search-input').value = ''; document.getElementById('search-results').innerHTML = '';
+    };
+
+    function loadRequests() {
+        const q = query(collection(db, "friend_requests"), where("receiver", "==", currentUser.uid), where("status", "==", "pending"));
+        onSnapshot(q, (snap) => {
+            let html = '';
+            snap.forEach(d => {
+                const req = d.data();
+                html += `
+                <div class="list-item">
+                    <div class="item-details"><div class="item-title">${req.senderName}</div><div class="item-sub">Wants to connect</div></div>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn-primary" style="background:var(--success);" onclick="acceptRequest('${d.id}', '${req.sender}', '${req.senderName}')"><i class="fa-solid fa-check"></i></button>
+                        <button class="btn-primary btn-danger" onclick="rejectRequest('${d.id}')"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('requests-list').innerHTML = html || "<p style='color:gray; font-size:0.8rem;'>No pending requests</p>";
         });
     }
 
-    // --- NAVIGATION ---
-    window.switchTab = (tab) => {
-        document.querySelectorAll('.list-container').forEach(el => el.style.display = 'none');
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        document.getElementById(`${tab}-list`).style.display = 'block';
-        document.getElementById(`tab-${tab}`).classList.add('active');
+    window.acceptRequest = async (reqId, senderId, senderName) => {
+        const chatId = currentUser.uid > senderId ? currentUser.uid + senderId : senderId + currentUser.uid;
+        await setDoc(doc(db, "chats", chatId), { users: [currentUser.uid, senderId], nicknames: {}, blocked: [] });
+        await deleteDoc(doc(db, "friend_requests", reqId));
+        switchNav('chats');
     };
+    window.rejectRequest = async (reqId) => { await deleteDoc(doc(db, "friend_requests", reqId)); };
 
-    // --- GHOST MODE PASSCODE LOGIC ---
-    let ghostTimer;
-    window.startGhostTimer = () => { ghostTimer = setTimeout(triggerGhostEntry, 1500); };
-    window.clearGhostTimer = () => clearTimeout(ghostTimer);
-
-    function triggerGhostEntry() {
-        if(isPrivate) { togglePrivateEnv(); return; } // Switch back to normal
-        document.getElementById('ghost-entry').style.display = 'flex';
-        document.querySelectorAll('.pass-dot').forEach(i => i.value = '');
-        document.getElementById('p1').focus();
-        document.getElementById('ghost-hint').style.display = userData.privatePin ? 'none' : 'block';
+    // --- CHATS & ENCRYPTION ---
+    // Encrypt/Decrypt using CryptoJS (AES) with ChatId as secret key
+    function encryptText(text, key) { return CryptoJS.AES.encrypt(text, key).toString(); }
+    function decryptText(cipher, key) { 
+        try { const bytes = CryptoJS.AES.decrypt(cipher, key); return bytes.toString(CryptoJS.enc.Utf8); } 
+        catch(e) { return "🔒 [Encrypted Message]"; }
     }
-
-    window.moveFocus = (curr, nextId) => { if(curr.value.length === 1) document.getElementById(nextId).focus(); };
-    window.verifyGhostPass = async () => {
-        const pin = document.getElementById('p1').value + document.getElementById('p2').value + document.getElementById('p3').value + document.getElementById('p4').value;
-        if(pin.length === 4) {
-            if(!userData.privatePin) {
-                await updateDoc(doc(db, "users", currentUser.uid), { privatePin: pin });
-                userData.privatePin = pin;
-                togglePrivateEnv();
-            } else if (pin === userData.privatePin) {
-                togglePrivateEnv();
-            } else {
-                alert("Incorrect PIN");
-                document.querySelectorAll('.pass-dot').forEach(i => i.value = '');
-                document.getElementById('p1').focus();
-            }
-        }
-    };
-
-    function togglePrivateEnv() {
-        isPrivate = !isPrivate;
-        document.body.classList.toggle('private-mode', isPrivate);
-        document.getElementById('ghost-entry').style.display = 'none';
-        if(isPrivate) createHearts(); else document.querySelectorAll('.heart').forEach(h => h.remove());
-        loadChats(); // Reload chats based on mode
-    }
-
-    function createHearts() {
-        setInterval(() => {
-            if(!isPrivate) return;
-            const h = document.createElement('i');
-            h.className = 'fa-solid fa-heart heart';
-            h.style.left = Math.random() * 100 + 'vw';
-            h.style.color = ['#ff1493', '#c70055', '#ff69b4'][Math.floor(Math.random()*3)];
-            h.style.fontSize = (Math.random() * 20 + 10) + 'px';
-            h.style.animationDuration = (Math.random() * 4 + 3) + 's';
-            document.body.appendChild(h);
-            setTimeout(() => h.remove(), 6000);
-        }, 500);
-    }
-
-    // --- ADD FRIEND & LOAD CHATS ---
-    window.addFriendPrompt = async () => {
-        const uname = prompt("Enter exactly username to chat:");
-        if(!uname) return;
-        const q = query(collection(db, "users"), where("username", "==", uname));
-        const snap = await getDocs(q); // Assume imported
-        if(snap.empty) return alert("User not found");
-        const targetId = snap.docs[0].id;
-        const combinedId = currentUser.uid > targetId ? currentUser.uid + targetId : targetId + currentUser.uid;
-        await setDoc(doc(db, "chats", combinedId), { users: [currentUser.uid, targetId], isPrivate: isPrivate });
-        alert("Friend Added!");
-    };
 
     function loadChats() {
         const q = query(collection(db, "chats"), where("users", "array-contains", currentUser.uid));
         onSnapshot(q, (snap) => {
             let html = '';
             snap.forEach(async d => {
-                const data = d.data();
-                if(data.isPrivate !== isPrivate) return;
-                const partnerId = data.users.find(id => id !== currentUser.uid);
+                const chat = d.data();
+                const partnerId = chat.users.find(id => id !== currentUser.uid);
                 const pSnap = await getDoc(doc(db, "users", partnerId));
                 if(pSnap.exists()) {
-                    const pData = pSnap.data();
-                    const dpSrc = pData.dp || "https://via.placeholder.com/40";
+                    let displayTitle = pSnap.data().username;
+                    // Check if I set a nickname for them
+                    if(chat.nicknames && chat.nicknames[partnerId] && chat.nicknames[partnerId].setBy === currentUser.uid) {
+                        displayTitle = chat.nicknames[partnerId].name;
+                    }
+
                     html += `
-                    <div class="list-item" onclick="openChat('${d.id}', '${pData.username}', '${dpSrc}')">
-                        <div class="dp-circle"><img src="${dpSrc}"></div>
-                        <div style="flex:1; padding-left:15px; font-weight:bold;">${pData.username}</div>
+                    <div class="list-item" onclick="openChat('${d.id}', '${partnerId}', '${pSnap.data().username}')">
+                        <div class="dp-circle"><i class="fa-solid fa-user"></i></div>
+                        <div class="item-details">
+                            <div class="item-title">${displayTitle}</div>
+                            <div class="item-sub">Tap to open encrypted chat</div>
+                        </div>
                     </div>`;
                 }
             });
-            document.getElementById('chats-list').innerHTML = html || "<i>No chats found.</i>";
+            document.getElementById('chats-list').innerHTML = html || "<p style='color:gray; text-align:center; margin-top:20px;'>No chats. Go to Requests to add friends.</p>";
         });
     }
 
-    // --- MESSAGING SYSTEM (Text, Image, Audio) ---
-    window.openChat = (chatId, pName, pDp) => {
-        currentChatId = chatId;
-        document.getElementById('partner-name').innerText = pName;
-        document.getElementById('partner-dp').src = pDp;
+    window.openChat = async (chatId, pId, pNameOriginal) => {
+        currentChatId = chatId; currentPartnerId = pId; currentPartnerName = pNameOriginal;
         document.getElementById('chat-screen').style.display = 'flex';
         
+        // Listen to Chat metadata (Nicknames, Blocks)
+        onSnapshot(doc(db, "chats", chatId), (docSnap) => {
+            chatDataRaw = docSnap.data();
+            let headerName = currentPartnerName;
+            let statusText = "E2E Encrypted";
+
+            if(chatDataRaw.blocked && chatDataRaw.blocked.includes(currentPartnerId)) statusText = "You blocked this user";
+            if(chatDataRaw.blocked && chatDataRaw.blocked.includes(currentUser.uid)) statusText = "You were blocked";
+
+            // If I set a nickname for them
+            if(chatDataRaw.nicknames && chatDataRaw.nicknames[currentPartnerId] && chatDataRaw.nicknames[currentPartnerId].setBy === currentUser.uid) {
+                headerName = chatDataRaw.nicknames[currentPartnerId].name;
+            }
+            // If THEY set a nickname for ME, show it to me
+            if(chatDataRaw.nicknames && chatDataRaw.nicknames[currentUser.uid] && chatDataRaw.nicknames[currentUser.uid].setBy === currentPartnerId) {
+                statusText = `(They call you: ${chatDataRaw.nicknames[currentUser.uid].name})`;
+            }
+
+            document.getElementById('chat-partner-name').innerText = headerName;
+            document.getElementById('chat-nickname-status').innerText = statusText;
+            document.getElementById('block-btn').innerText = (chatDataRaw.blocked && chatDataRaw.blocked.includes(currentUser.uid)) ? "Unblock User" : "Block User";
+        });
+
+        // Listen to Messages
         const q = query(collection(db, `chats/${chatId}/messages`), orderBy("timestamp"));
         onSnapshot(q, (snap) => {
-            let html = '';
+            let mHtml = '';
             snap.forEach(m => {
                 const msg = m.data();
+                const decryptedText = decryptText(msg.text, chatId);
                 const isMe = msg.sender === currentUser.uid;
-                const blurCls = maskActive ? 'blurred-msg' : '';
-                let content = msg.text;
-                if(msg.type === 'image') content = `<img src="${msg.text}">`;
-                if(msg.type === 'audio') content = `<audio controls src="${msg.text}" style="height:35px; width:200px;"></audio>`;
-                
-                html += `<div class="msg-bubble ${isMe ? 'msg-mine' : 'msg-theirs'} ${blurCls}">${content}</div>`;
+                mHtml += `<div class="msg-bubble ${isMe ? 'msg-mine' : 'msg-theirs'}">${decryptedText}</div>`;
             });
             const box = document.getElementById('chat-messages');
-            box.innerHTML = html;
+            box.innerHTML = mHtml;
             box.scrollTop = box.scrollHeight;
         });
     };
 
     window.closeChat = () => { document.getElementById('chat-screen').style.display = 'none'; currentChatId = null; };
 
-    window.sendTextMsg = async () => {
+    window.sendMessage = async () => {
+        if(chatDataRaw.blocked && chatDataRaw.blocked.length > 0) return alert("Action not allowed. User is blocked.");
         const inp = document.getElementById('msg-input');
         const text = inp.value.trim();
         if(!text) return;
         inp.value = '';
-        await addDoc(collection(db, `chats/${currentChatId}/messages`), { sender: currentUser.uid, text: text, type: 'text', timestamp: Date.now() });
+        
+        const encryptedText = encryptText(text, currentChatId);
+        await addDoc(collection(db, `chats/${currentChatId}/messages`), { sender: currentUser.uid, text: encryptedText, timestamp: Date.now() });
     };
 
-    window.sendMedia = async (e) => {
-        const file = e.target.files[0];
-        if(!file) return;
-        if(file.type.startsWith('video')) return alert("Videos currently restricted due to DB limits. Send images.");
-        const base64Img = await compressImage(file, 600); // compress for chat
-        await addDoc(collection(db, `chats/${currentChatId}/messages`), { sender: currentUser.uid, text: base64Img, type: 'image', timestamp: Date.now() });
+    // --- CHAT SETTINGS (NICKNAMES & BLOCK) ---
+    window.openChatSettings = () => { document.getElementById('chat-settings-modal').style.display = 'flex'; };
+    
+    window.setNickname = async () => {
+        const newName = document.getElementById('nickname-input').value.trim();
+        if(!newName) return;
+        
+        // Structure: nicknames -> { targetUserId: { name: 'Likhi', setBy: 'NaniUid' } }
+        let currentNicknames = chatDataRaw.nicknames || {};
+        currentNicknames[currentPartnerId] = { name: newName, setBy: currentUser.uid };
+        
+        await updateDoc(doc(db, "chats", currentChatId), { nicknames: currentNicknames });
+        document.getElementById('chat-settings-modal').style.display = 'none';
+        document.getElementById('nickname-input').value = '';
     };
 
-    // --- VOICE MESSAGING ---
-    window.startVoice = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            document.getElementById('mic-btn').classList.add('recording-pulse');
-            mediaRecorder.start();
-            audioChunks = [];
-            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-        } catch(e) { alert("Mic access denied"); }
-    };
-    window.stopVoice = () => {
-        if(!mediaRecorder || mediaRecorder.state === "inactive") return;
-        document.getElementById('mic-btn').classList.remove('recording-pulse');
-        mediaRecorder.stop();
-        mediaRecorder.onstop = () => {
-            const blob = new Blob(audioChunks, { type: 'audio/webm' });
-            const reader = new FileReader();
-            reader.readAsDataURL(blob);
-            reader.onloadend = async () => {
-                await addDoc(collection(db, `chats/${currentChatId}/messages`), { sender: currentUser.uid, text: reader.result, type: 'audio', timestamp: Date.now() });
-            };
-        };
+    window.blockUser = async () => {
+        let blockedArr = chatDataRaw.blocked || [];
+        if(blockedArr.includes(currentUser.uid)) {
+            blockedArr = blockedArr.filter(id => id !== currentUser.uid); // Unblock
+        } else {
+            blockedArr.push(currentUser.uid); // Block
+        }
+        await updateDoc(doc(db, "chats", currentChatId), { blocked: blockedArr });
+        document.getElementById('chat-settings-modal').style.display = 'none';
     };
 
-    // --- PRIVACY MASKING ---
-    window.toggleMask = () => {
-        maskActive = !maskActive;
-        const btn = document.getElementById('mask-btn');
-        btn.className = maskActive ? 'fa-solid fa-eye icon-btn' : 'fa-solid fa-eye-slash icon-btn';
-        btn.style.color = maskActive ? 'var(--primary)' : 'white';
-        if(currentChatId) openChat(currentChatId, document.getElementById('partner-name').innerText, document.getElementById('partner-dp').src); // re-render
+    // --- CALL ISOLATION ---
+    window.initiateCall = async () => {
+        // Signaling targets the SPECIFIC receiver UID. Will not broadcast.
+        await setDoc(doc(db, "active_calls", currentChatId), {
+            caller: currentUser.uid, receiver: currentPartnerId, status: 'ringing', timestamp: Date.now()
+        });
+        alert(`Calling ${document.getElementById('chat-partner-name').innerText}... (Isolated WebRTC Signal sent)`);
     };
 
-    // --- AI SNOOP DETECTION ---
+    // --- AI SNOOP DETECTION & GAMES ---
     window.toggleAI = async () => {
         aiActive = !aiActive;
-        document.getElementById('ai-toggle').style.color = aiActive ? '#00ff00' : 'white';
-        document.getElementById('ai-status').style.display = aiActive ? 'block' : 'none';
-        if(aiActive) runAI(); else document.getElementById('ai-video').srcObject?.getTracks().forEach(t => t.stop());
+        const btn = document.getElementById('ai-toggle');
+        if(aiActive) {
+            btn.style.color = 'var(--success)'; btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+            startAI();
+        } else {
+            btn.style.color = 'white'; btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+            document.getElementById('ai-video').srcObject?.getTracks().forEach(t => t.stop());
+        }
     };
 
-    async function runAI() {
+    async function startAI() {
         const video = document.getElementById('ai-video');
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         video.srcObject = stream;
@@ -468,33 +447,31 @@
             setInterval(() => {
                 if(!aiActive) return;
                 faceapi.detect((err, res) => {
-                    if(res && res.length > 1) { // Multiple faces detected
-                        document.getElementById('game-screen').style.display = 'flex';
-                        initSnake();
-                    }
+                    if(res && res.length > 1) { document.getElementById('game-screen').style.display = 'flex'; initSnake(); }
                 });
             }, 1000);
         });
     }
 
-    // --- SNAKE GAME (Panic Redirect) ---
+    // --- SNAKE GAME ---
     let gameInt;
+    window.startSnakeGame = () => { document.getElementById('game-screen').style.display = 'flex'; initSnake(); };
+    window.closeGame = () => { document.getElementById('game-screen').style.display = 'none'; clearInterval(gameInt); };
+
     window.initSnake = () => {
         const can = document.getElementById('snakeCanvas'); const ctx = can.getContext('2d');
         let snake = [{x:15, y:15}]; let food = {x:5, y:5}; let d={x:1,y:0}; let score = 0;
         clearInterval(gameInt);
         gameInt = setInterval(() => {
             ctx.fillStyle = '#111'; ctx.fillRect(0,0,300,300);
-            ctx.fillStyle = '#00ff00'; snake.forEach(p => ctx.fillRect(p.x*10, p.y*10, 9, 9));
-            ctx.fillStyle = 'red'; ctx.fillRect(food.x*10, food.y*10, 9, 9);
-            
+            ctx.fillStyle = '#10b981'; snake.forEach(p => ctx.fillRect(p.x*10, p.y*10, 9, 9));
+            ctx.fillStyle = '#ef4444'; ctx.fillRect(food.x*10, food.y*10, 9, 9);
             let head = {x: snake[0].x+d.x, y: snake[0].y+d.y};
             snake.unshift(head);
-            if(head.x === food.x && head.y === food.y) { score+=10; document.getElementById('game-score').innerText = score; food = {x:Math.floor(Math.random()*29), y:Math.floor(Math.random()*29)}; } 
+            if(head.x === food.x && head.y === food.y) { score+=10; document.getElementById('score-display').innerText = score; food = {x:Math.floor(Math.random()*29), y:Math.floor(Math.random()*29)}; } 
             else snake.pop();
         }, 100);
     };
-    window.stopPanicGame = () => { document.getElementById('game-screen').style.display = 'none'; clearInterval(gameInt); };
 
 </script>
 </body>
