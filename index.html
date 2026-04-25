@@ -21,22 +21,20 @@
         }
 
         body.ghost-mode {
-            --bg-dark: #1a050d; --bg-panel: #2d0a1a; --bg-hover: #4a152c;
+            --bg-dark: #120008; --bg-panel: #240010; --bg-hover: #3d001b;
             --primary: #ff1493; --primary-hover: #d10074;
-            --chat-mine: #b30059; --chat-theirs: #4d0f28;
-            --header-bg: #2d0a1a; --footer-bg: #2d0a1a;
+            --chat-mine: #8b0046; --chat-theirs: #3d001b;
+            --header-bg: #240010; --footer-bg: #240010;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        /* --- NATIVE APP LAYOUT --- */
-        body { background: var(--bg-dark); color: var(--text-main); height: 100dvh; width: 100vw; display: flex; flex-direction: column; overflow: hidden; }
+        body { background: var(--bg-dark); color: var(--text-main); height: 100dvh; width: 100vw; display: flex; flex-direction: column; overflow: hidden; transition: background-color 0.5s ease; }
         
-        .header { height: 65px; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; background: var(--header-bg); border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 10; }
-        .main-content { flex: 1; overflow-y: auto; overflow-x: hidden; position: relative; background: var(--bg-dark); }
-        .footer-nav { height: 60px; flex-shrink: 0; display: flex; justify-content: space-around; align-items: center; background: var(--footer-bg); border-top: 1px solid rgba(255,255,255,0.05); z-index: 10; padding-bottom: env(safe-area-inset-bottom); }
+        .header { height: 65px; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; background: var(--header-bg); border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 10; transition: background-color 0.5s ease;}
+        .main-content { flex: 1; overflow-y: auto; overflow-x: hidden; position: relative; background: var(--bg-dark); transition: background-color 0.5s ease;}
+        .footer-nav { height: 60px; flex-shrink: 0; display: flex; justify-content: space-around; align-items: center; background: var(--footer-bg); border-top: 1px solid rgba(255,255,255,0.05); z-index: 10; padding-bottom: env(safe-area-inset-bottom); transition: background-color 0.5s ease;}
 
-        /* --- UI COMPONENTS --- */
         .icon-btn { background: none; border: none; color: var(--text-muted); font-size: 1.3rem; cursor: pointer; padding: 10px; transition: 0.2s; }
         .icon-btn:hover, .icon-btn.active { color: var(--primary); }
         
@@ -44,9 +42,10 @@
         .dp-circle img { width: 100%; height: 100%; object-fit: cover; }
         
         .list-view { display: none; padding: 10px; height: 100%; }
-        .list-view.active { display: block; }
+        .list-view.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        .list-item { display: flex; align-items: center; padding: 12px 10px; border-radius: 12px; margin-bottom: 5px; cursor: pointer; transition: 0.2s; }
+        .list-item { display: flex; align-items: center; padding: 12px 10px; border-radius: 12px; margin-bottom: 5px; cursor: pointer; transition: 0.2s; background: var(--bg-panel); }
         .list-item:hover { background: var(--bg-hover); }
         .item-info { flex: 1; padding-left: 15px; overflow: hidden; }
         .item-title { font-weight: 600; font-size: 1rem; color: var(--text-main); white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
@@ -56,8 +55,9 @@
         .nav-item.active { color: var(--primary); }
         .nav-item i { font-size: 1.2rem; }
 
-        .input-box { width: 100%; padding: 12px 15px; background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; outline: none; margin-bottom: 10px; }
-        .btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+        .input-box { width: 100%; padding: 12px 15px; background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; outline: none; margin-bottom: 10px; font-size: 1rem; }
+        .btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn:active { transform: scale(0.98); }
         .btn-sm { width: auto; padding: 8px 15px; border-radius: 6px; font-size: 0.9rem; }
         .btn-danger { background: var(--danger); }
 
@@ -67,31 +67,47 @@
         .msg-bubble { max-width: 80%; padding: 8px 12px; border-radius: 10px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; position: relative; }
         .msg-mine { align-self: flex-end; background: var(--chat-mine); border-top-right-radius: 0; }
         .msg-theirs { align-self: flex-start; background: var(--chat-theirs); border-top-left-radius: 0; }
-        .msg-bubble img, .msg-bubble video { max-width: 100%; border-radius: 8px; margin-top: 5px; }
-        .blurred-msg { filter: blur(8px); transition: 0.3s; user-select: none; }
+        .blurred-msg { filter: blur(6px); transition: 0.3s; user-select: none; }
         .blurred-msg:hover { filter: blur(0); }
         
-        .chat-input-area { min-height: 60px; padding: 10px; background: var(--header-bg); display: flex; align-items: flex-end; gap: 8px; border-top: 1px solid rgba(255,255,255,0.05); }
-        .chat-input-area input { flex: 1; padding: 12px 15px; border-radius: 20px; border: none; background: var(--bg-hover); color: white; outline: none; }
+        .chat-input-area { min-height: 60px; padding: 10px; background: var(--header-bg); display: flex; align-items: center; gap: 8px; border-top: 1px solid rgba(255,255,255,0.05); }
+        .chat-input-area input { flex: 1; padding: 12px 15px; border-radius: 20px; border: none; background: var(--bg-hover); color: white; outline: none; font-size: 1rem;}
 
-        /* --- GHOST MODE & ANIMATIONS --- */
-        #ghost-entry { position: absolute; top:0; left:0; width:100%; height:100%; background: #000; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 500; }
+        /* --- GHOST MODE ANIMATIONS --- */
+        #ghost-entry { position: absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle, #3d001b 0%, #000000 100%); display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 500; opacity: 0; transition: opacity 0.3s ease; }
         .pass-container { display: flex; gap: 10px; margin-top: 30px; }
-        .pass-dot { width: 50px; height: 50px; border: 2px solid var(--primary); border-radius: 12px; background: transparent; color: white; text-align: center; font-size: 1.5rem; outline: none; }
-        .floating-heart { position: absolute; animation: floatUp 5s linear infinite; opacity: 0.6; pointer-events: none; z-index: 1; }
-        @keyframes floatUp { 0% { transform: translateY(100dvh) scale(0.5) rotate(0deg); } 100% { transform: translateY(-10dvh) scale(1.5) rotate(360deg); } }
+        .pass-dot { width: 50px; height: 50px; border: 2px solid var(--primary); border-radius: 12px; background: rgba(0,0,0,0.5); color: white; text-align: center; font-size: 1.5rem; outline: none; transition: border-color 0.3s; }
+        .pass-dot:focus { border-color: white; }
+        
+        .floating-heart { position: absolute; opacity: 0; pointer-events: none; z-index: 1; font-size: 20px; animation: floatUpSmooth 4s ease-in-out infinite; }
+        @keyframes floatUpSmooth { 
+            0% { transform: translateY(100dvh) scale(0.8); opacity: 0; } 
+            20% { opacity: 0.6; }
+            80% { opacity: 0.6; }
+            100% { transform: translateY(-10dvh) scale(1.5); opacity: 0; } 
+        }
 
-        /* --- MODALS & EXTRAS --- */
-        .modal { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 200; padding: 20px; }
-        .modal-content { background: var(--bg-panel); padding: 20px; border-radius: 15px; width: 100%; max-width: 350px; }
+        /* --- MODALS & GAMES --- */
+        .modal { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 200; padding: 20px; backdrop-filter: blur(5px);}
+        .modal-content { background: var(--bg-panel); padding: 20px; border-radius: 15px; width: 100%; max-width: 350px; border: 1px solid rgba(255,255,255,0.1); }
+        
         #game-screen { position: absolute; top:0; left:0; width:100%; height:100%; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
-        canvas { border: 2px solid #333; background: #111; border-radius: 8px; margin: 20px 0; max-width: 90vw; }
+        
+        /* Mobile Game Controls */
+        .d-pad { display: grid; grid-template-columns: 60px 60px 60px; grid-template-rows: 60px 60px 60px; gap: 5px; margin-top: 20px; }
+        .d-btn { background: rgba(255,255,255,0.1); border: 2px solid var(--primary); border-radius: 10px; color: white; font-size: 1.5rem; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .d-btn:active { background: var(--primary); }
+        .up { grid-column: 2; grid-row: 1; } .left { grid-column: 1; grid-row: 2; } .right { grid-column: 3; grid-row: 2; } .down { grid-column: 2; grid-row: 3; }
+
+        /* Tic Tac Toe Board */
+        .ttt-board { display: grid; grid-template-columns: repeat(3, 80px); grid-template-rows: repeat(3, 80px); gap: 5px; margin: 20px 0; }
+        .ttt-cell { background: #202c33; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; font-weight: bold; color: white; cursor: pointer; border: 1px solid #333; }
+        .ttt-cell.x { color: var(--success); } .ttt-cell.o { color: var(--danger); }
     </style>
 </head>
 <body>
 
     <video id="ai-video" style="display:none;" width="320" height="240" autoplay muted></video>
-    <input type="file" id="media-upload" accept="image/*,video/*" style="display:none;" onchange="handleMediaUpload(event)">
     <input type="file" id="dp-upload" accept="image/*" style="display:none;" onchange="updateDP(event)">
 
     <div id="auth-screen" style="height:100dvh; display:flex; flex-direction:column; justify-content:center; padding:30px;">
@@ -105,7 +121,6 @@
     </div>
 
     <div id="main-app" style="display:none; flex-direction:column; height:100dvh;">
-        
         <header class="header">
             <div style="display:flex; align-items:center; gap:12px;">
                 <div class="dp-circle" onclick="document.getElementById('dp-upload').click()">
@@ -113,12 +128,10 @@
                 </div>
                 <div>
                     <div id="my-username" style="font-weight:600;" onmousedown="startGhostTimer()" onmouseup="clearGhostTimer()" ontouchstart="startGhostTimer()" ontouchend="clearGhostTimer()">User</div>
-                    <div style="font-size:0.7rem; color:var(--success);"><i class="fa-solid fa-signal" id="signal-icon"></i> <span id="signal-text">Encrypted</span></div>
+                    <div style="font-size:0.7rem; color:var(--success);"><i class="fa-solid fa-signal" id="signal-icon"></i> Encrypted</div>
                 </div>
             </div>
-            <div>
-                <button class="icon-btn" id="ai-toggle" onclick="toggleAI()"><i class="fa-solid fa-user-shield"></i></button>
-            </div>
+            <button class="icon-btn" id="ai-toggle" onclick="toggleAI()"><i class="fa-solid fa-user-shield"></i></button>
         </header>
 
         <main class="main-content">
@@ -127,20 +140,26 @@
             </div>
 
             <div class="list-view" id="tab-requests">
-                <input type="text" id="search-input" class="input-box" placeholder="Type 2+ letters to search..." oninput="searchUsers()">
+                <input type="text" id="search-input" class="input-box" placeholder="Search any user..." oninput="searchUsersLive()">
                 <div id="search-results" style="margin-bottom:20px;"></div>
                 
-                <h3 style="font-size:0.9rem; color:var(--text-muted); margin-bottom:10px; padding-left:5px;">PENDING REQUESTS</h3>
+                <h3 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:10px; padding-left:5px; text-transform:uppercase;">Pending Requests</h3>
                 <div id="requests-list"></div>
             </div>
 
-            <div class="list-view" id="tab-games" style="text-align:center; padding-top:30px;">
-                <i class="fa-solid fa-gamepad" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
-                <h2>Arcade Zone</h2>
-                <div class="list-item" style="background:var(--bg-panel); margin-top:20px; padding:20px; flex-direction:column;" onclick="startSnakeGame()">
-                    <i class="fa-solid fa-snake" style="font-size:2rem; color:var(--success); margin-bottom:10px;"></i>
+            <div class="list-view" id="tab-games" style="text-align:center; padding-top:20px;">
+                <h2 style="color:var(--primary); margin-bottom: 20px;">Arcade Zone</h2>
+                
+                <div class="list-item" style="flex-direction:column; padding: 20px;" onclick="openGame('snake')">
+                    <i class="fa-solid fa-worm" style="font-size:2.5rem; color:var(--success); margin-bottom:10px;"></i>
                     <div class="item-title">Snake Classic</div>
-                    <button class="btn btn-sm" style="margin-top:15px;">Play Now</button>
+                    <div class="item-sub">On-screen controls</div>
+                </div>
+
+                <div class="list-item" style="flex-direction:column; padding: 20px; margin-top: 15px;" onclick="openGame('ttt')">
+                    <i class="fa-solid fa-hashtag" style="font-size:2.5rem; color:var(--danger); margin-bottom:10px;"></i>
+                    <div class="item-title">Tic-Tac-Toe</div>
+                    <div class="item-sub">Play vs AI Bot</div>
                 </div>
             </div>
         </main>
@@ -157,14 +176,14 @@
             <div style="display:flex; align-items:center; gap:10px;">
                 <button class="icon-btn" onclick="closeChat()" style="padding-left:0;"><i class="fa-solid fa-arrow-left"></i></button>
                 <div class="dp-circle" style="width:36px; height:36px;"><img id="partner-dp" src="https://via.placeholder.com/36"></div>
-                <div style="max-width:150px;">
+                <div style="max-width:140px;">
                     <div id="chat-partner-name" style="font-weight:600; font-size:1rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Partner</div>
-                    <div id="chat-status" style="font-size:0.7rem; color:var(--success);">End-to-End Encrypted</div>
+                    <div id="chat-status" style="font-size:0.7rem; color:var(--success);">E2E Encrypted</div>
                 </div>
             </div>
             <div style="display:flex;">
                 <button class="icon-btn" id="mask-btn" onclick="toggleMask()"><i class="fa-solid fa-eye-slash"></i></button>
-                <button class="icon-btn" onclick="initiateCall()"><i class="fa-solid fa-phone"></i></button>
+                <button class="icon-btn" onclick="alert('Isolated WebRTC Call Ringing...')"><i class="fa-solid fa-phone"></i></button>
                 <button class="icon-btn" onclick="document.getElementById('chat-settings-modal').style.display='flex'"><i class="fa-solid fa-ellipsis-vertical"></i></button>
             </div>
         </header>
@@ -172,17 +191,15 @@
         <div class="chat-messages" id="chat-messages"></div>
 
         <div class="chat-input-area">
-            <button class="icon-btn" onclick="document.getElementById('media-upload').click()"><i class="fa-solid fa-plus"></i></button>
             <input type="text" id="msg-input" placeholder="Message...">
-            <button class="icon-btn" id="mic-btn" onmousedown="startVoice()" onmouseup="stopVoice()" ontouchstart="startVoice()" ontouchend="stopVoice()"><i class="fa-solid fa-microphone"></i></button>
-            <button class="icon-btn" style="color:var(--primary);" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+            <button class="icon-btn" style="color:var(--primary); font-size: 1.5rem;" onclick="sendMessage()"><i class="fa-solid fa-circle-arrow-right"></i></button>
         </div>
     </div>
 
     <div class="modal" id="chat-settings-modal">
         <div class="modal-content">
             <h3 style="margin-bottom:15px; text-align:center;">Chat Options</h3>
-            <input type="text" id="nickname-input" class="input-box" placeholder="Set a Nickname">
+            <input type="text" id="nickname-input" class="input-box" placeholder="Set a Nickname (e.g. Likhi)">
             <button class="btn" style="margin-bottom:10px;" onclick="setNickname()">Save Nickname</button>
             <button class="btn btn-danger" style="margin-bottom:10px;" onclick="blockUser()" id="block-btn">Block User</button>
             <button class="btn" style="background:var(--bg-hover);" onclick="document.getElementById('chat-settings-modal').style.display='none'">Cancel</button>
@@ -190,27 +207,43 @@
     </div>
 
     <div id="ghost-entry">
-        <i class="fa-solid fa-ghost" style="font-size:4rem; color:white; animation: pulse 2s infinite;"></i>
-        <h3 style="color:white; margin-top:20px;">GHOST MODE</h3>
+        <i class="fa-solid fa-ghost" style="font-size:4rem; color:white;"></i>
+        <h3 style="color:white; margin-top:20px; letter-spacing: 2px;">GHOST PROTOCOL</h3>
         <div class="pass-container">
             <input type="password" maxlength="1" class="pass-dot" id="p1" oninput="moveFocus(this, 'p2')">
             <input type="password" maxlength="1" class="pass-dot" id="p2" oninput="moveFocus(this, 'p3')">
             <input type="password" maxlength="1" class="pass-dot" id="p3" oninput="moveFocus(this, 'p4')">
             <input type="password" maxlength="1" class="pass-dot" id="p4" oninput="verifyGhostPass()">
         </div>
-        <button class="btn-sm" style="margin-top:30px; background:none; color:var(--danger);" onclick="document.getElementById('ghost-entry').style.display='none'">Cancel</button>
+        <button class="btn-sm" style="margin-top:30px; background:none; color:var(--text-muted);" onclick="closeGhostEntry()">Cancel</button>
     </div>
 
     <div id="game-screen">
-        <h2 style="color:var(--success); font-family:monospace;">SCORE: <span id="score-display">0</span></h2>
-        <canvas id="snakeCanvas" width="300" height="300"></canvas>
-        <button class="btn btn-danger btn-sm" onclick="closeGame()">Exit Game</button>
+        <div id="snake-ui" style="display:none; flex-direction:column; align-items:center;">
+            <h2 style="color:var(--success); font-family:monospace;">SCORE: <span id="score-display">0</span></h2>
+            <canvas id="snakeCanvas" width="300" height="300" style="border: 2px solid var(--success); border-radius: 8px; margin-top:10px; background:#111;"></canvas>
+            <div class="d-pad">
+                <div class="d-btn up" onclick="changeDir(0, -1)"><i class="fa-solid fa-caret-up"></i></div>
+                <div class="d-btn left" onclick="changeDir(-1, 0)"><i class="fa-solid fa-caret-left"></i></div>
+                <div class="d-btn right" onclick="changeDir(1, 0)"><i class="fa-solid fa-caret-right"></i></div>
+                <div class="d-btn down" onclick="changeDir(0, 1)"><i class="fa-solid fa-caret-down"></i></div>
+            </div>
+        </div>
+
+        <div id="ttt-ui" style="display:none; flex-direction:column; align-items:center;">
+            <h2 style="color:var(--danger); margin-bottom: 10px;">Tic-Tac-Toe</h2>
+            <div id="ttt-status" style="color: white; margin-bottom: 10px;">Your Turn (X)</div>
+            <div class="ttt-board" id="ttt-board"></div>
+            <button class="btn btn-sm" style="margin-top:20px;" onclick="initTTT()">Restart Game</button>
+        </div>
+
+        <button class="btn btn-danger btn-sm" style="margin-top:30px; width: 200px;" onclick="closeGame()">Exit Arcade</button>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, addDoc, query, orderBy, where, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, addDoc, query, orderBy, where, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDMSGPEngVmGtTRfcnIC4unH7Rh3FwgcRE", authDomain: "sv-billing-250c2.firebaseapp.com",
@@ -223,7 +256,6 @@
     let currentUser = null; let userData = null; let isPrivate = false;
     let currentChatId = null; let currentPartnerId = null; let chatDataRaw = null;
     let maskActive = false; let aiActive = false;
-    let mediaRecorder; let audioChunks = [];
 
     // --- AUTHENTICATION ---
     let isLoginMode = true;
@@ -244,7 +276,7 @@
         if(!u) return alert("Username required");
         try {
             const cred = await createUserWithEmailAndPassword(auth, e, p);
-            await setDoc(doc(db, "users", cred.user.uid), { email: e, username: u, searchKey: u.toLowerCase(), dp: "", privatePin: null });
+            await setDoc(doc(db, "users", cred.user.uid), { email: e, username: u, dp: "", privatePin: null });
         } catch(err) { alert(err.message); }
     };
 
@@ -257,22 +289,9 @@
             document.getElementById('main-app').style.display = 'flex';
             document.getElementById('my-username').innerText = userData.username;
             if(userData.dp) document.getElementById('my-dp').src = userData.dp;
-            loadChats(); loadRequests(); checkSignal();
+            loadChats(); loadRequests();
         }
     });
-
-    // --- SIGNAL STRENGTH ---
-    function checkSignal() {
-        setInterval(() => {
-            const conn = navigator.connection;
-            if(conn) {
-                const icon = document.getElementById('signal-icon');
-                if(conn.downlink >= 5) icon.style.color = 'var(--success)';
-                else if(conn.downlink >= 2) icon.style.color = 'yellow';
-                else icon.style.color = 'var(--danger)';
-            }
-        }, 5000);
-    }
 
     // --- NAVIGATION ---
     window.switchNav = (tab) => {
@@ -282,27 +301,30 @@
         event.currentTarget.classList.add('active');
     };
 
-    // --- SEARCH & REQUESTS (Autocomplete) ---
-    window.searchUsers = async () => {
+    // --- SEARCH (CLIENT-SIDE FILTERING - FIX FOR 'VANI' ISSUE) ---
+    window.searchUsersLive = async () => {
         const text = document.getElementById('search-input').value.toLowerCase().trim();
         const resBox = document.getElementById('search-results');
         if(text.length < 2) { resBox.innerHTML = ''; return; }
 
-        const q = query(collection(db, "users"), where("searchKey", ">=", text), where("searchKey", "<=", text + '\uf8ff'));
-        onSnapshot(q, (snap) => {
-            let html = '';
-            snap.forEach(d => {
-                if(d.id !== currentUser.uid) {
+        // Fetch all users once and filter purely via JavaScript includes()
+        // This avoids Firebase index/case sensitivity strictness for simple apps.
+        const snap = await getDocs(collection(db, "users"));
+        let html = '';
+        snap.forEach(d => {
+            if(d.id !== currentUser.uid) {
+                const uData = d.data();
+                if(uData.username && uData.username.toLowerCase().includes(text)) {
                     html += `
-                    <div class="list-item" style="background:var(--bg-panel);">
-                        <div class="dp-circle" style="width:36px;height:36px;"><img src="${d.data().dp || 'https://via.placeholder.com/36'}"></div>
-                        <div class="item-info"><div class="item-title">${d.data().username}</div></div>
+                    <div class="list-item">
+                        <div class="dp-circle" style="width:36px;height:36px;"><img src="${uData.dp || 'https://via.placeholder.com/36'}"></div>
+                        <div class="item-info"><div class="item-title">${uData.username}</div></div>
                         <button class="btn btn-sm" onclick="sendRequest('${d.id}')">Add</button>
                     </div>`;
                 }
-            });
-            resBox.innerHTML = html || "<p style='color:var(--text-muted); font-size:0.8rem; padding:10px;'>No users found</p>";
+            }
         });
+        resBox.innerHTML = html || "<p style='color:var(--text-muted); font-size:0.85rem; padding:10px;'>No exact matches found</p>";
     };
 
     window.sendRequest = async (targetId) => {
@@ -319,16 +341,16 @@
             snap.forEach(d => {
                 const req = d.data();
                 html += `
-                <div class="list-item" style="background:var(--bg-panel);">
+                <div class="list-item">
                     <div class="dp-circle" style="width:36px;height:36px;"><img src="${req.senderDp || 'https://via.placeholder.com/36'}"></div>
-                    <div class="item-info"><div class="item-title">${req.senderName}</div><div class="item-sub">Wants to connect</div></div>
+                    <div class="item-info"><div class="item-title">${req.senderName}</div></div>
                     <div style="display:flex; gap:8px;">
                         <button class="btn btn-sm" style="background:var(--success);" onclick="acceptReq('${d.id}', '${req.sender}')"><i class="fa-solid fa-check"></i></button>
                         <button class="btn btn-sm btn-danger" onclick="rejectReq('${d.id}')"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                 </div>`;
             });
-            document.getElementById('requests-list').innerHTML = html || "<p style='color:var(--text-muted); font-size:0.8rem; padding:10px;'>No pending requests</p>";
+            document.getElementById('requests-list').innerHTML = html || "<p style='color:var(--text-muted); font-size:0.85rem; padding:10px;'>No pending requests</p>";
         });
     }
 
@@ -343,7 +365,7 @@
     function encryptText(text, key) { return CryptoJS.AES.encrypt(text, key).toString(); }
     function decryptText(cipher, key) { 
         try { const bytes = CryptoJS.AES.decrypt(cipher, key); return bytes.toString(CryptoJS.enc.Utf8); } 
-        catch(e) { return "🔒 Encrypted"; }
+        catch(e) { return "🔒 Encrypted Data"; }
     }
 
     // --- CHAT SYSTEM ---
@@ -353,14 +375,14 @@
             let html = '';
             snap.forEach(async d => {
                 const chat = d.data();
-                if(chat.isPrivate !== isPrivate) return; // Ghost mode filter
+                if(chat.isPrivate !== isPrivate) return;
                 
                 const partnerId = chat.users.find(id => id !== currentUser.uid);
                 const pSnap = await getDoc(doc(db, "users", partnerId));
                 if(pSnap.exists()) {
                     let displayTitle = pSnap.data().username;
                     if(chat.nicknames && chat.nicknames[partnerId] && chat.nicknames[partnerId].setBy === currentUser.uid) {
-                        displayTitle = chat.nicknames[partnerId].name; // Apply my nickname for them
+                        displayTitle = chat.nicknames[partnerId].name;
                     }
                     const dpSrc = pSnap.data().dp || 'https://via.placeholder.com/42';
                     html += `
@@ -368,12 +390,12 @@
                         <div class="dp-circle"><img src="${dpSrc}"></div>
                         <div class="item-info">
                             <div class="item-title">${displayTitle}</div>
-                            <div class="item-sub"><i class="fa-solid fa-lock" style="font-size:0.6rem;"></i> Encrypted</div>
+                            <div class="item-sub" style="color:var(--success);"><i class="fa-solid fa-lock" style="font-size:0.6rem;"></i> Encrypted Chat</div>
                         </div>
                     </div>`;
                 }
             });
-            document.getElementById('chats-list').innerHTML = html || "<p style='color:var(--text-muted); text-align:center; padding:20px;'>No chats yet.</p>";
+            document.getElementById('chats-list').innerHTML = html || "<p style='color:var(--text-muted); text-align:center; padding:20px;'>No chats yet. Go to Requests tab.</p>";
         });
     }
 
@@ -382,7 +404,6 @@
         document.getElementById('partner-dp').src = dpSrc;
         document.getElementById('chat-screen').style.display = 'flex';
         
-        // Listen to Chat metadata
         onSnapshot(doc(db, "chats", chatId), (docSnap) => {
             chatDataRaw = docSnap.data();
             let headerName = originalName;
@@ -403,7 +424,6 @@
             document.getElementById('block-btn').innerText = chatDataRaw.blocked?.includes(currentUser.uid) ? "Unblock User" : "Block User";
         });
 
-        // Listen to Messages
         const q = query(collection(db, `chats/${chatId}/messages`), orderBy("timestamp"));
         onSnapshot(q, (snap) => {
             let mHtml = '';
@@ -411,11 +431,7 @@
                 const msg = m.data();
                 const isMe = msg.sender === currentUser.uid;
                 const blurCls = maskActive ? 'blurred-msg' : '';
-                
-                let content = decryptText(msg.text, chatId);
-                if(msg.type === 'image') content = `<img src="${content}">`;
-                if(msg.type === 'audio') content = `<audio controls src="${content}" style="height:35px; width:200px;"></audio>`;
-                
+                const content = decryptText(msg.text, chatId);
                 mHtml += `<div class="msg-bubble ${isMe ? 'msg-mine' : 'msg-theirs'} ${blurCls}">${content}</div>`;
             });
             const box = document.getElementById('chat-messages');
@@ -433,71 +449,16 @@
         if(!text) return;
         inp.value = '';
         const encText = encryptText(text, currentChatId);
-        await addDoc(collection(db, `chats/${currentChatId}/messages`), { sender: currentUser.uid, text: encText, type: 'text', timestamp: Date.now() });
+        await addDoc(collection(db, `chats/${currentChatId}/messages`), { sender: currentUser.uid, text: encText, timestamp: Date.now() });
     };
 
-    // --- MEDIA COMPRESSION & UPLOAD ---
-    window.updateDP = async (e) => {
-        const file = e.target.files[0]; if(!file) return;
-        const b64 = await compressImage(file, 200);
-        await updateDoc(doc(db, "users", currentUser.uid), { dp: b64 });
-        document.getElementById('my-dp').src = b64; userData.dp = b64;
-    };
-
-    window.handleMediaUpload = async (e) => {
-        const file = e.target.files[0]; if(!file) return;
-        const b64 = await compressImage(file, 600);
-        const encImg = encryptText(b64, currentChatId);
-        await addDoc(collection(db, `chats/${currentChatId}/messages`), { sender: currentUser.uid, text: encImg, type: 'image', timestamp: Date.now() });
-    };
-
-    function compressImage(file, maxWidth) {
-        return new Promise(resolve => {
-            const reader = new FileReader(); reader.readAsDataURL(file);
-            reader.onload = e => {
-                const img = new Image(); img.src = e.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const scale = maxWidth / img.width;
-                    canvas.width = maxWidth; canvas.height = img.height * scale;
-                    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.6));
-                }
-            }
-        });
-    }
-
-    // --- VOICE RECORDER ---
-    window.startVoice = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            document.getElementById('mic-btn').style.color = 'var(--danger)';
-            mediaRecorder.start(); audioChunks = [];
-            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-        } catch(e) {}
-    };
-    window.stopVoice = () => {
-        if(!mediaRecorder || mediaRecorder.state === "inactive") return;
-        document.getElementById('mic-btn').style.color = 'var(--text-muted)';
-        mediaRecorder.stop();
-        mediaRecorder.onstop = () => {
-            const blob = new Blob(audioChunks, { type: 'audio/webm' });
-            const reader = new FileReader(); reader.readAsDataURL(blob);
-            reader.onloadend = async () => {
-                const encAudio = encryptText(reader.result, currentChatId);
-                await addDoc(collection(db, `chats/${currentChatId}/messages`), { sender: currentUser.uid, text: encAudio, type: 'audio', timestamp: Date.now() });
-            };
-        };
-    };
-
-    // --- CHAT SETTINGS ---
+    // --- CHAT SETTINGS (Nicknames & Block) ---
     window.setNickname = async () => {
         const newName = document.getElementById('nickname-input').value.trim(); if(!newName) return;
         let nicks = chatDataRaw.nicknames || {};
         nicks[currentPartnerId] = { name: newName, setBy: currentUser.uid };
         await updateDoc(doc(db, "chats", currentChatId), { nicknames: nicks });
-        document.getElementById('chat-settings-modal').style.display = 'none';
+        document.getElementById('chat-settings-modal').style.display = 'none'; document.getElementById('nickname-input').value = '';
     };
 
     window.blockUser = async () => {
@@ -506,11 +467,27 @@
         await updateDoc(doc(db, "chats", currentChatId), { blocked: blk });
         document.getElementById('chat-settings-modal').style.display = 'none';
     };
+    
+    window.toggleMask = () => {
+        maskActive = !maskActive;
+        const btn = document.getElementById('mask-btn');
+        btn.style.color = maskActive ? 'var(--primary)' : 'var(--text-muted)';
+        if(currentChatId) openChat(currentChatId, currentPartnerId, document.getElementById('chat-partner-name').innerText, document.getElementById('partner-dp').src);
+    };
 
-    // --- GHOST MODE ---
+    // --- GHOST MODE (Refined Animations) ---
     let ghostTmr;
-    window.startGhostTimer = () => { ghostTmr = setTimeout(() => { document.getElementById('ghost-entry').style.display = 'flex'; document.getElementById('p1').focus(); }, 1500); };
+    window.startGhostTimer = () => { ghostTmr = setTimeout(() => { 
+        document.getElementById('ghost-entry').style.display = 'flex'; 
+        setTimeout(()=> document.getElementById('ghost-entry').style.opacity = '1', 10);
+        document.getElementById('p1').focus(); 
+    }, 1500); };
     window.clearGhostTimer = () => clearTimeout(ghostTmr);
+    window.closeGhostEntry = () => { 
+        document.getElementById('ghost-entry').style.opacity = '0';
+        setTimeout(()=> document.getElementById('ghost-entry').style.display = 'none', 300);
+        document.querySelectorAll('.pass-dot').forEach(i=>i.value='');
+    };
     window.moveFocus = (curr, nextId) => { if(curr.value.length===1) document.getElementById(nextId).focus(); };
     
     window.verifyGhostPass = async () => {
@@ -525,16 +502,15 @@
     function toggleGhostEnv() {
         isPrivate = !isPrivate;
         document.body.classList.toggle('ghost-mode', isPrivate);
-        document.getElementById('ghost-entry').style.display = 'none';
-        document.querySelectorAll('.pass-dot').forEach(i=>i.value='');
+        closeGhostEntry();
         
         if(isPrivate) {
             setInterval(() => {
                 if(!isPrivate) return;
                 const h = document.createElement('i'); h.className = 'fa-solid fa-heart floating-heart';
                 h.style.left = Math.random() * 100 + 'vw'; h.style.color = ['#ff1493', '#c70055', '#ff69b4'][Math.floor(Math.random()*3)];
-                h.style.fontSize = (Math.random() * 20 + 10) + 'px'; document.body.appendChild(h);
-                setTimeout(() => h.remove(), 5000);
+                document.body.appendChild(h);
+                setTimeout(() => h.remove(), 4000);
             }, 800);
         } else {
             document.querySelectorAll('.floating-heart').forEach(h=>h.remove());
@@ -542,20 +518,7 @@
         loadChats();
     }
 
-    // --- CALL ISOLATION & PRIVACY MASK ---
-    window.initiateCall = async () => {
-        await setDoc(doc(db, "active_calls", currentChatId), { caller: currentUser.uid, receiver: currentPartnerId, timestamp: Date.now() });
-        alert("Encrypted Call Signal Sent strictly to this user.");
-    };
-
-    window.toggleMask = () => {
-        maskActive = !maskActive;
-        const btn = document.getElementById('mask-btn');
-        btn.style.color = maskActive ? 'var(--primary)' : 'var(--text-muted)';
-        if(currentChatId) openChat(currentChatId, currentPartnerId, document.getElementById('chat-partner-name').innerText, document.getElementById('partner-dp').src);
-    };
-
-    // --- AI SNOOP DETECTION & SNAKE GAME ---
+    // --- AI SNOOP DETECTION ---
     window.toggleAI = async () => {
         aiActive = !aiActive;
         const btn = document.getElementById('ai-toggle');
@@ -567,7 +530,7 @@
                 setInterval(() => {
                     if(!aiActive) return;
                     ml5.faceApi(document.getElementById('ai-video')).detect((err, res) => {
-                        if(res && res.length > 1) startSnakeGame();
+                        if(res && res.length > 1) openGame('snake'); // Auto trigger game
                     });
                 }, 1000);
             });
@@ -577,23 +540,88 @@
         }
     };
 
+    // --- GAMES ENGINE ---
     let gameInt;
-    window.startSnakeGame = () => {
+    let sSnake = [], sFood = {}, sDir = {x:1, y:0};
+
+    window.openGame = (type) => {
         document.getElementById('game-screen').style.display = 'flex';
-        const can = document.getElementById('snakeCanvas'); const ctx = can.getContext('2d');
-        let snake = [{x:15, y:15}]; let food = {x:5, y:5}; let d={x:1,y:0}; let score = 0;
+        document.getElementById('snake-ui').style.display = type === 'snake' ? 'flex' : 'none';
+        document.getElementById('ttt-ui').style.display = type === 'ttt' ? 'flex' : 'none';
+        
+        if(type === 'snake') initSnake();
+        if(type === 'ttt') initTTT();
+    };
+
+    window.closeGame = () => { document.getElementById('game-screen').style.display = 'none'; clearInterval(gameInt); };
+
+    // SNAKE
+    window.initSnake = () => {
+        const ctx = document.getElementById('snakeCanvas').getContext('2d');
+        sSnake = [{x:15, y:15}]; sFood = {x:5, y:5}; sDir = {x:1, y:0}; let score = 0;
         clearInterval(gameInt);
         gameInt = setInterval(() => {
             ctx.fillStyle = '#111'; ctx.fillRect(0,0,300,300);
-            ctx.fillStyle = '#00a884'; snake.forEach(p => ctx.fillRect(p.x*10, p.y*10, 9, 9));
-            ctx.fillStyle = '#f15c6d'; ctx.fillRect(food.x*10, food.y*10, 9, 9);
-            let head = {x: snake[0].x+d.x, y: snake[0].y+d.y};
-            snake.unshift(head);
-            if(head.x === food.x && head.y === food.y) { score+=10; document.getElementById('score-display').innerText = score; food = {x:Math.floor(Math.random()*29), y:Math.floor(Math.random()*29)}; } 
-            else snake.pop();
-        }, 100);
+            ctx.fillStyle = '#00a884'; sSnake.forEach(p => ctx.fillRect(p.x*10, p.y*10, 9, 9));
+            ctx.fillStyle = '#f15c6d'; ctx.fillRect(sFood.x*10, sFood.y*10, 9, 9);
+            
+            let head = {x: sSnake[0].x+sDir.x, y: sSnake[0].y+sDir.y};
+            sSnake.unshift(head);
+            if(head.x === sFood.x && head.y === sFood.y) { score+=10; document.getElementById('score-display').innerText = score; sFood = {x:Math.floor(Math.random()*29), y:Math.floor(Math.random()*29)}; } 
+            else sSnake.pop();
+        }, 150);
     };
-    window.closeGame = () => { document.getElementById('game-screen').style.display = 'none'; clearInterval(gameInt); };
+    window.changeDir = (x, y) => { if (sDir.x !== -x && sDir.y !== -y) { sDir = {x, y}; } };
+
+    // TIC TAC TOE (vs Bot)
+    let board = ['', '', '', '', '', '', '', '', ''];
+    window.initTTT = () => {
+        board = ['', '', '', '', '', '', '', '', ''];
+        document.getElementById('ttt-status').innerText = "Your Turn (X)";
+        document.getElementById('ttt-status').style.color = "white";
+        renderTTT();
+    };
+    
+    function renderTTT() {
+        const container = document.getElementById('ttt-board');
+        container.innerHTML = '';
+        board.forEach((cell, i) => {
+            const div = document.createElement('div');
+            div.className = `ttt-cell ${cell.toLowerCase()}`;
+            div.innerText = cell;
+            div.onclick = () => playTTT(i);
+            container.appendChild(div);
+        });
+    }
+
+    function playTTT(idx) {
+        if(board[idx] || checkWinner(board)) return;
+        board[idx] = 'X'; renderTTT();
+        if(checkWinner(board)) return endGame("You Win!");
+        if(!board.includes('')) return endGame("Draw!");
+        
+        document.getElementById('ttt-status').innerText = "Bot is thinking...";
+        setTimeout(botMove, 500);
+    }
+
+    function botMove() {
+        let empty = board.map((v, i) => v === '' ? i : null).filter(v => v !== null);
+        if(empty.length === 0) return;
+        let move = empty[Math.floor(Math.random() * empty.length)];
+        board[move] = 'O'; renderTTT();
+        if(checkWinner(board)) return endGame("Bot Wins!");
+        document.getElementById('ttt-status').innerText = "Your Turn (X)";
+    }
+
+    function checkWinner(b) {
+        const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        return lines.find(l => b[l[0]] && b[l[0]] === b[l[1]] && b[l[1]] === b[l[2]]);
+    }
+
+    function endGame(msg) {
+        document.getElementById('ttt-status').innerText = msg;
+        document.getElementById('ttt-status').style.color = msg.includes("Win") ? "var(--success)" : "var(--danger)";
+    }
 
 </script>
 </body>
